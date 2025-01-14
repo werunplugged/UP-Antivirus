@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="up_av_loading_device_applications">Loading device applications…</string>
+    <string name="up_av_loading_blacklisted_applications_database">Loading blacklisted applications database…</string>
+    <string name="up_av_scanning">Scanning: %s</string>
+</resources>

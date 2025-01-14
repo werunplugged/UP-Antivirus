@@ -1,0 +1,219 @@
+<resources>
+    <string name="up_av_label_name" translatable="false">UP Antivirus</string>
+    <string name="up_av_app_copyright" translatable="false">Copyright 2017-2021 Divested Computing Group</string>
+    <string name="up_av_app_license" translatable="false">License: GPL-3.0</string>
+    <string name="up_av_app_version" translatable="false">Version: %s</string>
+    <string name="up_av_app_db_type_clamav" translatable="false">Powered by ClamAV style signatures</string>
+    <string name="up_av_lblOnionRoutingToggle" translatable="false">Download over Tor</string>
+    <string name="up_av_lblOnionRoutingEnabledHint" translatable="false">Downloading over Tor, this may take a while…</string>
+    <string name="up_av_lblOnionRoutingNotInstalled" translatable="false">Orbot is not installed!</string>
+    <string name="up_av_lblOnionRoutingNotRunning" translatable="false">Orbot is not running!</string>
+    <string name="up_av_lblUpdateDatabase" translatable="false">Update databases</string>
+    <string name="up_av_lblSelectDatabases" translatable="false">Select databases</string>
+    <string name="up_av_lblSelectDatabasesTitle" translatable="false">Select databases to enable</string>
+    <string name="up_av_lblFullCredits" translatable="false">Credits</string>
+    <string name="up_av_lblScanSystem" translatable="false">Scan /system</string>
+    <string name="up_av_lblScanApps" translatable="false">Scan App APKs</string>
+    <string name="up_av_lblScanInternal" translatable="false">Scan Internal Storage</string>
+    <string name="up_av_lblScanExternal" translatable="false">Scan External Storage</string>
+    <string name="up_av_lblNotificationMalwareDetectionTitle" translatable="false">Malware Detection</string>
+    <string name="up_av_lblNotificationMalwareDetectionDescription" translatable="false">Used to alert when malware is detected</string>
+    <string name="up_av_lblNotificationRealtimeTitle" translatable="false">Realtime Scanner</string>
+    <string name="up_av_lblNotificationRealtimeDescription" translatable="false">Used to show files scanned counter and maintain the background service</string>
+    <string name="up_av_lblNotificationRealtimeText" translatable="false">Known malware will be detected in realtime</string>
+    <string name="up_av_lblNotificationRealtimeStopped" translatable="false">Hypatia: Realtime Scanning Stopped</string>
+    <string name="up_av_lblNotificationRealtimeDetection" translatable="false">Malware Detected:</string>
+    <string name="up_av_lblRealtimeScannerToggle" translatable="false">Realtime Scanner</string>
+    <string name="up_av_main_database_updating" translatable="false">Updating %s databases…</string>
+    <string name="up_av_main_database_downloading" translatable="false">Downloading %s</string>
+    <string name="up_av_main_database_download_success" translatable="false">Successfully downloaded</string>
+    <string name="up_av_main_database_download_error" translatable="false">File not downloaded, response code %s</string>
+    <string name="up_av_main_no_database_available" translatable="false">No database available, stopping scan…</string>
+    <string name="up_av_main_database_released_on" translatable="false">Released on %s</string>
+    <string name="up_av_main_database_not_changed" translatable="false">File not changed</string>
+    <string name="up_av_main_database_not_modified_since" translatable="false">since %s</string>
+    <string name="up_av_main_database_download_error_logcat" translatable="false">Failed to download, check logcat</string>
+    <string name="up_av_main_starting_scan" translatable="false">Starting scan…</string>
+    <string name="up_av_main_cancelling_scan" translatable="false">Cancelling scan…</string>
+    <string name="up_av_main_cancelled_scan" translatable="false">Cancelled scan</string>
+    <string name="up_av_main_files_pending_scan" translatable="false">%s files pending scan</string>
+    <string name="up_av_main_database_loading" translatable="false">Loading database…</string>
+    <string name="up_av_main_database_loaded" translatable="false">Loaded database with %s signatures</string>
+    <string name="up_av_main_hashing_files" translatable="false">Hashing files…</string>
+    <string name="up_av_main_hashing_done" translatable="false">Calculated hashes for all files</string>
+    <string name="up_av_main_hash_scan_done" translatable="false">Checked all %s hashes against signature databases</string>
+    <string name="up_av_main_no_hashes_available" translatable="false">No %s hashes signatures available</string>
+    <string name="up_av_main_scanning_done" translatable="false">Scan completed in %s seconds @ %sMB/s!</string>
+    <string name="up_av_main_files_scanned_count" translatable="false">%s files scanned</string>
+    <string name="up_av_db_desc_author" translatable="false">Author</string>
+    <string name="up_av_db_desc_license" translatable="false">License</string>
+    <string name="up_av_db_desc_size" translatable="false">Size</string>
+    <string name="up_av_db_desc_source" translatable="false">Source</string>
+    <string name="up_av_db_desc_size_small" translatable="false">Small</string>
+    <string name="up_av_db_desc_size_medium" translatable="false">Medium</string>
+    <string name="up_av_db_desc_size_large" translatable="false">Large</string>
+    <string name="up_av_status_screen_title" translatable="false">Recent Scan</string>
+    <string name="up_av_last_scan_title" translatable="false">SCAN RESULTS</string>
+    <string name="up_av_start_scan_button" translatable="false">Start Scan</string>
+    <string name="up_av_new_scan" translatable="false">New Scan</string>
+    <string name="up_av_scanning_title" translatable="false">Scanning...</string>
+    <string name="up_av_scan_results" translatable="false">Scan Results</string>
+    <string name="up_av_remove_all" translatable="false">REMOVE ALL MALWARE</string>
+    <string name="up_av_initializing_title" translatable="false">Initializing...</string>
+    <string name="up_av_finished_title" translatable="false">Finished</string>
+    <string name="up_av_no_malware_found" translatable="false">No malware or viruses found</string>
+    <string name="up_av_ok" translatable="false">OK</string>
+    <string name="up_av_show_scan_history" translatable="false">Scan History</string>
+    <string name="up_av_completed_scan_title" translatable="false">COMPLETED SCAN</string>
+    <string name="up_av_threats_found" translatable="false">Malware Found: %1$d\nTrackers Found: %2$d</string>
+    <string name="up_av_inspect_pi_history" translatable="false">Scan History</string>
+    <string name="up_av_app_description" translatable="false">The UP Antivirus is an essential part of Unplugged’s total privacy system.\n\nHackers exploit compromised files, images and cookies you may download to plant agents and malware enabling them to gain access to your device.\n\nThe UP Antivirus scans you device for viruses, malware and trackers. Unplugged’s security experts and third-party security professionals recommend running antivirus scans at least once a week</string>
+    <string name="up_av_file_manager_permission_title" translatable="false">File Manager</string>
+    <string name="up_av_file_manager_permission_body" translatable="false">Please allow the UP Antivirus application access to all files on the device. This is how we thoroughly examine the full system</string>
+    <string name="up_av_full_scan_title" translatable="false">Full Scan %s</string>
+    <string name="up_av_on_boarding_message_up_app_missing" translatable="false">You are missing the UP Store application, please install it and finish registration / login process and then come back to continue.\nYou can click the button below to download the UP Store application from unplugged.com website</string>
+    <string name="up_av_on_boarding_button_download" translatable="false">Download UP Store</string>
+    <string name="up_av_on_boarding_message_subscription_invalid" translatable="false">Seems like you are not logged-in with UP Store application or your subscription is expired.\nPlease click the button below to open the UP Store application</string>
+    <string name="up_av_on_boarding_button_open_up_store" translatable="false">Open UP Store</string>
+    <string name="up_av_on_boarding_message_unknown_reason" translatable="false">Looks like some unknown error happened, please try to re-open the UP Antivirus application.\n\nIf the issue still happens contact us at support@unplugged.com</string>
+    <string name="up_av_on_boarding_message_first_start" translatable="false">Thank you for joining the Unplugged family, where your privacy is our first priority</string>
+    <string name="up_av_on_boarding_button_close" translatable="false">Close</string>
+    <string name="up_av_get_started" translatable="false">Get Started</string>
+    <string name="up_av_welcome_to_unplugged" translatable="false">Welcome to Unplugged Antivirus</string>
+    <string name="up_av_subscription_expired" translatable="false">Subscription Expired</string>
+    <string name="up_av_subscription_expired_message" translatable="false">Unfortunately your subscription period is expired, you will be navigated to subscription page and would be able to renew it</string>
+    <string name="up_av_scan_limit_reached" translatable="false">Monthly Antivirus scans Limit Reached</string>
+    <string name="up_av_scan_limit_reached_message" translatable="false">You\'ve used all the free Antivirus scans included in your plan. Upgrade to Premium subscription via the UP Store to enjoy an unlimited Antivirus scans</string>
+    <string name="up_av_scan_canceled_title" translatable="false">Scan is canceled</string>
+    <string name="up_av_scan_canceled_message" translatable="false">Click OK to close the scan screen</string>
+    <string name="up_av_cancel" translatable="false">Cancel</string>
+    <string name="up_av_unknown_error" translatable="false">Unexpected Error</string>
+    <string name="up_av_cancel_unknown_reason" translatable="false">Unfortunately the scan was canceled for unexpected reason, please try again later</string>
+    <string name="up_av_session_revoke_title" translatable="false">Session Revoked</string>
+    <string name="up_av_session_revoke_message" translatable="false">Seems like this session revoked, please restart application or make sure you are logged in at UP Store app</string>
+    <string name="up_av_subscription_not_found" translatable="false">Subscription Not Found</string>
+    <string name="up_av_subscription_not_found_message" translatable="false">Unfortunately seems like you don\'t have subscription yet, you will be navigated to subscription page and would be able to renew it</string>
+    <string name="up_av_premium_subscription_expiration_warning" translatable="false">Your Premium subscription is about to expire in %1s day(s)</string>
+    <string name="up_av_premium_subscription_expires_today_warning" translatable="false">Your Premium subscription expires today</string>
+    <string name="up_av_support" translatable="false">Support</string>
+    <string name="up_av_scan_fail_db_missing_message" translatable="false">Scan cannot be completed, missing main database.\nClick OK to download the main database and try again</string>
+    <string name="up_av_scan_fail_db_missing_title" translatable="false">Scan Failed</string>
+    <string name="up_av_schedule_scan" translatable="false">Schedule scan</string>
+    <string name="up_av_select_scheduled_scan_interval" translatable="false">Select scheduled scan interval</string>
+    <string name="up_av_daily" translatable="false">Daily</string>
+    <string name="up_av__3_times_a_week" translatable="false">Three times a week \n(every Monday, Wednesday and Friday)</string>
+    <string name="up_av_weekly" translatable="false">Weekly (every Monday)</string>
+    <string name="up_av_disable" translatable="false">Disabled</string>
+    <string name="up_av_scan_completed_no_threats_detected" translatable="false">Scan completed, no malware or trackers detected</string>
+    <string name="up_av_scan_completed_number_malware_detected" translatable="false">Scan completed, malware found: %1$d, trackers found: %2$d</string>
+    <string name="up_av_starting_the_package_scanner" translatable="false">Scanning installed packages</string>
+    <string name="up_av_starting_the_files_scanner" translatable="false">Scanning files and apps</string>
+    <string name="up_av_starting_the_scheduled_scan" translatable="false">Starting the scheduled scan</string>
+    <string name="up_av_inorder_to_run_the_scheduled_scan_we_need_the_background_activity_permission" translatable="false">In order to run the scheduled scan, we need the background activity permission</string>
+    <string name="up_av_allow_background_activity" translatable="false">Allow background activity</string>
+    <string name="up_av_session_not_found" translatable="false">Session Not Found</string>
+    <string name="up_av_session_not_found_message" translatable="false">Oops, looks like you are unauthorized, please login again</string>
+    <string name="up_av_full_scan" translatable="false">Full Scan</string>
+    <string name="up_av_select_scan_preferences" translatable="false">Select scan preferences</string>
+    <string name="up_av_scan_apps" translatable="false">Scan apps</string>
+    <string name="up_av_scan_files" translatable="false">Scan files</string>
+    <string name="up_av_scan_trackers" translatable="false">Scan trackers</string>
+    <string name="up_av_quick_scan" translatable="false">Quick Scan</string>
+    <string name="up_av_quick_scan_title" translatable="false">Quick Scan %s</string>
+    <string name="up_av_notification_head_app_scanned" translatable="false">%1$s checked</string>
+    <string name="up_av_notification_body_malware_detected" translatable="false">Threat detected, click for more info</string>
+    <string name="up_av_notification_body_threats_detected" translatable="false">Malware found: %1$d, Trackers found: %2$d</string>
+    <string name="up_av_notification_body_no_threats_detected" translatable="false">No potential threats detected</string>
+    <string name="up_av_notification_body_tracker_detected" translatable="false">Trackers detected, click for more info</string>
+    <string name="up_av_notification_body_no_tracker_detected" translatable="false">No trackers detected</string>
+    <string name="up_av_close" translatable="false">Close</string>
+    <string name="up_av_empty_scan_history_message" translatable="false">No scan history found, perform scanning first</string>
+    <string name="up_av_malware_detected" translatable="false">Malware detected</string>
+    <string name="up_av_terms_conditions" translatable="false"><![CDATA[Terms & Conditions]]></string>
+    <string name="up_av__policy" translatable="false">UP Antivirus policy</string>
+    <string name="up_av_logout_warning_message" translatable="false">You are about to log out. Your scan history will be lost. Do you want to continue?</string>
+    <string name="up_av_warning" translatable="false">Warning</string>
+    <string name="up_av_yes" translatable="false">Yes</string>
+    <string name="up_av_no" translatable="false">No</string>
+    <string name="up_av_scan_info_title" translatable="false">Scan Info</string>
+    <string name="up_av_deactivate_account_title" translatable="false">Deactivate Account</string>
+    <string name="up_av_deactivate_account_message" translatable="false">Are you sure you want to deactivate your account?</string>
+    <string name="up_av_scan_tooltip_info" translatable="false">
+     <![CDATA[
+    <b>Quick Scan</b> - Scans files in Downloads folder and scans apps for trackers &amp; malware<br/><br/>
+    <b>Full Scan</b> - Scans all files in the device and scans apps for trackers &amp; malware
+    ]]></string>
+    <string name="up_av_about" translatable="false">About</string>
+    <string name="up_av_what_is_this_title" translatable="false"><![CDATA[<b>Why use UP Antivirus?</b>]]></string>
+    <string name="up_av_loading_message" translatable="false">Initial setup is in progress\n The first-time load may take \na bit longer.\n\nGetting things ready to protect your device</string>
+    <string name="up_av_loading_message_scan" translatable="false">Loading databases..\n\nThe first-time load may take \na bit longer\n\n Thank you for your patience</string>
+    <string name="up_av_you_are_protected" translatable="false">You are protected</string>
+    <string name="up_av_there_are_no_previous_scans" translatable="false">There are no previous scans</string>
+    <string name="up_av_trackers_found_count" translatable="false">Trackers found: %s</string>
+    <string name="up_av_malware_trackers_info_title" translatable="false">What does UP Antivirus target?</string>
+    <string name="up_av_malware_trackers_info_message" translatable="false"><![CDATA[
+        <b>Malware</b>: Malware refers to malicious software programs designed to harm, exploit, or otherwise compromise the data or functionality of your device. “Malware can facilitate the theft of your personal information, corrupt files, and even take control of your device without your consent.<br/><br/>
+        <b>Trackers</b>: Trackers are third-party tools that app developers include in their apps and websites to monitor your activities and collect data about your behavior, preferences, and even your location. This information is often used for targeted advertising and analytics and is frequently sold to data brokers. Governments, criminals and corporate interests purchase this information from the data brokers.<br/><br/>
+        <b>Safety and Trackers</b>: Our app has detected trackers within some applications on your device. While trackers aren\'t harmful like malware, they can invade your privacy by collecting and sharing your data. You can consider removing an app with trackers if it is unnecessary or find a similar app that does not include trackers if one exists. Another option is to switch to the UP Phone, a privacy-focused phone with a built-in firewall that blocks most trackers.<br/><br/>
+        Click here to go to Unplugged website.
+    ]]></string>
+    <string name="up_av_malware_trackers_info_message_up_phone" translatable="false"><![CDATA[
+        <b>Malware</b>: Malware refers to malicious software programs designed to harm, exploit, or otherwise compromise the data or functionality of your device. They can steal personal information, corrupt files, and even take control of your device without your consent.<br/><br/>
+        <b>Trackers</b>: Trackers are third-party tools that app developers include in their apps and websites to monitor your activities and collect data about your behavior, preferences, and even your location. This information is often used for targeted advertising and analytics and is frequently sold to data brokers.<br/><br/>
+        <b>Safety and Trackers</b>: Our app has detected trackers within some applications on your device. While trackers aren\'t harmful like malware, they can invade your privacy by collecting and sharing your data. When the UP Phone firewall is enabled, most trackers\' data is blocked. You can continue to use your device normally without exposing your personal data.
+    ]]></string>
+    <string name="up_av_unplugged_website_clickable_text" translatable="false">Click here to go to Unplugged website.</string>
+    <string name="up_av_unplugged_website" translatable="false">https://unplugged.com</string>
+    <string name="up_av_user_name" translatable="false">User name</string>
+    <string name="up_av_account_name" translatable="false">Account name</string>
+    <string name="up_av_display_name" translatable="false">Display name</string>
+    <string name="up_av_default_name" translatable="false">Default name</string>
+    <string name="up_av_real_time_protection" translatable="false">Real-Time Protection</string>
+    <string name="up_av_cancel_scan" translatable="false">Cancel Scan</string>
+    <string name="up_av_cancel_scan_message" translatable="false">Are you sure you want to cancel the scan?</string>
+    <string name="up_av_you_are_already_protected" translatable="false">You are already protected</string>
+    <string name="up_av_wait_for_the_previous_scan_to_finish" translatable="false">Wait for the previous scan to finish</string>
+    <string name="up_av_already_removing" translatable="false">Already removing...</string>
+    <string name="up_av_failed" translatable="false">Failed</string>
+    <string name="up_av_wait_for_scan_to_finish" translatable="false">Please wait for the malware scan to finish</string>
+    <string name="up_av_app_installation_scan_s" translatable="false">App installation scan %s</string>
+    <string name="up_av_app_installation_service" translatable="false">App Installation Service</string>
+    <string name="up_av_monitoring_applications_installation" translatable="false">Monitoring applications installation</string>
+    <string name="up_av_potentially_harmful_application" translatable="false">%1$s\n(Potentially harmful application)</string>
+    <string name="up_av_app_scanning_service" translatable="false">Antivirus scanning Service</string>
+    <string name="up_av_scan_in_progress" translatable="false">Scan in progress</string>
+    <string name="up_av_trackers_found" translatable="false">Trackers found:</string>
+    <string name="up_av_deactivate" translatable="false">Deactivate</string>
+    <string name="up_av_settings" translatable="false">Settings</string>
+    <string name="up_av_scheduler" translatable="false">Scheduler</string>
+    <string name="up_av_legals" translatable="false">Legals</string>
+    <string name="up_av_logout" translatable="false">Logout</string>
+    <string name="up_av_last_scan_was_at" translatable="false">Last scan was at %s</string>
+    <string name="up_av_please_wait_for_previous_scan_to_be_done" translatable="false">Please wait for the previous scan to be done</string>
+    <string name="up_av_files_scanner" translatable="false">Files Scanner</string>
+    <string name="up_av_apps_scanner" translatable="false">Apps Scanner</string>
+    <string name="up_av_trackers_scanner" translatable="false">Trackers Scanner</string>
+    <string name="up_av_deactivate_account" translatable="false">Deactivate account</string>
+    <string name="up_av_deactivate_my_account" translatable="false">Deactivate my account</string>
+    <string name="up_av_scan_scheduler" translatable="false">Scan scheduler</string>
+    <string name="up_av_database_update_scheduler" translatable="false">Database update scheduler</string>
+    <string name="up_av_this_app_is_no_longer_installed_on_your_device" translatable="false">This app is no longer installed on your device.</string>
+    <string name="up_av_finished_loading_apps_starting_scan" translatable="false">Finished loading apps, starting scan…</string>
+    <string name="up_av_loading_apps" translatable="false">Loading apps…</string>
+    <string name="up_av_error_fetching_apps_try_later" translatable="false">Error fetching apps, try again later.</string>
+    <string name="up_av_information_about_malware_and_trackers" translatable="false">Information about Malware and Trackers</string>
+    <string name="up_av_try_again" translatable="false">Try again</string>
+    <string name="up_av_scan_didnt_start" translatable="false">Scan didn\'t start</string>
+    <string name="up_av_scan_not_performed" translatable="false">Scan Not Performed</string>
+    <string name="up_av_no_database_available_and_cellular_data_not_allowed_for_download" translatable="false">No database available and cellular data not allowed for download</string>
+    <string name="up_av_no_internet_connection_to_download_the_required_database" translatable="false">No internet connection to download the required database</string>
+    <string name="up_av_cellular_network_message" translatable="false">You are currently connected to a cellular network. Updating over a cellular connection may incur additional charges. Do you still wish to proceed with the update?</string>
+    <string name="up_av_no_network_for_database_message" translatable="false">You are not connected to the internet. Please connect to a Wi-Fi or cellular network and try again</string>
+    <string name="up_av_database_unavailable_an_error_occurred_while_downloading_the_required_files" translatable="false">Database unavailable. An error occurred while downloading the required files</string>
+    <string name="up_av_database_download_failed_no_internet_connection_available" translatable="false">Database download failed. No internet connection available</string>
+    <string name="up_av_database_unavailable_cellular_data_usage_is_disabled_for_downloads" translatable="false">Database unavailable. Cellular data usage is disabled for downloads</string>
+    <string name="up_av_learn_more" translatable="false">Learn More</string>
+    <string name="up_av_app_scan_service" translatable="false">App Scan Service</string>
+    <string name="full_results">Full Results</string>
+    <string name="shield_logo">Shield logo</string>
+</resources>

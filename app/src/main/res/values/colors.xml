@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2B363F</color>
+    <color name="colorPrimaryDark">#0E1015</color>
+    <color name="light_blue">#03a9f4</color>
+    <color name="red">#f44336</color>
+    <color name="white">#ffffff</color>
+    <color name="white_semi">#80FFFFFF</color>
+    <color name="white_70">#B3FFFFFF</color>
+    <color name="green_bright">#2EFAC7</color>
+    <color name="green_bright_disabled">#8D9A97</color>
+    <color name="yellow_bright">#FFF598</color>
+    <color name="blue">#3D96B8</color>
+    <color name="green">#006052</color>
+    <color name="palette_unplugged_green">#256056</color>
+
+    <color name="transparent">#000000</color>
+    <color name="error_red">#BC4141</color>
+    <color name="success_green">#3CCC54</color>
+    <color name="green_background">#74d12c</color>
+
+    <color name="warning_yellow">#EEA039</color>
+    <color name="warning_orange">#EE7E39</color>
+    <color name="button_main">#05F1F9</color>
+    <color name="button_main_disabled">#7FAEB0</color>
+
+    <color name="black">#000</color>
+    <attr name="vctr_toolbar_background" format="color" />
+    <attr name="vctr_content_primary" format="color" />
+    <attr name="vctr_content_secondary" format="color" />
+
+    <color name="unplugged_primary_dark">#191E20</color>
+    <color name="settings_background">#EBEBEB</color>
+
+    <color name="main_text_color">#3EF6FC</color>
+    <color name="dark_grey">#363636</color>
+
+
+</resources>

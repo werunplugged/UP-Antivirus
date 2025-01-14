@@ -1,0 +1,129 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/light_blue</item>
+
+    </style>
+
+    <style name="Widget.Vector.Button.Text.Alerter">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/palette_unplugged_green</item>
+        <item name="materialThemeOverlay">@style/VectorMaterialThemeOverlayOnPrimary</item>
+    </style>
+
+    <style name="VectorMaterialThemeOverlayOnPrimary">
+        <item name="colorPrimary">?colorOnPrimary</item>
+    </style>
+
+    <style name="Widget.Vector.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="colorControlHighlight">@color/palette_unplugged_green</item>
+        <item name="materialThemeOverlay">@style/VectorMaterialThemeOverlayPositive</item>
+        <item name="android:textAppearance">@style/TextAppearance.Vector.Button</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <style name="VectorMaterialThemeOverlayPositive">
+        <!-- Keep default colors from the theme -->
+    </style>
+
+    <style name="TextAppearance.Vector.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!--    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar" />-->
+
+    <!--    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />-->
+
+    <style name="AppTheme.YellowAccent">
+        <item name="colorAccent">@color/yellow_bright</item>
+    </style>
+
+    <style name="Widget.Vector.Toolbar.Base" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">?vctr_toolbar_background</item>
+        <item name="elevation">0dp</item>
+
+        <!-- main text -->
+        <item name="titleTextAppearance">@style/TextAppearance.Vector.Widget.ActionBarTitle</item>
+
+        <!-- sub text -->
+        <item name="subtitleTextAppearance">@style/TextAppearance.Vector.Widget.ActionBarSubTitle
+        </item>
+
+        <item name="navigationIconTint">?vctr_content_secondary</item>
+
+        <!-- a11y -->
+        <item name="android:touchscreenBlocksFocus">false</item>
+    </style>
+
+    <style name="TextAppearance.Vector.Widget.ActionBarTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">?vctr_content_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.Vector.Widget.ActionBarSubTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+        <item name="android:textColor">?vctr_content_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextAppearance.settings" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textAppearanceListItem">@color/white</item>
+        <item name="fontFamily">@font/satoshi_medium</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:background">@color/dark_grey</item>
+
+    </style>
+
+    <style name="CustomTextAppearance.SingleChoice" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="MyTabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabTextAppearance">@style/MyTabTextAppearance</item>
+    </style>
+
+    <style name="MyTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">@font/satoshi_medium</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="toggleSwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@color/button_main</item>
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">@color/up_gray_40</item>
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">@color/up_gray</item>
+    </style>
+</resources>

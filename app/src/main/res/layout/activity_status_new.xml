@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/status_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:animateLayoutChanges="true">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/settings_avatar"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/background_circle"
+            android:gravity="center"
+            android:text="A"
+            android:textColor="@color/main_text_color"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/shield_logo"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/gradient_ramp_transparent_bg"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/shield_logo" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/shield_logo"
+            android:layout_marginTop="-60dp"
+            android:letterSpacing="0"
+            android:textSize="34dp"
+            android:fontFamily="@font/satoshi_bold"
+            android:text="@string/up_av_you_are_protected"
+            android:textColor="#FDFFFF"/>
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            android:layout_marginTop="4dp"
+            android:text="@string/up_av_there_are_no_previous_scans"
+            android:textSize="18dp"
+            android:fontFamily="@font/satoshi_medium"
+            android:textColor="#C0EEFF"/>
+
+
+
+
+            <ImageButton
+                android:id="@+id/info_button"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/ic_info_tooltip"
+                app:layout_constraintStart_toEndOf="@id/scan_preferences_group"
+                app:layout_constraintTop_toTopOf="@id/scan_preferences_group" />
+
+            <RadioGroup
+                android:id="@+id/scan_preferences_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@id/scan_all_rb"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/tab_layout">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:layout_gravity="start"
+                    android:text="@string/up_av_select_scan_preferences"
+                    android:fontFamily="@font/satoshi_bold"
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
+
+                <RadioButton
+                    android:id="@+id/quick_scan_rb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:minHeight="0dp"
+                    android:buttonTint="@color/main_text_color"
+                    android:fontFamily="@font/satoshi_medium"
+                    android:text="@string/up_av_quick_scan"
+                    android:textColor="@color/white" />
+
+                <RadioButton
+                    android:id="@+id/scan_all_rb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:minHeight="0dp"
+                    android:buttonTint="@color/main_text_color"
+                    android:text="@string/up_av_full_scan"
+                    android:fontFamily="@font/satoshi_medium"
+                    android:textColor="@color/white" />
+            </RadioGroup>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/start_scan_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:paddingVertical="16dp"
+            android:background="@drawable/button_background_state"
+            android:paddingHorizontal="36dp"
+            android:text="@string/up_av_start_scan_button"
+            android:textAllCaps="false"
+            android:textColor="#191E20"
+            android:textSize="16dp"
+            android:letterSpacing="0"
+            android:fontFamily="@font/satoshi_bold"
+            app:layout_constraintTop_toBottomOf="@id/subtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/scan_preferences_group"/>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            style="@style/MyTabLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:tabGravity="center"
+            app:tabIconTint="@color/blue"
+            app:tabIndicator="@null"
+            app:tabTextColor="@color/white_70">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/show_history_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:icon="@drawable/asset_chart_bar"
+                android:text="@string/up_av_show_scan_history" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/what_is_this_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:icon="@drawable/asset_question_circle"
+                android:text="@string/up_av_about" />
+        </com.google.android.material.tabs.TabLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/loading_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:clickable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="40dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="@string/up_av_loading_message"
+            android:gravity="center"
+            android:fontFamily="@font/satoshi_medium"
+            android:textColor="@color/main_text_color"
+            android:textSize="18sp" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_marginHorizontal="40dp"
+            android:max="100"
+            android:progressDrawable="@drawable/gradient_progress" />
+    </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

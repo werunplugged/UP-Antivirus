@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:endColor="#0E1015"
+                android:gradientRadius="100%p"
+                android:startColor="#2B363F"
+                android:type="radial" />
+        </shape>
+    </item>
+
+    <item android:drawable="@drawable/up_bg_greed" />
+
+</layer-list>
+

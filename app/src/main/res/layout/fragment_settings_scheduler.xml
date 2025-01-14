@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black"
+    android:clickable="true"
+    android:focusable="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/scan_scheduler_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:clickable="true"
+        android:focusable="true">
+    <TextView
+        android:id="@+id/scan_scheduler_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:text="@string/up_av_scan_scheduler"
+        android:gravity="center_vertical"
+        android:paddingStart="64dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/satoshi_bold"
+        android:clickable="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+    <TextView
+        android:id="@+id/scan_scheduler_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12dp"
+        android:text="Scan scheduler preview"
+        android:textColor="@color/up_gray"
+        android:gravity="center_vertical"
+        android:paddingStart="64dp"
+        android:clickable="false"
+        android:fontFamily="@font/satoshi_medium"
+        app:layout_constraintTop_toBottomOf="@id/scan_scheduler_picker"
+        app:layout_constraintStart_toStartOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/database_update_scheduler_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        app:layout_constraintTop_toBottomOf="@id/scan_scheduler_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+    <TextView
+        android:id="@+id/database_update_scheduler_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16dp"
+        android:text="@string/up_av_database_update_scheduler"
+        android:gravity="center_vertical"
+        android:paddingStart="64dp"
+        android:fontFamily="@font/satoshi_bold"
+        android:textColor="@color/white"
+        android:clickable="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/database_update_scheduler_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12dp"
+        android:text="Database update scheduler preview"
+        android:textColor="@color/up_gray"
+        android:gravity="center_vertical"
+        android:paddingStart="64dp"
+        android:clickable="false"
+        android:fontFamily="@font/satoshi_medium"
+        app:layout_constraintTop_toBottomOf="@id/database_update_scheduler_picker"
+        app:layout_constraintStart_toStartOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

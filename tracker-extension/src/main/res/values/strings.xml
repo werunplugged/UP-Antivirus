@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="up_av_scanned_s" translatable="false">Scanning: %s</string>
+</resources>

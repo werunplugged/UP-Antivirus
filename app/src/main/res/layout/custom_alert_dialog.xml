@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/dark_grey"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/dialog_title"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:text="Dialog Title"
+        android:fontFamily="@font/satoshi_bold"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
+
+    <!-- Message TextView -->
+    <TextView
+        android:id="@+id/dialog_message"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:text="Dialog Message"
+        android:fontFamily="@font/satoshi_medium"
+        android:textColor="@color/white" />
+
+</LinearLayout>

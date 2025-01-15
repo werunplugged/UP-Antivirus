@@ -1,6 +1,6 @@
-# **Unplugged Antivirus and Anti-Tracker App**
+# **Unplugged Antivirus and Tracker detection App**
 
-**A comprehensive antivirus and anti-tracker solution designed to protect Android devices from malicious apps, files, and threats, while maintaining user privacy.**
+**A comprehensive antivirus and tracker detection solution designed to protect Android devices from malicious apps, files, and threats, while maintaining user privacy.**
 
 ## **Table of Contents**
 - [Introduction](#introduction)
@@ -16,12 +16,12 @@
 
 ## **Introduction**
 
-This project provides Android users with a robust antivirus and anti-tracker application based on:
+This project provides Android users with a robust antivirus and tracker detection application based on:
 - The popular malware module, **Hypatia**.
 - The advanced tracker module, **TrackerControl**.
 - Our custom **Package Scanner** and **Signature Database**.
 
-The app is designed for users concerned about their digital privacy and security, offering real-time protection and advanced tracking prevention. It is lightweight, efficient, and easy to use.
+The app is designed for users concerned about their digital privacy and security, offering real-time protection and advanced tracking detection. It is lightweight, efficient, and easy to use.
 
 
 ## **Open Source Details**
@@ -117,4 +117,4 @@ We extend our gratitude to:
 
 ## **Contact**
 
-For questions or comments about **UP Anti-Virus**, contact **[Unplugged Support](mailto:support@unplugged.com)**.
+For questions or comments about **UP Antivirus**, contact **[Unplugged Support](mailto:support@unplugged.com)**.

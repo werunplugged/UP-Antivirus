@@ -2,7 +2,7 @@
 
 **A comprehensive antivirus and tracker detection solution designed to protect Android devices from malicious apps, files, and threats, while maintaining user privacy.**
 
-![home-activity](Images/home-activity.png)![scan-activity](Images/scan-activity.png)![scan-history](Images/scan-history.png)![scan-full-results](Images/scan-full-results.png)![trackers-information-dialog](Images/trackers-information-dialog.png)
+<img src="Images/home-activity.png" alt="drawing" width="200"/><img src="Images/scan-activity.png" alt="drawing" width="200"/><img src="Images/scan-history.png" alt="drawing" width="200"/><img src="Images/scan-full-results.png" alt="drawing" width="200"/><img src="Images/trackers-information-dialog.png" alt="drawing" width="200"/>
 
 ## **Table of Contents**
 - [Introduction](#introduction)

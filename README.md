@@ -1,6 +1,8 @@
-# **Unplugged Antivirus and Tracker detection App**
+# **Unplugged Antivirus and Tracker Detection App**
 
 **A comprehensive antivirus and tracker detection solution designed to protect Android devices from malicious apps, files, and threats, while maintaining user privacy.**
+
+(Images/home-activity.png)(Images/scan-activity.png)(Images/scan-history.png)(Images/scan-full-results.png)(Images/trackers-information-dialog.png)
 
 ## **Table of Contents**
 - [Introduction](#introduction)

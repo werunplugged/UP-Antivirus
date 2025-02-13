@@ -14,6 +14,7 @@ interface ScannerRepository {
     fun currentScanFlow(): Flow<Resource<ScanUpdate>>
     suspend fun createScanId(): Int
     suspend fun getActiveScanId(): Int
+    fun getScanType(): Boolean
     fun isScannerDone(type: ScannerType):Boolean
     fun getScannerProgress(scanner: ScannerType): Double
 }

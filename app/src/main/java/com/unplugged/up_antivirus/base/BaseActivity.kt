@@ -77,7 +77,7 @@ abstract class BaseActivity : AppCompatActivity(), BaseView {
         builder.setTitle(spannedTitle)
         builder.setMessage(spannedMessage)
         builder.setCancelable(false)
-        builder.setPositiveButton(R.string.up_av_ok) { dialog, _ ->
+        builder.setPositiveButton(R.string.up_av_yes) { dialog, _ ->
             onConfirm()
             dialog.dismiss()
         }

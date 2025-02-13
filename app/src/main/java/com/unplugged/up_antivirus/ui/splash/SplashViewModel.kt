@@ -15,6 +15,7 @@ class SplashViewModel @Inject constructor(
     private val getSetShouldShowOnBoardingScreenUseCase: ShouldShowOnBoardingScreenUseCase,
     private val getSessionUseCase: GetSessionUseCase,
     private val isScanningUseCase: IsScanningUseCase,
+    private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
     fun getSession(): SessionData?{
@@ -27,5 +28,9 @@ class SplashViewModel @Inject constructor(
 
     fun isScanning(): Boolean{
         return isScanningUseCase()
+    }
+
+    fun getScanType(): Boolean{
+        return preferencesRepository.getScanParams().isQuickScan
     }
 }

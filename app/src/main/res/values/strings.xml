@@ -216,4 +216,8 @@
     <string name="up_av_app_scan_service" translatable="false">App Scan Service</string>
     <string name="full_results">Full Results</string>
     <string name="shield_logo">Shield logo</string>
+    <string name="files_scanned">Files Scanned</string>
+    <string name="full_scan">Full Scan</string>
+    <string name="scanning">Scanning...</string>
+    <string name="scan_completed">Scan Completed</string>
 </resources>

@@ -389,6 +389,10 @@ class DefaultScannerRepository @Inject constructor(
         }
     }
 
+    override fun getScanType(): Boolean {
+        return isQuickScan
+    }
+
     private suspend fun updateHistoryItem(
         scanStats: ScanStats,
         malwareFound: Int,

@@ -51,6 +51,7 @@ class SplashActivity : BaseActivity() {
     private fun onSession() {
         if (viewModel.isScanning()){
             val intent = Intent(this, ScanActivity::class.java)
+            intent.putExtra("scanType", viewModel.getScanType())
             startActivity(intent)
             finish()
         } else {

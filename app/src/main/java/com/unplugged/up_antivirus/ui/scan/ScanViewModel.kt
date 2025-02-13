@@ -304,4 +304,11 @@ class ScanViewModel @Inject constructor(
     fun getScanProgress(scanner: ScannerType): Double {
         return scannerRepository.getScannerProgress(scanner)
     }
+
+    fun getScanType(isQuickScan: Boolean): String{
+        return when(isQuickScan){
+            true -> "Quick Scan"
+            false -> "Full Scan"
+        }
+    }
 }

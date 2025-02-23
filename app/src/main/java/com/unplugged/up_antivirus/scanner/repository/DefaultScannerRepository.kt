@@ -42,6 +42,7 @@ import us.spotco.malwarescanner.malware.HypatiaMalwareScannerListener
 import javax.inject.Inject
 import android.os.Handler
 import android.os.Looper
+import com.unplugged.signature_scanner.repository.AppRepository
 import com.unplugged.up_antivirus.domain.use_case.GetUserAppListForTrackersUseCase
 import com.unplugged.up_antivirus.domain.use_case.StopScanServiceUseCase
 import com.unplugged.upantiviruscommon.model.ScannerType
@@ -62,6 +63,7 @@ class DefaultScannerRepository @Inject constructor(
     private var getApplicationInfoUseCase: GetApplicationInfoUseCase,
     private val getUserAppListForTrackersUseCase: GetUserAppListForTrackersUseCase,
     private val notificationManager: NotificationManager,
+    private val appRepository: AppRepository
 ) : ScannerRepository, MalwareScannerListener, HypatiaMalwareScannerListener {
 
     private var hypatiaScanner: MalwareScanner? = hypatia.getMalwareScanner(this)
@@ -181,7 +183,7 @@ class DefaultScannerRepository @Inject constructor(
             trackersFound = 0
         }
 
-        val historyModel = HistoryModel(historyItemId, "", "", -1, -1, -1, -1)
+        val historyModel = HistoryModel(historyItemId, "", "", -1, -1, -1, -1, -1)
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO) {
                 saveHistoryUseCase.delete(historyModel)
@@ -257,7 +259,7 @@ class DefaultScannerRepository @Inject constructor(
                 historyItemId
             )
         }
-        if (notificationProgress >= 100.0){
+        if (notificationProgress >= 100.0) {
             stopScanServiceUseCase()
         }
     }
@@ -331,7 +333,9 @@ class DefaultScannerRepository @Inject constructor(
             }
 
             if (updatedScanStats.totalFilesScanned <= 0) {
-                updatedScanStats.totalFilesScanned = scanStats.totalFilesScanned
+                if(scanStats.type == ScannerType.HYPATIA) {
+                    updatedScanStats.totalFilesScanned = scanStats.totalFilesScanned
+                }
             }
 
             if (historyItemId != 0) {
@@ -368,10 +372,10 @@ class DefaultScannerRepository @Inject constructor(
     }
 
     override suspend fun createScanId(): Int {
-        if(historyItemId == 0) {
+        if (historyItemId == 0) {
             historyItemId = saveHistoryUseCase(
                 HistoryModel(
-                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0
+                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0
                 )
             )
         }
@@ -399,16 +403,13 @@ class DefaultScannerRepository @Inject constructor(
         trackersFound: Int
     ) {
         val dateTimeString = DateTimeUtils.getCurrentDateTimeString()
-        val timeString = DateTimeUtils.getCurrentTimeString()
         val scanTitle = if (isQuickScan) {
             stringProvider.getString(
                 R.string.up_av_quick_scan_title,
-                timeString
             )
         } else {
             stringProvider.getString(
                 R.string.up_av_full_scan_title,
-                timeString
             )
         }
         val historyModel = HistoryModel(
@@ -418,6 +419,7 @@ class DefaultScannerRepository @Inject constructor(
             malwareFound,
             trackersFound,
             scanStats.totalFilesScanned,
+            appRepository.countAllApps(),
             scanStats.megabytesHashed
         )
         saveHistoryUseCase.update(historyModel)
@@ -442,18 +444,18 @@ class DefaultScannerRepository @Inject constructor(
         return false
     }
 
-    override fun getScannerProgress(scanner: ScannerType): Double{
-        return when(scanner){
-            ScannerType.HYPATIA ->{
+    override fun getScannerProgress(scanner: ScannerType): Double {
+        return when (scanner) {
+            ScannerType.HYPATIA -> {
                 hypatiaProgress
             }
-            ScannerType.BLACKLIST->{
+            ScannerType.BLACKLIST -> {
                 blacklistProgress
             }
-            ScannerType.TRACKERS->{
+            ScannerType.TRACKERS -> {
                 trackersProgress
             }
-            else->{
+            else -> {
                 0.0
             }
         }

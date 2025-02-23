@@ -74,6 +74,8 @@ class ScanHistoryActivity : BaseActivity() {
         val scanId = historyItem.id
         Intent(this, ScanResultsActivity::class.java).apply {
             putExtra(Constants.SCAN_ID, scanId)
+            putExtra("fromHistory", true)
+            intent.putExtra("history_item", historyItem)
             startActivity(this)
         }
     }

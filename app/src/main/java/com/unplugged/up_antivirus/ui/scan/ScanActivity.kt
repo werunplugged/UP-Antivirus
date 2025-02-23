@@ -1,49 +1,29 @@
 package com.unplugged.up_antivirus.ui.scan
 
-import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.health.connect.datatypes.units.Percentage
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.RecyclerView
-import com.example.trackerextension.TrackerModel
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.base.Utils
-import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
-import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
-import com.unplugged.up_antivirus.ui.CellMarginDecoration
 import com.unplugged.up_antivirus.ui.splash.SplashActivity
 import com.unplugged.up_antivirus.ui.status.StatusActivity
-import com.unplugged.upantiviruscommon.malware.MalwareModel
-import com.unplugged.upantiviruscommon.malware.ThreatStatus
 import com.unplugged.upantiviruscommon.model.ScannerType
 import com.unplugged.upantiviruscommon.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScanActivity : BaseActivity() {
@@ -60,8 +40,6 @@ class ScanActivity : BaseActivity() {
     private lateinit var circularProgressBar: CircularProgressBar
     private lateinit var circularProgressBarPercentage: TextView
     private lateinit var scanType: TextView
-//    private lateinit var removeAllTv: TextView
-//    private lateinit var resultsRv: RecyclerView
     private lateinit var cancelButton: AppCompatButton
     private lateinit var closeButton: AppCompatButton
     private lateinit var goToFullResultsButton: AppCompatButton
@@ -69,40 +47,14 @@ class ScanActivity : BaseActivity() {
     private lateinit var scanningHypatiaMessageTv: TextView
     private lateinit var scanningBlacklistMessageTv: TextView
     private lateinit var scanningTrackersMessageTv: TextView
-//    private lateinit var scanResultsTitleTv: TextView
-
-//    private var malwareToBeDeleted: MalwareModel? = null
 
     private val viewModel: ScanViewModel by viewModels()
-
-//    private val concatAdapter = ConcatAdapter()
-//    private val malwareAdapter by lazy {
-//        MalwareAdapter(malwareClickListener, malwareActionClickListener)
-//    }
-
-//    @Inject
-//    lateinit var trackerAdapterFactory: TrackerAdapter.Factory
-
-//    @Inject
-//    lateinit var getApplicationIconUseCase: GetApplicationIconUseCase
-
-    //private lateinit var trackerAdapter: TrackerAdapter
-
-//    private val malwareClickListener: (malware: MalwareModel) -> Unit = { malware ->
-//        showMessage(malware.name)
-//    }
-
-//    private val trackerClickListener: (tracker: TrackerModel) -> Unit = { tracker ->
-//        showCustomTrackerDialog(tracker.appName, tracker.packageId, tracker.trackers)
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
         initViews()
-        val isQuickScan = intent.getBooleanExtra("scanType", true)
         scanType.text = viewModel.getScanType(intent.getBooleanExtra("scanType", true))
-        //trackerAdapter = trackerAdapterFactory.create(trackerClickListener)
 
         setupObservers()
 
@@ -122,11 +74,13 @@ class ScanActivity : BaseActivity() {
                     {})
             }
         }
+
         goToFullResultsButton.setOnClickListener {
             if (!viewModel.isScanning()) {
                 val scanId = viewModel.scanId
                 Intent(this, ScanResultsActivity::class.java).apply {
                     putExtra(Constants.SCAN_ID, scanId)
+                    putExtra("fromHistory", false)
                     startActivity(this)
                 }
             }
@@ -135,25 +89,6 @@ class ScanActivity : BaseActivity() {
         closeButton.setOnClickListener {
             returnToStatusActivity()
         }
-
-//        removeAllTv.setOnClickListener {
-//            if (viewModel.isMalwareScanDone()) {
-//                if (viewModel.isActiveThreatsExist) {
-//                    removeAllThreats()
-//                } else {
-//                    showMessage(getString(R.string.up_av_you_are_already_protected))
-//                }
-//            } else {
-//                showMessage(getString(R.string.up_av_wait_for_the_previous_scan_to_finish))
-//            }
-//        }
-
-        // Add adapters to ConcatAdapter
-       //concatAdapter.addAdapter(trackerAdapter)
-        //Init rvs and adapters
-//        resultsRv.adapter = concatAdapter
-//        resultsRv.addItemDecoration(CellMarginDecoration(32, 0))
-//        resultsRv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -186,8 +121,6 @@ class ScanActivity : BaseActivity() {
         scanningHypatiaProgressBar = findViewById(R.id.scanning_hypatia_progress_bar)
         scanningBlacklistProgressBar = findViewById(R.id.scanning_blacklist_progress_bar)
         scanningTrackersProgressBar = findViewById(R.id.scanning_trackers_progress_bar)
-//        removeAllTv = findViewById(R.id.remove_all_threats_tv)
-//        resultsRv = findViewById(R.id.scan_results_rv)
         circularProgressBar = findViewById(R.id.circular_progress_bar)
         circularProgressBarPercentage = findViewById(R.id.tv_progress_percentage)
         scanType = findViewById(R.id.tv_scan_type)
@@ -198,7 +131,6 @@ class ScanActivity : BaseActivity() {
         scanningHypatiaMessageTv = findViewById(R.id.scan_hypatia_message_tv)
         scanningBlacklistMessageTv = findViewById(R.id.scan_blacklist_message_tv)
         scanningTrackersMessageTv = findViewById(R.id.scan_trackers_message_tv)
-//        scanResultsTitleTv = findViewById(R.id.scan_results_title_tv)
     }
 
     private fun startScan() {
@@ -214,10 +146,6 @@ class ScanActivity : BaseActivity() {
     private fun setupObservers() {
         viewModel.scanIdLiveData.observe(this) {
             viewModel.subscribeTrackers(it)
-//            viewModel.trackersLiveData.observe(this) { model ->
-//                trackerAdapter.setTrackers(model)
-//                scanResultsTitleTv.visibility = View.VISIBLE
-//            }
         }
 
         viewModel.navigateBack.observe(this) {
@@ -288,11 +216,6 @@ class ScanActivity : BaseActivity() {
                 viewModel.stopScanService()
             }
 
-//            if (scanningState?.malware != null) {
-//                malwareAdapter.addMalware(scanningState.malware)
-//                scanResultsTitleTv.visibility = View.VISIBLE
-//            }
-
             if (scanningState?.scanStats != null) {
                 //Scan finished
                 if (!viewModel.isScanning()) {
@@ -300,7 +223,6 @@ class ScanActivity : BaseActivity() {
                     closeButton.isVisible = true
                     goToFullResultsButton.visibility = View.VISIBLE
                     titleTv.text = getString(R.string.scan_completed)
-//                    scanResultsTitleTv.visibility = View.VISIBLE
                     viewModel.stopScanService()
                 }
 
@@ -373,28 +295,6 @@ class ScanActivity : BaseActivity() {
             }
             updateProgress(scanProgress.progress, scanProgress.type)
         }
-
-//        viewModel.malwareData.observe(this) {
-//            if (viewModel.isScannerDone(ScannerType.HYPATIA) && viewModel.isScannerDone(ScannerType.BLACKLIST) && it.isEmpty()) {
-//                concatAdapter.addAdapter(0, malwareAdapter)
-//                resultsRv.scrollToPosition(0)
-//            }
-//
-//            malwareAdapter.setMalwares(it)
-//            if (it.isNotEmpty()) {
-//                removeAllTv.visibility =
-//                    if ((it.any { malwareModel -> malwareModel.filePath != MalwareModel.BLACK_LIST_PACKAGE }) && !areAllThreatsRemoved()) {
-//                        View.VISIBLE
-//                    } else View.GONE
-//                if (concatAdapter.adapters[0] !is MalwareAdapter)
-//                    concatAdapter.addAdapter(0, malwareAdapter)
-//                resultsRv.scrollToPosition(0)
-//            }
-//        }
-
-//        viewModel.trackerData.observe(this) {
-//            trackerAdapter.setTrackers(it)
-//        }
     }
 
     private fun updateProgress(progress: Double, scannerType: ScannerType) {
@@ -422,141 +322,6 @@ class ScanActivity : BaseActivity() {
         circularProgressBar.progress = totalPercentage
         circularProgressBarPercentage.text = "$totalPercentage"
     }
-
-//    private val malwareActionClickListener: (malware: MalwareModel) -> Unit = { malware ->
-//        if (viewModel.isMalwareScanDone()) {
-//            when (malware.status) {
-//                ThreatStatus.EXIST -> {
-//                    // Start to remove
-//                    removeThreat(malware)
-//                }
-//
-//                ThreatStatus.PENDING -> {
-//                    // In remove process
-//                    showMessage(getString(R.string.up_av_already_removing))
-//                }
-//
-//                ThreatStatus.REMOVED -> {
-//                    // Already removed
-//                }
-//
-//                ThreatStatus.FAILED -> {
-//                    showMessage(getString(R.string.up_av_failed))
-//                }
-//            }
-//        } else {
-//            showMessage(getString(R.string.up_av_wait_for_scan_to_finish))
-//        }
-//    }
-
-//    private fun showCustomTrackerDialog(appName: String, packageId: String, trackers: String) {
-//        val builder = AlertDialog.Builder(this)
-//        val inflater = layoutInflater
-//        val dialogLayout = inflater.inflate(R.layout.tracker_custom_dialog, null)
-//
-//        val appIcon = dialogLayout.findViewById<ImageView>(R.id.dialog_app_icon)
-//        val appNameTitle = dialogLayout.findViewById<TextView>(R.id.dialog_app_name_title)
-//        val trackerList = dialogLayout.findViewById<TextView>(R.id.dialog_tracker_list)
-//        val appNotInstalledLayout =
-//            dialogLayout.findViewById<LinearLayout>(R.id.dialog_app_not_installed_layout)
-//
-//        val appIconDrawable = getApplicationIconUseCase(packageId)
-//        appIcon.setImageDrawable(appIconDrawable)
-//
-//        appNameTitle.text = appName
-//
-//        // Join the list items into a single string with line breaks
-//        val trackersConvertedList = TrackerListConverter().toTrackerList(trackers)
-//        val trackerNames = trackersConvertedList.map { it.name }
-//        trackerList.text = trackerNames.joinToString(separator = "\n")
-//
-//        // Check if the app is installed
-//        if (isPackageInstalled(packageId, packageManager)) {
-//            appNotInstalledLayout.visibility = View.GONE
-//        } else {
-//            appNotInstalledLayout.visibility = View.VISIBLE
-//        }
-//
-//        builder.setView(dialogLayout)
-//        builder.setCancelable(false)
-//        builder.setPositiveButton(R.string.up_av_close) { dialog, _ ->
-//            dialog.dismiss()
-//        }
-//
-//        val dialog = builder.create()
-//        dialog.show()
-//        dialog.window?.setBackgroundDrawable(
-//            AppCompatResources.getDrawable(
-//                this,
-//                R.drawable.background_dialog
-//            )
-//        )
-//        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-//            .setTextColor(this.getColor(R.color.main_text_color))
-//    }
-
-//    private fun isPackageInstalled(packageName: String, packageManager: PackageManager): Boolean {
-//        return try {
-//            packageManager.getPackageInfo(packageName, 0)
-//            true
-//        } catch (e: PackageManager.NameNotFoundException) {
-//            false
-//        }
-//    }
-
-//    private fun removeAllThreats() {
-//        val malware = viewModel.malwareData.value ?: listOf()
-//        for (threat in malware.reversed()) {
-//            if (threat.status != ThreatStatus.REMOVED) {
-//                removeThreat(threat)
-//            }
-//        }
-//    }
-
-//    private fun areAllThreatsRemoved(): Boolean {
-//        val malware = viewModel.malwareData.value ?: listOf()
-//        return if (malware.isNotEmpty()) {
-//            malware.all { it.status == ThreatStatus.REMOVED }
-//        } else true
-//    }
-
-//    private val registerForActivityResult =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _: ActivityResult ->
-//            malwareToBeDeleted?.let {
-//                if (!isPackageInstalled(it.name, packageManager)) {
-//                    val malware = it.copy(status = ThreatStatus.REMOVED)
-//                    viewModel.updateMalwareStatus(malware)
-//                    malwareAdapter.updateMalware(malware)
-//                }
-//            }
-//        }
-
-//    private fun removeThreat(malware: MalwareModel) {
-//        when (malware.filePath) {
-//            MalwareModel.BLACK_LIST_PACKAGE -> {
-//                val intent = Intent(Intent.ACTION_DELETE)
-//                intent.data = Uri.parse("package:${malware.name}")
-//                malwareToBeDeleted = malware
-//                registerForActivityResult.launch(intent)
-//            }
-//
-//            else -> {
-//                val result = viewModel.removeThreat(malware)
-//                result.observe(this, object : Observer<MalwareModel> {
-//                    override fun onChanged(value: MalwareModel) {
-//                        malwareAdapter.updateMalware(value)
-//                        result.removeObserver(this)
-//                    }
-//                })
-//            }
-//        }
-//
-////        // Check if all threats are removed
-////        if (areAllThreatsRemoved()) {
-////            // Hide the "Remove All" button
-////            removeAllTv.visibility = View.GONE
-////        }
-//    }
 
     private fun returnToStatusActivity() {
         viewModel.stopScanService()

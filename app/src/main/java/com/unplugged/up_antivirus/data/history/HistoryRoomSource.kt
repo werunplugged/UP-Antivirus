@@ -56,4 +56,9 @@ class HistoryRoomSource @Inject constructor(
         }
     }
 
+    override suspend fun getHistoryById(id: Int): HistoryEntity? {
+        return withContext(Dispatchers.IO) {
+            dao.getHistoryById(id)
+        }
+    }
 }

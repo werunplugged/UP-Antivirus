@@ -12,4 +12,5 @@ interface HistoryRepository {
     suspend fun getLastEntryId(): Int?
     suspend fun delete(model: HistoryModel)
     suspend fun deleteAll()
+    suspend fun getHistoryById(id: Int): HistoryModel?
 }

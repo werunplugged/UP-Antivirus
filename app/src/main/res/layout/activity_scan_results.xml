@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background" >
+    android:background="@drawable/gradient_background"
+    android:padding="16dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/top_section_container"
@@ -13,36 +14,32 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" >
 
-            <TextView
-                android:id="@+id/scan_results_activity_title_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="@string/up_av_scan_results"
-                android:textColor="@color/white"
-                android:textSize="20dp"
-                android:fontFamily="@font/satoshi_bold"
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/close_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/ic_back_ios_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/search_view"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/scan_results_activity_title_tv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/up_av_scan_results"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/satoshi_bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/info_button"
-                app:queryBackground="@drawable/search_rounded"
-                app:queryHint="Search in results..."
-                app:searchHintIcon="@null"
-                app:searchIcon="@drawable/ic_search_white_24dp" />
+                app:layout_constraintStart_toEndOf="@id/close_button"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/info_button"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_marginEnd="16dp"
                 android:contentDescription="@string/up_av_information_about_malware_and_trackers"
                 android:src="@drawable/ic_info_tooltip"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -51,48 +48,298 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
+    <ImageView
+        android:id="@+id/shield_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_small_shield_logo_normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_title_from_history"
+        app:layout_constraintTop_toBottomOf="@id/top_section_container"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        android:layout_marginEnd="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_title_from_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Full Scan"
+        android:fontFamily="@font/satoshi_bold"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toTopOf="@id/shield_logo"
+        app:layout_constraintStart_toEndOf="@id/shield_logo"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_subtitle_from_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jan 26, 2025, 10:06"
+        android:fontFamily="@font/satoshi_regular"
+        android:textSize="14sp"
+        android:textColor="#C8CCDC"
+        app:layout_constraintTop_toBottomOf="@id/tv_title_from_history"
+        app:layout_constraintStart_toStartOf="@id/tv_title_from_history" />
+
+    <TextView
+        android:id="@+id/tv_title_from_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Your Device is Protected"
+        android:fontFamily="@font/satoshi_bold"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/shield_logo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_subtitle_from_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Full Scan | Jan 26, 2025, 10:06"
+        android:fontFamily="@font/satoshi_regular"
+        android:textSize="14sp"
+        android:textColor="#C8CCDC"
+        app:layout_constraintTop_toBottomOf="@id/tv_title_from_scan"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/files_scanned_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="20sp"
+        android:layout_marginTop="36dp"
+        android:textColor="@color/results_numbers_color"
+        android:fontFamily="@font/satoshi_black"
+        app:layout_constraintTop_toBottomOf="@id/tv_subtitle_from_scan"
+        app:layout_constraintStart_toStartOf="@id/tv_files_scanned"
+        app:layout_constraintEnd_toEndOf="@id/tv_files_scanned"/>
+
+    <TextView
+        android:id="@+id/tv_files_scanned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@id/files_scanned_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/left_separator"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:text="Files \nScanned"/>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/left_separator"
+        android:layout_width="1dp"
         android:layout_height="0dp"
-        android:paddingBottom="16dp"
-        android:paddingRight="8dp"
-        android:paddingLeft="8dp"
+        android:layout_marginVertical="8dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@id/tv_files_scanned"
+        app:layout_constraintTop_toTopOf="@id/files_scanned_number"
+        app:layout_constraintBottom_toBottomOf="@id/tv_files_scanned"
+        app:layout_constraintEnd_toStartOf="@id/tv_malware_found"
+        android:background="#4DFFFFFF"/>
+
+    <TextView
+        android:id="@+id/malware_found_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="20sp"
+        android:textColor="@color/results_numbers_color"
+        android:fontFamily="@font/satoshi_black"
+        app:layout_constraintTop_toTopOf="@id/files_scanned_number"
+        app:layout_constraintStart_toStartOf="@id/tv_malware_found"
+        app:layout_constraintEnd_toEndOf="@id/tv_malware_found"/>
+
+    <TextView
+        android:id="@+id/tv_malware_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@id/files_scanned_number"
+        app:layout_constraintStart_toEndOf="@id/left_separator"
+        app:layout_constraintEnd_toStartOf="@id/middle_separator"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:text="Malware \nFound"/>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/middle_separator"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toEndOf="@id/tv_malware_found"
+        app:layout_constraintTop_toTopOf="@id/files_scanned_number"
+        app:layout_constraintBottom_toBottomOf="@id/tv_files_scanned"
+        app:layout_constraintEnd_toStartOf="@id/tv_apps_scanned"
+        android:background="@color/white"/>
+
+    <TextView
+        android:id="@+id/apps_scanned_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="0"
+        android:textColor="@color/results_numbers_color"
+        android:fontFamily="@font/satoshi_black"
+        app:layout_constraintTop_toTopOf="@id/files_scanned_number"
+        app:layout_constraintStart_toStartOf="@id/tv_apps_scanned"
+        app:layout_constraintEnd_toEndOf="@id/tv_apps_scanned"/>
+
+    <TextView
+        android:id="@+id/tv_apps_scanned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@id/files_scanned_number"
+        app:layout_constraintStart_toEndOf="@id/middle_separator"
+        app:layout_constraintEnd_toStartOf="@id/right_separator"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:text="Apps \nScanned"/>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/right_separator"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        android:background="#59FFFFFF"
+        android:orientation="vertical"
+        android:layout_marginVertical="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_files_scanned"
+        app:layout_constraintEnd_toStartOf="@id/tv_trackers_identified"
+        app:layout_constraintStart_toEndOf="@id/tv_apps_scanned"
+        app:layout_constraintTop_toTopOf="@id/files_scanned_number"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/trackers_identified_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="20sp"
+        android:textColor="@color/results_numbers_color"
+        android:fontFamily="@font/satoshi_black"
+        app:layout_constraintTop_toTopOf="@id/files_scanned_number"
+        app:layout_constraintStart_toStartOf="@id/tv_trackers_identified"
+        app:layout_constraintEnd_toEndOf="@id/tv_trackers_identified"/>
+
+    <TextView
+        android:id="@+id/tv_trackers_identified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@id/files_scanned_number"
+        app:layout_constraintStart_toEndOf="@id/right_separator"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:text="Trackers \nIdentified"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/top_section_container">
+        app:layout_constraintTop_toBottomOf="@+id/tv_files_scanned"
+        android:layout_marginTop="24dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/scan_results_rv"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/close_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/close_button"
+        <TextView
+            android:id="@+id/tv_malware_scan_results"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:background="@drawable/button_background_state"
+            android:text="Malware Scan Results"
+            android:textColor="#C8CCDC"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/malware_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_malware_recyclerview"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/search_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_malware_scan_results" />
+
+        <TextView
+            android:id="@+id/tv_trackers_scan_results"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/search_view"
+            app:layout_constraintBottom_toBottomOf="@id/search_view"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="Trackers Scan Results"
+            android:textSize="14sp"
+            android:textColor="#C8CCDC"/>
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/malware_recyclerview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:queryBackground="@drawable/search_rounded"
+            app:queryHint="Search in results..."
+            app:searchHintIcon="@null"
+            app:searchIcon="@drawable/ic_search_button" />
+
+        <TextView
+            android:id="@+id/tv_trackers_collect_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="12sp"
+            android:fontFamily="@font/satoshi_regular"
+            app:layout_constraintTop_toBottomOf="@id/search_view"
+            android:text="@string/trackers_collect_data_text"
+            android:textColor="@color/white"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/learn_more_button"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:minHeight="28dp"
+            android:textSize="12sp"
+            android:paddingBottom="2dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_trackers_collect_data"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/learn_more"
+            android:textColor="@color/white"
             android:fontFamily="@font/satoshi_bold"
-            android:letterSpacing="0"
-            android:paddingHorizontal="36dp"
-            android:text="@string/up_av_close"
             android:textAllCaps="false"
-            android:textColor="#191E20"
-            android:textSize="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@drawable/bg_button_stroke"
+            />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackers_results_rv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scan_results_rv" />
-
+            app:layout_constraintTop_toBottomOf="@id/learn_more_button"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
+    </ScrollView>
     <LinearLayout
         android:id="@+id/loading_indicator"
         android:layout_width="match_parent"

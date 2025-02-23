@@ -11,4 +11,5 @@ interface AppRepository {
     suspend fun getInstalledApps(listener: MalwareScannerListener): AppListState
     suspend fun getBlackListedPackages(): HashSet<ApkInfo>
     suspend fun isBlacklistedApp(apkInfo: ApkInfo?): Boolean
+    fun countAllApps(): Int
 }

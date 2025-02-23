@@ -13,5 +13,6 @@ class HistoryEntity(
     val malwareFound: Int,
     val trackersFound: Int,
     val filesScanned: Int,
+    val appsScanned: Int,
     val megabytesHashed: Long
 )

@@ -12,4 +12,5 @@ interface HistoryLocalSource {
     suspend fun getLastEntryId(): Int?
     suspend fun delete(entity: HistoryEntity)
     suspend fun deleteAll()
+    suspend fun getHistoryById(id: Int): HistoryEntity?
 }

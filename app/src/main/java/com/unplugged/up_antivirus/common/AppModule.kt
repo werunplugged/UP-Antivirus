@@ -321,7 +321,8 @@ object AppModule {
         stopScanServiceUseCase: StopScanServiceUseCase,
         getApplicationInfoUseCase: GetApplicationInfoUseCase,
         getUserAppListForTrackersUseCase: GetUserAppListForTrackersUseCase,
-        notificationManager: NotificationManager
+        notificationManager: NotificationManager,
+        appRepository: AppRepository
     ): ScannerRepository {
         return DefaultScannerRepository(
             hypatia,
@@ -335,7 +336,8 @@ object AppModule {
             stopScanServiceUseCase,
             getApplicationInfoUseCase,
             getUserAppListForTrackersUseCase,
-            notificationManager
+            notificationManager,
+            appRepository
         )
     }
 

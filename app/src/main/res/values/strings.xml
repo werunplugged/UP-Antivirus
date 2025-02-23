@@ -70,7 +70,7 @@
     <string name="up_av_app_description" translatable="false">The UP Antivirus is an essential part of Unplugged’s total privacy system.\n\nHackers exploit compromised files, images and cookies you may download to plant agents and malware enabling them to gain access to your device.\n\nThe UP Antivirus scans you device for viruses, malware and trackers. Unplugged’s security experts and third-party security professionals recommend running antivirus scans at least once a week</string>
     <string name="up_av_file_manager_permission_title" translatable="false">File Manager</string>
     <string name="up_av_file_manager_permission_body" translatable="false">Please allow the UP Antivirus application access to all files on the device. This is how we thoroughly examine the full system</string>
-    <string name="up_av_full_scan_title" translatable="false">Full Scan %s</string>
+    <string name="up_av_full_scan_title" translatable="false">Full Scan</string>
     <string name="up_av_on_boarding_message_up_app_missing" translatable="false">You are missing the UP Store application, please install it and finish registration / login process and then come back to continue.\nYou can click the button below to download the UP Store application from unplugged.com website</string>
     <string name="up_av_on_boarding_button_download" translatable="false">Download UP Store</string>
     <string name="up_av_on_boarding_message_subscription_invalid" translatable="false">Seems like you are not logged-in with UP Store application or your subscription is expired.\nPlease click the button below to open the UP Store application</string>
@@ -119,7 +119,7 @@
     <string name="up_av_scan_files" translatable="false">Scan files</string>
     <string name="up_av_scan_trackers" translatable="false">Scan trackers</string>
     <string name="up_av_quick_scan" translatable="false">Quick Scan</string>
-    <string name="up_av_quick_scan_title" translatable="false">Quick Scan %s</string>
+    <string name="up_av_quick_scan_title" translatable="false">Quick Scan</string>
     <string name="up_av_notification_head_app_scanned" translatable="false">%1$s checked</string>
     <string name="up_av_notification_body_malware_detected" translatable="false">Threat detected, click for more info</string>
     <string name="up_av_notification_body_threats_detected" translatable="false">Malware found: %1$d, Trackers found: %2$d</string>
@@ -176,7 +176,7 @@
     <string name="up_av_already_removing" translatable="false">Already removing...</string>
     <string name="up_av_failed" translatable="false">Failed</string>
     <string name="up_av_wait_for_scan_to_finish" translatable="false">Please wait for the malware scan to finish</string>
-    <string name="up_av_app_installation_scan_s" translatable="false">App installation scan %s</string>
+    <string name="up_av_app_installation_scan_s" translatable="false">App installation scan</string>
     <string name="up_av_app_installation_service" translatable="false">App Installation Service</string>
     <string name="up_av_monitoring_applications_installation" translatable="false">Monitoring applications installation</string>
     <string name="up_av_potentially_harmful_application" translatable="false">%1$s\n(Potentially harmful application)</string>
@@ -220,4 +220,9 @@
     <string name="full_scan">Full Scan</string>
     <string name="scanning">Scanning...</string>
     <string name="scan_completed">Scan Completed</string>
+    <string name="trackers_collect_data_text">Trackers collect data on your app activity and attempt to send it to external servers, often for advertising, profiling, or analytics. UP Antivirus identifies these trackers, while UP Privacy Center lets you block their access and gives you control over your data.</string>
+    <string name="learn_more">Learn More</string>
+    <string name="scan_result_subtitle_format">%1$s | %2$s</string>
+    <string name="history_scan_results">History Scan Results</string>
+
 </resources>

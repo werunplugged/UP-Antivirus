@@ -221,15 +221,14 @@ class CheckAppTask @Inject constructor(
         trackersFound: Int
     ): Int {
         val dateTimeString = DateTimeUtils.getCurrentDateTimeString()
-        val timeString = DateTimeUtils.getCurrentTimeString()
-
         val historyItem = HistoryModel(
             0,
-            String.format(context.getString(R.string.up_av_app_installation_scan_s), timeString),
+            context.getString(R.string.up_av_app_installation_scan_s),
             dateTimeString,
             malwareFound,
             trackersFound,
-            scanStats.totalFilesScanned,
+            0,
+            1,
             scanStats.megabytesHashed
         )
 

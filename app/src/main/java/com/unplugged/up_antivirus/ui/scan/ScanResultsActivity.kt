@@ -4,6 +4,7 @@ import android.animation.LayoutTransition
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Build
@@ -21,16 +22,15 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trackerextension.TrackerModel
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
+import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
-import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
 import com.unplugged.up_antivirus.ui.CellMarginDecoration
 import com.unplugged.upantiviruscommon.malware.MalwareModel
 import com.unplugged.upantiviruscommon.malware.ThreatStatus
@@ -41,21 +41,32 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScanResultsActivity : BaseActivity() {
-    private lateinit var resultsRv: RecyclerView
-    private val concatAdapter = ConcatAdapter()
+    private lateinit var malwareResultsRv: RecyclerView
+    private lateinit var trackersResultsRv: RecyclerView
+    private lateinit var shieldLogo: ImageView
+    private lateinit var tvTitleFromScan: TextView
+    private lateinit var tvSubtitleFromScan: TextView
+    private lateinit var tvTitleFromHistory: TextView
+    private lateinit var tvSubtitleFromHistory: TextView
+    private lateinit var filesScanned: TextView
+    private lateinit var malwareFound: TextView
+    private lateinit var appsScanned: TextView
+    private lateinit var trackersResultsTitle: TextView
+    private lateinit var trackersIdentified: TextView
     private lateinit var closeButton: AppCompatButton
+    private lateinit var learnMoreButton: AppCompatButton
+    private lateinit var searchView: SearchView
     private lateinit var loadingIndicator: View
     private lateinit var infoButton: ImageView
     private lateinit var scanResultsTitleTv: TextView
-    private val viewModel: ScanViewModel by viewModels()
     private var malwareToBeDeleted: MalwareModel? = null
+
+    private var deviceModel: String? = getDeviceModel()
+
+    private val viewModel: ScanViewModel by viewModels()
 
     @Inject
     lateinit var trackerAdapterFactory: TrackerAdapter.Factory
-
-    @Inject
-    lateinit var getApplicationIconUseCase: GetApplicationIconUseCase
-
     private lateinit var trackerAdapter: TrackerAdapter
 
     private val malwareAdapter by lazy {
@@ -73,44 +84,79 @@ class ScanResultsActivity : BaseActivity() {
         setupObservers()
 
         val scanId = intent.extras?.getInt(SCAN_ID)
-
         scanId?.let {
             //If activity started with scanId, means need to load data from db
             viewModel.scanId = it
-        }
-            ?: null //TODO: Needs to be replaced with text that says it has an issue pulling results
+        } ?: null //TODO: Needs to be replaced with text that says it has an issue pulling results
 
         //Init rvs and adapters
-        resultsRv.layoutManager = LinearLayoutManager(this)
-        resultsRv.adapter = concatAdapter
-        resultsRv.addItemDecoration(CellMarginDecoration(32, 0))
-        resultsRv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        trackersResultsRv.addItemDecoration(CellMarginDecoration(32, 0))
+        trackersResultsRv.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
+        malwareResultsRv.addItemDecoration(CellMarginDecoration(32, 0))
+        malwareResultsRv.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
 
         closeButton.setOnClickListener {
             finish()
         }
 
+        malwareResultsRv.adapter = malwareAdapter
+        trackersResultsRv.adapter = trackerAdapter
         infoButton.setOnClickListener { openInfoDialog() }
     }
 
+    private fun setValues(historyModel: HistoryModel?) {
+        filesScanned.text = historyModel?.filesScanned.toString()
+        appsScanned.text = historyModel?.appsScanned.toString()
+        trackersIdentified.text = historyModel?.trackersFound.toString()
+    }
+
     private fun initViews() {
-        resultsRv = findViewById(R.id.scan_results_rv)
+        trackersResultsRv = findViewById(R.id.trackers_results_rv)
+        malwareResultsRv = findViewById(R.id.malware_recyclerview)
+
+        shieldLogo = findViewById(R.id.shield_logo)
+        tvTitleFromScan = findViewById(R.id.tv_title_from_scan)
+        tvSubtitleFromScan = findViewById(R.id.tv_subtitle_from_scan)
+        tvTitleFromHistory = findViewById(R.id.tv_title_from_history)
+        tvSubtitleFromHistory = findViewById(R.id.tv_subtitle_from_history)
         closeButton = findViewById(R.id.close_button)
+        learnMoreButton = findViewById(R.id.learn_more_button)
         loadingIndicator = findViewById(R.id.loading_indicator)
         infoButton = findViewById(R.id.info_button)
         scanResultsTitleTv = findViewById(R.id.scan_results_activity_title_tv)
+        filesScanned = findViewById(R.id.files_scanned_number)
+        malwareFound = findViewById(R.id.malware_found_number)
+        appsScanned = findViewById(R.id.apps_scanned_number)
+        trackersResultsTitle = findViewById(R.id.tv_trackers_scan_results)
+        trackersIdentified = findViewById(R.id.trackers_identified_number)
 
         // SearchBar stuff
-        val searchView = findViewById<SearchView>(R.id.search_view)
-        val searchEditText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+        searchView = findViewById(R.id.search_view)
+        val searchEditText =
+            searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         searchEditText.setHintTextColor(ContextCompat.getColor(this, R.color.white_70))
         searchEditText.setTextColor(ContextCompat.getColor(this, R.color.white_70))
         searchEditText.setPadding(70, 0, 0, 0)
         searchEditText.textSize = 16f
-        val closeButton = searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-        closeButton.setColorFilter(ContextCompat.getColor(this, R.color.white_70), PorterDuff.Mode.SRC_IN)
+        val closeButton =
+            searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+        closeButton.setColorFilter(
+            ContextCompat.getColor(this, R.color.white_70),
+            PorterDuff.Mode.SRC_IN
+        )
         closeButton.setPadding(0, 0, 50, 0)
-        val searchBar = searchView.findViewById<LinearLayout>(com.google.android.material.R.id.search_bar)
+        val searchBar =
+            searchView.findViewById<LinearLayout>(com.google.android.material.R.id.search_bar)
         searchBar.layoutTransition = LayoutTransition()
 
         searchView.clearFocus()
@@ -118,8 +164,7 @@ class ScanResultsActivity : BaseActivity() {
         // Listener to handle SearchView expand and collapse to show or hide the page title
         searchView.setOnSearchClickListener {
             // Hide the title and info button when SearchView is expanded
-            scanResultsTitleTv.visibility = View.INVISIBLE
-            infoButton.visibility = View.INVISIBLE
+            trackersResultsTitle.visibility = View.INVISIBLE
             val searchBarParams = searchView.layoutParams
             searchBarParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             searchBarParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -128,8 +173,7 @@ class ScanResultsActivity : BaseActivity() {
 
         searchView.setOnCloseListener {
             // Show the title and info button when SearchView is closed
-            scanResultsTitleTv.visibility = View.VISIBLE
-            infoButton.visibility = View.VISIBLE
+            trackersResultsTitle.visibility = View.VISIBLE
             val searchBarParams = searchView.layoutParams
             searchBarParams.width = ViewGroup.LayoutParams.WRAP_CONTENT // Original width
             searchBarParams.height = ViewGroup.LayoutParams.WRAP_CONTENT // Original height
@@ -156,18 +200,70 @@ class ScanResultsActivity : BaseActivity() {
 
     private fun setupObservers() {
         viewModel.malwareData.observe(this) {
-            concatAdapter.addAdapter(0, malwareAdapter)
-
             if (it.isEmpty()) {
+                malwareResultsRv.isEnabled = false
                 malwareAdapter.setMalwares(emptyList())
+                val mainColor = ContextCompat.getColor(this, R.color.results_numbers_color)
+                malwareFound.setTextColor(mainColor)
+                viewModel.setShieldLogo(ScanViewModel.LogoType.NORMAL.ordinal)
+                viewModel.setTitleFromScan(true)
+
             } else {
+                malwareResultsRv.isEnabled = true
                 malwareAdapter.setMalwares(it)
+                malwareFound.text = it.size.toString()
+                malwareFound.setTextColor(Color.RED)
+                viewModel.setShieldLogo(ScanViewModel.LogoType.BROKEN.ordinal)
+                viewModel.setTitleFromScan(false)
             }
         }
 
         viewModel.trackerData.observe(this) {
-            concatAdapter.addAdapter(trackerAdapter)
             trackerAdapter.setTrackers(it)
+            if (it.isEmpty()) {
+                searchView.isVisible = false
+                trackersResultsTitle.isVisible = false
+            }
+        }
+
+        viewModel.historyModel.observe(this){
+            setValues(it)
+
+            if (intent.getBooleanExtra("fromHistory", false)) {
+                tvTitleFromScan.isVisible = false
+                tvSubtitleFromScan.isVisible = false
+                tvTitleFromHistory.isVisible = true
+                tvSubtitleFromHistory.isVisible = true
+                tvTitleFromHistory.text = it?.name
+                tvSubtitleFromHistory.text = it?.date
+                scanResultsTitleTv.text = getString(R.string.history_scan_results)
+            } else {
+                tvTitleFromScan.isVisible = true
+                tvSubtitleFromScan.isVisible = true
+                tvTitleFromHistory.isVisible = false
+                tvSubtitleFromHistory.isVisible = false
+
+                tvSubtitleFromScan.text = getString(R.string.scan_result_subtitle_format,
+                    it?.name, it?.date)
+                scanResultsTitleTv.text = getString(R.string.up_av_scan_results)
+            }
+        }
+
+        viewModel.shieldLogoLiveData.observe(this) {
+            shieldLogo.setImageResource(
+                when (it) {
+                    ScanViewModel.LogoType.NORMAL.ordinal -> R.drawable.ic_small_shield_logo_normal
+                    ScanViewModel.LogoType.BROKEN.ordinal -> R.drawable.ic_small_shield_logo_broken
+                    ScanViewModel.LogoType.ATTENTION.ordinal -> R.drawable.ic_small_shield_logo_attention
+                    else -> {
+                        R.drawable.ic_small_shield_logo_normal
+                    }
+                }
+            )
+        }
+
+        viewModel.setTitle.observe(this) {
+            tvTitleFromScan.text = it
         }
     }
 
@@ -202,7 +298,6 @@ class ScanResultsActivity : BaseActivity() {
     }
 
     private fun openInfoDialog() {
-        val deviceModel = getDeviceModel()
         if (deviceModel == "UP01") {
             showDialog(
                 getString(R.string.up_av_malware_trackers_info_title),
@@ -275,7 +370,7 @@ class ScanResultsActivity : BaseActivity() {
         val appNotInstalledLayout =
             dialogLayout.findViewById<LinearLayout>(R.id.dialog_app_not_installed_layout)
 
-        val appIconDrawable = getApplicationIconUseCase(packageId)
+        val appIconDrawable = viewModel.getApplicationIcon(packageId)
         appIcon.setImageDrawable(appIconDrawable)
 
         appNameTitle.text = appName

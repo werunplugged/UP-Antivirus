@@ -53,4 +53,10 @@ class DefaultHistoryRepository @Inject constructor(
     override suspend fun deleteAll() {
         localSource.deleteAll()
     }
+
+    override suspend fun getHistoryById(id: Int): HistoryModel? {
+        return localSource.getHistoryById(id)?.let {
+            mapper.entityToModel(it)
+        }
+    }
 }

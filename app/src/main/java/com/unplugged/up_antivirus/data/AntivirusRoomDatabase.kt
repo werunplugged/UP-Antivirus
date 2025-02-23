@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 @Database(
     entities = [HistoryEntity::class, MalwareEntity::class, BlacklistPackageEntity::class, TrackerEntity::class],
-    version = 3, exportSchema = false
+    version = 4, exportSchema = false
 )
 @TypeConverters(TrackerListConverter::class)
 @Singleton
@@ -39,14 +39,18 @@ abstract class AntivirusRoomDatabase : RoomDatabase() {
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    @Provides
-    @Singleton
-    fun provideMigration2_3(): Migration {
-        return object : Migration(2, 3) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE UNIQUE INDEX index_MalwareEntity_scanId_filePath ON MalwareEntity (scanId, filePath)")
-                db.execSQL(
-                    """
+
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE HistoryEntity ADD COLUMN appsScanned INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("CREATE UNIQUE INDEX index_MalwareEntity_scanId_filePath ON MalwareEntity (scanId, filePath)")
+            db.execSQL(
+                """
             CREATE TABLE IF NOT EXISTS `TrackerEntity` (
                 `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 `scanId` INTEGER NOT NULL,
@@ -55,13 +59,13 @@ object DatabaseModule {
                 `trackers` TEXT NOT NULL
             )
             """.trimIndent()
-                )
+            )
 
-                db.execSQL("DROP TABLE IF EXISTS HistoryEntity")
+            db.execSQL("DROP TABLE IF EXISTS HistoryEntity")
 
-                // Create new table with updated schema
-                db.execSQL(
-                    """
+            // Create new table with updated schema
+            db.execSQL(
+                """
             CREATE TABLE HistoryEntity (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 name TEXT NOT NULL,
@@ -72,29 +76,27 @@ object DatabaseModule {
                 megabytesHashed INTEGER NOT NULL
             )
         """
-                )
-            }
+            )
         }
     }
 
-    fun provideMigration1_2(): Migration {
-        return object : Migration(1, 2) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS BlacklistPackageEntity (id INTEGER PRIMARY KEY AUTOINCREMENT, sha256 TEXT NOT NULL, size INTEGER NOT NULL, packageName TEXT NOT NULL)")
-            }
+
+    val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS BlacklistPackageEntity (id INTEGER PRIMARY KEY AUTOINCREMENT, sha256 TEXT NOT NULL, size INTEGER NOT NULL, packageName TEXT NOT NULL)")
         }
     }
+
 
     @Provides
     @Singleton
     fun provideAntivirusRoomDatabase(
         @ApplicationContext context: Context,
-        migration: Migration
     ): AntivirusRoomDatabase {
         return Room.databaseBuilder(
             context,
             AntivirusRoomDatabase::class.java, "antivirus_db"
-        ).addMigrations(migration)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
     }
 }

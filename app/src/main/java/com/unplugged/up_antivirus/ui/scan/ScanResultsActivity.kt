@@ -201,21 +201,18 @@ class ScanResultsActivity : BaseActivity() {
     private fun setupObservers() {
         viewModel.malwareData.observe(this) {
             if (it.isEmpty()) {
-                malwareResultsRv.isEnabled = false
                 malwareAdapter.setMalwares(emptyList())
                 val mainColor = ContextCompat.getColor(this, R.color.results_numbers_color)
                 malwareFound.setTextColor(mainColor)
-                viewModel.setShieldLogo(ScanViewModel.LogoType.NORMAL.ordinal)
-                viewModel.setTitleFromScan(true)
-
             } else {
-                malwareResultsRv.isEnabled = true
                 malwareAdapter.setMalwares(it)
                 malwareFound.text = it.size.toString()
                 malwareFound.setTextColor(Color.RED)
-                viewModel.setShieldLogo(ScanViewModel.LogoType.BROKEN.ordinal)
-                viewModel.setTitleFromScan(false)
             }
+
+            viewModel.setTitleFromScan(!viewModel.isActiveThreatsExist)
+            malwareResultsRv.isEnabled = viewModel.isActiveThreatsExist
+            viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
         }
 
         viewModel.trackerData.observe(this) {
@@ -252,9 +249,13 @@ class ScanResultsActivity : BaseActivity() {
         viewModel.shieldLogoLiveData.observe(this) {
             shieldLogo.setImageResource(
                 when (it) {
-                    ScanViewModel.LogoType.NORMAL.ordinal -> R.drawable.ic_small_shield_logo_normal
-                    ScanViewModel.LogoType.BROKEN.ordinal -> R.drawable.ic_small_shield_logo_broken
-                    ScanViewModel.LogoType.ATTENTION.ordinal -> R.drawable.ic_small_shield_logo_attention
+                    false -> {
+                        R.drawable.ic_small_shield_logo_normal
+                        //if(deviceModel == "UP01")R.drawable.ic_small_shield_logo_attention
+                    }
+                    true -> {
+                        R.drawable.ic_small_shield_logo_broken
+                    }
                     else -> {
                         R.drawable.ic_small_shield_logo_normal
                     }
@@ -285,6 +286,9 @@ class ScanResultsActivity : BaseActivity() {
 
             ThreatStatus.REMOVED -> {
                 //Already removed, the adapter will be updated
+                viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
+                malwareResultsRv.isEnabled = viewModel.isActiveThreatsExist
+                viewModel.setTitleFromScan(viewModel.isActiveThreatsExist)
             }
 
             ThreatStatus.FAILED -> {
@@ -325,6 +329,7 @@ class ScanResultsActivity : BaseActivity() {
                     val malware = it.copy(status = ThreatStatus.REMOVED)
                     viewModel.updateMalwareStatus(malware)
                     malwareAdapter.updateMalware(malware)
+                    viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
                 }
             }
         }

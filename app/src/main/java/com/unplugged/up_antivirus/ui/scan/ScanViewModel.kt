@@ -96,8 +96,8 @@ class ScanViewModel @Inject constructor(
 
     private var scannerWorkerRequest: OneTimeWorkRequest? = null
 
-    private val shieldLogo = MutableLiveData(LogoType.NORMAL.ordinal)
-    val shieldLogoLiveData: LiveData<Int> = shieldLogo
+    private val shieldLogo = MutableLiveData(false)
+    val shieldLogoLiveData: LiveData<Boolean> = shieldLogo
 
     private val _setTitle = MutableLiveData<String>()
     val setTitle: LiveData<String> = _setTitle
@@ -173,7 +173,7 @@ class ScanViewModel @Inject constructor(
 
     val isActiveThreatsExist: Boolean
         get() {
-            return _malwareData.value?.filter { it.status == ThreatStatus.EXIST } != null
+           return !(_malwareData.value?.filter { it.status == ThreatStatus.EXIST }.isNullOrEmpty())
         }
 
     var scanId: Int? = null
@@ -332,8 +332,8 @@ class ScanViewModel @Inject constructor(
     }
 
     //this function is here because we will add up phone trackers handle in the privacy
-    fun setShieldLogo(type: Int){
-        shieldLogo.postValue(type)
+    fun setShieldLogo(activeThreat: Boolean){
+        shieldLogo.postValue(activeThreat)
     }
 
     fun setTitleFromScan(isEmpty: Boolean){
@@ -347,9 +347,5 @@ class ScanViewModel @Inject constructor(
 
     fun getApplicationIcon(id: String?): Drawable? {
         return getApplicationIconUseCase.invoke(id)
-    }
-
-    enum class LogoType {
-        NORMAL, BROKEN, ATTENTION
     }
 }

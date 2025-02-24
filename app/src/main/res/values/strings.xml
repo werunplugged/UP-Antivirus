@@ -224,5 +224,6 @@
     <string name="learn_more">Learn More</string>
     <string name="scan_result_subtitle_format">%1$s | %2$s</string>
     <string name="history_scan_results">History Scan Results</string>
+    <string name="malware_removed">Malware Removed</string>
 
 </resources>

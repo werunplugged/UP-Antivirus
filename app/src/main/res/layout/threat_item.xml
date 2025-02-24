@@ -3,46 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:paddingHorizontal="16dp">
 
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/ic_file_normal"
+        />
     <TextView
         android:id="@+id/app_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="8dp"
         android:text="Malware Name"
         android:textSize="14sp"
-        android:textStyle="bold"
+        android:ellipsize="middle"
         android:fontFamily="@font/satoshi_bold"
         android:textColor="@color/white"
         app:layout_constraintEnd_toStartOf="@+id/action_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/malware_path_tv"
+        app:layout_constraintBottom_toTopOf="@id/divider"
+        android:layout_marginBottom="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="24dp"
+        />
 
     <TextView
-        android:id="@+id/description_tv"
+        android:id="@+id/malware_path_tv"
         android:layout_width="0dp"
         android:textColor="@color/white_70"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="3"
-        android:padding="4dp"
+        android:ellipsize="start"
+        android:maxLines="1"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="24dp"
         android:fontFamily="@font/satoshi_medium"
-        android:text="Malware short description that should not be more than 2 lines at max"
+        android:text="malware path"
         app:layout_constraintEnd_toStartOf="@+id/action_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_name" />
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/app_name"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/action_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
         android:textSize="14sp"
         android:textColor="@drawable/text_state_colors"
         android:fontFamily="@font/satoshi_medium"
-        android:background="@drawable/dark_border_rounded_background"
+        android:background="@drawable/ic_red_delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="#59FFFFFF"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

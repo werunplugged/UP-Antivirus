@@ -50,6 +50,7 @@ class ScanHistoryActivity : BaseActivity() {
         scanHistoryRv.layoutManager = LinearLayoutManager(this)
         scanHistoryRv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
+        closeButton.isActivated = true
         closeButton.setOnClickListener {
             finish()
         }

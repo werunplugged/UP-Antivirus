@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -23,6 +24,8 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
@@ -59,6 +62,8 @@ class ScanResultsActivity : BaseActivity() {
     private lateinit var loadingIndicator: View
     private lateinit var infoButton: ImageView
     private lateinit var scanResultsTitleTv: TextView
+    private lateinit var container: FragmentContainerView
+
     private var malwareToBeDeleted: MalwareModel? = null
 
     private var deviceModel: String? = getDeviceModel()
@@ -106,12 +111,31 @@ class ScanResultsActivity : BaseActivity() {
         )
 
         closeButton.setOnClickListener {
-            finish()
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        learnMoreButton.setOnClickListener {
+            infoButton.callOnClick()
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (!handleBackPressed()) {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
         }
 
         malwareResultsRv.adapter = malwareAdapter
         trackersResultsRv.adapter = trackerAdapter
-        infoButton.setOnClickListener { openInfoDialog() }
+        infoButton.setOnClickListener {
+            container.isVisible = true
+            val infoFragment = InfoFragment()
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+            setTransitionAnimations(transaction)
+            transaction.add(container.id, infoFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
     }
 
     private fun setValues(historyModel: HistoryModel?) {
@@ -139,6 +163,7 @@ class ScanResultsActivity : BaseActivity() {
         appsScanned = findViewById(R.id.apps_scanned_number)
         trackersResultsTitle = findViewById(R.id.tv_trackers_scan_results)
         trackersIdentified = findViewById(R.id.trackers_identified_number)
+        container = findViewById(R.id.container)
 
         // SearchBar stuff
         searchView = findViewById(R.id.search_view)
@@ -223,7 +248,7 @@ class ScanResultsActivity : BaseActivity() {
             }
         }
 
-        viewModel.historyModel.observe(this){
+        viewModel.historyModel.observe(this) {
             setValues(it)
 
             if (intent.getBooleanExtra("fromHistory", false)) {
@@ -240,8 +265,10 @@ class ScanResultsActivity : BaseActivity() {
                 tvTitleFromHistory.isVisible = false
                 tvSubtitleFromHistory.isVisible = false
 
-                tvSubtitleFromScan.text = getString(R.string.scan_result_subtitle_format,
-                    it?.name, it?.date)
+                tvSubtitleFromScan.text = getString(
+                    R.string.scan_result_subtitle_format,
+                    it?.name, it?.date
+                )
                 scanResultsTitleTv.text = getString(R.string.up_av_scan_results)
             }
         }
@@ -253,9 +280,11 @@ class ScanResultsActivity : BaseActivity() {
                         R.drawable.ic_small_shield_logo_normal
                         //if(deviceModel == "UP01")R.drawable.ic_small_shield_logo_attention
                     }
+
                     true -> {
                         R.drawable.ic_small_shield_logo_broken
                     }
+
                     else -> {
                         R.drawable.ic_small_shield_logo_normal
                     }
@@ -299,22 +328,6 @@ class ScanResultsActivity : BaseActivity() {
 
     private val trackerClickListener: (tracker: TrackerModel) -> Unit = { tracker ->
         showCustomTrackerDialog(tracker.appName, tracker.packageId, tracker.trackers)
-    }
-
-    private fun openInfoDialog() {
-        if (deviceModel == "UP01") {
-            showDialog(
-                getString(R.string.up_av_malware_trackers_info_title),
-                getString(R.string.up_av_malware_trackers_info_message_up_phone)
-            ) {}
-        } else {
-            showDialogWithIntent(
-                getString(R.string.up_av_malware_trackers_info_title),
-                getString(R.string.up_av_malware_trackers_info_message),
-                getString(R.string.up_av_unplugged_website_clickable_text),
-                getString(R.string.up_av_unplugged_website)
-            ) {}
-        }
     }
 
     private fun getDeviceModel(): String? {
@@ -407,5 +420,27 @@ class ScanResultsActivity : BaseActivity() {
         )
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             .setTextColor(this.getColor(R.color.main_text_color))
+    }
+
+    private fun setTransitionAnimations(transaction: FragmentTransaction) {
+        transaction.setCustomAnimations(
+            R.anim.fragment_in_right,
+            R.anim.fragment_out_left,
+            R.anim.fragment_in_left,
+            R.anim.fragment_out_right
+        )
+    }
+
+    private fun handleBackPressed(): Boolean {
+        val fragment = supportFragmentManager.findFragmentById(R.id.container)
+        return if (supportFragmentManager.fragments.isNotEmpty()) {
+            if (fragment is InfoFragment) {
+                supportFragmentManager.popBackStack()
+                container.isVisible = false
+            }
+            true
+        } else {
+            false
+        }
     }
 }

@@ -73,6 +73,7 @@ class StatusActivity : BaseActivity() {
         setContentView(R.layout.activity_status_new)
         initViews()
 
+        startScanBtn.isActivated = true
         startScanBtn.setOnClickListener {
             MainScope().launch {
                 startScan()

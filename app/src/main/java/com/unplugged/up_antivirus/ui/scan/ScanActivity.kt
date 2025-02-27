@@ -75,6 +75,7 @@ class ScanActivity : BaseActivity() {
             }
         }
 
+        goToFullResultsButton.isActivated = true
         goToFullResultsButton.setOnClickListener {
             if (!viewModel.isScanning()) {
                 val scanId = viewModel.scanId

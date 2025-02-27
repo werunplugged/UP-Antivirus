@@ -225,5 +225,65 @@
     <string name="scan_result_subtitle_format">%1$s | %2$s</string>
     <string name="history_scan_results">History Scan Results</string>
     <string name="malware_removed">Malware Removed</string>
+    <string name="what_are_trackers">What Are Trackers?</string>
+    <string name="what_are_malware">What is Malware?</string>
+    <string name="what_are_trackers_description">
+        <![CDATA[
+            Trackers are bits of software embedded in apps to <b>collect data about you, your behavior, and your device.</b> Some serve useful functions, while others silently <b>track and profile you—often without consent.</b>
+        ]]>
+    </string>
+    <string name="what_is_malware_description">
+        <![CDATA[
+        <b>Malware (malicious software)</b> is designed to <b>harm, spy on, or exploit</b> your device. Attackers use it <b>to steal data, take control, or damage systems</b>— often without your knowledge.]]>
+    </string>
+    <string name="why_it_matters" translatable="false">Why It Matters</string>
+    <string name="how_malware_spreads" translatable="false">How Malware Spreads</string>
+    <string name="how_malware_spreads_description">
+    <![CDATA[
+        <ul>
+            <li>&nbsp;<b>Phishing:</b> Fake emails and messages tricking you into clicking harmful links.</li>
+            <li>&nbsp;<b>Malicious Websites:</b> Sites that secretly install malware.</li>
+            <li>&nbsp;<b>Infected Downloads:</b> Compromised apps, files, or attachments.</li>
+            <li>&nbsp;<b>Compromised Devices:</b> USBs or connected devices carrying malware.</li>
+        </ul>]]>
+    </string>
+    <string name="why_it_matters_description">
+        <![CDATA[
+        Many apps include trackers by default, whether for <b>analytics, advertising, or profiling.</b> This data is used to <b>target ads, build digital identities, and even track locations.</b>
+        ]]>
+    </string>
+    <string name="common_types_of_trackers">Common Types of Trackers</string>
+    <string name="types_of_malware">Types of Malware</string>
+    <string name="common_types_of_trackers_description">
+    <![CDATA[
+        <ul>
+            <li>&nbsp;<b>Crash Reporters:</b> Help fix bugs by reporting app crashes.</li>
+            <li>&nbsp;<b>Analytics:</b> Track user behavior for app improvements.</li>
+            <li>&nbsp;<b>Profiling:</b> Build detailed user profiles from browsing habits.</li>
+            <li>&nbsp;<b>Identification:</b> Link online and offline activity to a user.</li>
+            <li>&nbsp;<b>Advertising:</b> Track users to deliver targeted ads.</li>
+            <li>&nbsp;<b>Location:</b> Monitor a device’s position using GPS, Wi-Fi, or Bluetooth.</li>
+        </ul>]]>
+    </string>
+    <string name="types_of_malware_description">
+        <![CDATA[
+            <ul><li>&nbsp;<b>Viruses:</b> Infect files, steal data, and spread.</li>
+                <li>&nbsp;<b>Worms:</b> Spread across networks automatically.</li>
+                <li>&nbsp;<b>Trojans:</b> Disguised as safe apps to steal data.</li>
+                <li>&nbsp;<b>Ransomware:</b> Locks files and demands payment.</li>
+                <li>&nbsp;<b>Spyware:</b> Monitors activity and steals information.</li>
+                <li>&nbsp;<b>Adware:</b> Shows intrusive ads and redirects to harmful sites.</li>
+                <li>&nbsp;<b>Rootkits:</b> Hide attackers’ control over your device.</li>
+                <li>&nbsp;<b>Keyloggers:</b> Record keystrokes to capture sensitive data.</li></ul>]]>
+    </string>
 
+    <string name="how_up_phone_protects_you">How UP Phone Protects You</string>
+    <string name="how_up_phone_protects_you_description">
+        <![CDATA[On UP Phone, you able to <b>block tracker’s internet connection via UP Privacy Center</b> giving you control over your digital privacy.]]>
+    </string>
+    <string name="how_up_phone_protects_you_description_malware">
+        <![CDATA[UP Phone <b>blocks threats, detects malware, and prevents tracking</b>, keeping your data private and secure.]]>
+    </string>
+    <string name="trackers_and_malware">Trackers And Malware</string>
+    <string name="malware">Malware</string>
 </resources>

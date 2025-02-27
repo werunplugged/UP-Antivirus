@@ -9,10 +9,7 @@ import android.view.ViewOutlineProvider
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentTransaction
@@ -28,7 +25,6 @@ import com.unplugged.up_antivirus.data.receiver.PackageMonitorService
 import com.unplugged.up_antivirus.ui.settings.SettingsOnClickListener
 import com.unplugged.up_antivirus.ui.settings.legals.SettingsLegalsFragment
 import com.unplugged.up_antivirus.ui.settings.scheduler.SettingsSchedulerFragment
-import com.unplugged.up_antivirus.ui.status.StatusActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

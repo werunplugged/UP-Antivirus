@@ -344,43 +344,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-<!--        <TextView-->
-<!--            android:id="@+id/scan_results_title_tv"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            android:textColor="@color/white_70"-->
-<!--            android:textSize="16sp"-->
-<!--            android:fontFamily="@font/satoshi_bold"-->
-<!--            android:visibility="gone"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/scan_trackers_message_tv"-->
-<!--            android:text="@string/up_av_scan_results" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/remove_all_threats_tv"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:textColor="@color/green_bright"-->
-<!--            android:visibility="invisible"-->
-<!--            android:fontFamily="@font/satoshi_medium"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="@+id/scan_results_title_tv"-->
-<!--            android:text="@string/up_av_remove_all" />-->
-
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/scan_results_rv"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_marginTop="12dp"-->
-<!--            android:layout_marginBottom="6dp"-->
-<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--            app:layout_constraintBottom_toTopOf="@+id/cancel_button"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/scan_results_title_tv" />-->
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/cancel_button"
             android:layout_width="wrap_content"

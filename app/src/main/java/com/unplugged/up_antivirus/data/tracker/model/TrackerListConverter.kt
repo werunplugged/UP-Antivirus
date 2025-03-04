@@ -4,8 +4,9 @@ import com.example.trackerextension.Tracker
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import javax.inject.Inject
 
-class TrackerListConverter {
+class TrackerListConverter @Inject constructor() {
     private val gson = Gson()
 
     @TypeConverter

@@ -9,8 +9,8 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.unplugged.antivirus.R
+import com.unplugged.up_antivirus.data.tracker.model.ExpandableItem
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.text.subSequence
 
 @AndroidEntryPoint
 class InfoFragment : Fragment(R.layout.fragment_trackers_malware_info) {
@@ -104,12 +104,10 @@ class InfoFragment : Fragment(R.layout.fragment_trackers_malware_info) {
     private fun trimTrailingWhitespace(source: Spanned): Spanned {
         var i = source.length
 
-        // loop back to the first non-whitespace character
         do {
             i--
         } while (i >= 0 && Character.isWhitespace(source[i]))
 
-        // remove the whitespace
         return if (i == source.length - 1) {
             source
         } else {

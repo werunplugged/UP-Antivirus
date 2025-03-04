@@ -129,12 +129,7 @@ class ScanResultsActivity : BaseActivity() {
         trackersResultsRv.adapter = trackerAdapter
         infoButton.setOnClickListener {
             container.isVisible = true
-            val infoFragment = InfoFragment()
-            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-            setTransitionAnimations(transaction)
-            transaction.add(container.id, infoFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+           openInfoFragment()
         }
     }
 
@@ -327,7 +322,14 @@ class ScanResultsActivity : BaseActivity() {
     }
 
     private val trackerClickListener: (tracker: TrackerModel) -> Unit = { tracker ->
-        showCustomTrackerDialog(tracker.appName, tracker.packageId, tracker.trackers)
+        //showCustomTrackerDialog(tracker.appName, tracker.packageId, tracker.trackers)
+        container.isVisible = true
+        val perAppFragment = PerAppFragment.newInstance(tracker)
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        setTransitionAnimations(transaction)
+        transaction.add(container.id, perAppFragment, "PerAppFragment")
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 
     private fun getDeviceModel(): String? {
@@ -432,15 +434,23 @@ class ScanResultsActivity : BaseActivity() {
     }
 
     private fun handleBackPressed(): Boolean {
-        val fragment = supportFragmentManager.findFragmentById(R.id.container)
         return if (supportFragmentManager.fragments.isNotEmpty()) {
-            if (fragment is InfoFragment) {
-                supportFragmentManager.popBackStack()
+            supportFragmentManager.popBackStack()
+            if(supportFragmentManager.fragments.isEmpty()){
                 container.isVisible = false
             }
             true
         } else {
             false
         }
+    }
+
+    fun openInfoFragment(){
+        val infoFragment = InfoFragment()
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        setTransitionAnimations(transaction)
+        transaction.add(container.id, infoFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 }

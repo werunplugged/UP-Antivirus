@@ -83,7 +83,7 @@ class ScanResultsActivity : BaseActivity() {
 
         setContentView(R.layout.activity_scan_results)
         initViews()
-
+        viewModel.loadTrackersDetails(this)
         trackerAdapter = trackerAdapterFactory.create(trackerClickListener)
 
         setupObservers()

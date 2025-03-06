@@ -50,6 +50,8 @@ import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerMapper
 import com.unplugged.up_antivirus.data.tracker.model.TrackerMapper
 import com.unplugged.up_antivirus.domain.account.AccountRepository
 import com.unplugged.up_antivirus.data.history.HistoryRepository
+import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerDetailsRepository
+import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
 import com.unplugged.up_antivirus.domain.preferences.PreferencesRepository
 import com.unplugged.up_antivirus.domain.use_case.CreateScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetActiveScanIdUseCase
@@ -113,6 +115,12 @@ object AppModule {
             hypatia,
             notificationManager
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideTrackerDetailsRepository(): TrackerDetailsRepository {
+        return DefaultTrackerDetailsRepository()
     }
 
     @Provides

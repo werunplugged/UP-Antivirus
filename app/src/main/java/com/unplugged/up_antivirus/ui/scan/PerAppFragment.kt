@@ -8,10 +8,12 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trackerextension.TrackerModel
 import com.unplugged.antivirus.R
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PerAppFragment: Fragment(R.layout.fragment_per_app) {
@@ -47,12 +49,13 @@ class PerAppFragment: Fragment(R.layout.fragment_per_app) {
             arguments?.getParcelable(ARG_TRACKER_MODEL)
         }
         if (trackerModel != null) {
-            viewModel.getListOfTrackers(trackerModel)
+            lifecycleScope.launch {
+                viewModel.getListOfTrackers(this@PerAppFragment.requireContext(), trackerModel)
+            }
         }
 
         appIcon.setImageDrawable(viewModel.getIcon(trackerModel?.packageId))
         appTitle.text = trackerModel?.appName
-        trackersIdentified.text = trackerModel?.trackers?.split("\n")?.size.toString()
 
         closeButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -79,6 +82,7 @@ class PerAppFragment: Fragment(R.layout.fragment_per_app) {
     private fun observe(){
         viewModel.trackerList.observe(viewLifecycleOwner){
             expandableTrackerAdapter.submitList(it)
+            trackersIdentified.text = it.size.toString()
         }
     }
 }

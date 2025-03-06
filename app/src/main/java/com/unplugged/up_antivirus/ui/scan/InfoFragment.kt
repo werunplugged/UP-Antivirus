@@ -9,7 +9,6 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.unplugged.antivirus.R
-import com.unplugged.up_antivirus.data.tracker.model.ExpandableItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

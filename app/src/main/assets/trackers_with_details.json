@@ -1,0 +1,8 @@
+[
+  {
+    "name": "360Dialog",
+    "website": "https://www.360dialog.com",
+    "category": "Messaging",
+    "description": "360Dialog enables WhatsApp Business API integration, collecting phone numbers, message content, and interaction data for communication services. It may also gather device IDs and IP addresses for analytics purposes. Privacy risks include potential data sharing with business clients and unclear retention policies, given its enterprise focus."
+  }
+]

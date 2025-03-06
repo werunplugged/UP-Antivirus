@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/gradient_background"
+    android:background="@drawable/up_background_main"
     android:animateLayoutChanges="true"
     android:padding="16dp">
 
@@ -74,6 +74,8 @@
         android:fontFamily="@font/satoshi_black"
         android:gravity="center_horizontal"
         android:text="0"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:textColor="#58C1A8"
         android:textSize="22sp"
         android:layout_marginTop="22dp"

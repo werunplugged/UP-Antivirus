@@ -1,5 +1,6 @@
 package com.unplugged.up_antivirus.ui.scan
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -17,6 +18,7 @@ import androidx.work.WorkManager
 import com.example.trackerextension.TrackerModel
 import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
 import com.unplugged.up_antivirus.workers.ScannerWorker
 import com.unplugged.upantiviruscommon.model.Resource
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
@@ -64,7 +66,8 @@ class ScanViewModel @Inject constructor(
     private val isScanningUseCase: IsScanningUseCase,
     private val scannerRepository: ScannerRepository,
     private val workManager: WorkManager,
-    private val getApplicationIconUseCase: GetApplicationIconUseCase
+    private val getApplicationIconUseCase: GetApplicationIconUseCase,
+    private val trackerDetailsRepository: TrackerDetailsRepository
 ) : ViewModel() {
 
     private val _historyModel = MutableLiveData<HistoryModel?>()
@@ -347,5 +350,11 @@ class ScanViewModel @Inject constructor(
 
     fun getApplicationIcon(id: String?): Drawable? {
         return getApplicationIconUseCase.invoke(id)
+    }
+
+    fun loadTrackersDetails(context: Context){
+        viewModelScope.launch(Dispatchers.IO) {
+            trackerDetailsRepository.getTrackerDetails(context)
+        }
     }
 }

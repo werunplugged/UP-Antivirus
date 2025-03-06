@@ -48,10 +48,10 @@ class ExpandableTrackerAdapter :
 
         fun bind(item: ExpandableItem) {
             title.text = item.tracker.name
-            mainTag.text = item.tracker.tags.first()
-            if (item.tracker.tags.size > 1) {
+            mainTag.text = item.tracker.category.first()
+            if (item.tracker.category.size > 1) {
                 extraTagsNumber.isVisible = true
-                extraTagsNumber.text = "+${item.tracker.tags.size - 1}"
+                extraTagsNumber.text = "+${item.tracker.category.size - 1}"
             } else {
                 extraTagsNumber.isVisible = false
             }
@@ -62,24 +62,26 @@ class ExpandableTrackerAdapter :
                 arrow.setImageResource(R.drawable.ic_arrow_drop_up_green)
                 expandableLayout.isVisible = true
                 mainTagLayout.isVisible = false
+                title.maxLines = 2
             } else {
                 arrow.setImageResource(R.drawable.ic_arrow_drop_down_green)
                 expandableLayout.isVisible = false
                 mainTagLayout.isVisible = true
+                title.maxLines = 1
             }
 
-            if (item.tracker.links.isEmpty()) {
+            if (item.tracker.website.isEmpty()) {
                 tvLinksTitle.isVisible = false
                 links.isVisible = false
             } else {
                 tvLinksTitle.isVisible = true
                 links.isVisible = true
-                links.makeLinksClickable(item.tracker.links)
+                links.makeLinksClickable(item.tracker.website)
 
-                    HtmlCompat.fromHtml(item.tracker.links, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                    HtmlCompat.fromHtml(item.tracker.website, HtmlCompat.FROM_HTML_MODE_COMPACT)
             }
 
-            tagsRecycler.adapter = TagsAdapter(item.tracker.tags)
+            tagsRecycler.adapter = TagsAdapter(item.tracker.category)
         }
 
         fun TextView.makeLinksClickable(text: String) {

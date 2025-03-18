@@ -35,6 +35,7 @@ import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.up_antivirus.ui.CellMarginDecoration
+import com.unplugged.up_antivirus.ui.status.StatusActivity
 import com.unplugged.upantiviruscommon.malware.MalwareModel
 import com.unplugged.upantiviruscommon.malware.ThreatStatus
 import com.unplugged.upantiviruscommon.utils.Constants.SCAN_ID
@@ -111,7 +112,7 @@ class ScanResultsActivity : BaseActivity() {
         )
 
         closeButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+            handleBackPressed()
         }
 
         learnMoreButton.setOnClickListener {
@@ -119,9 +120,9 @@ class ScanResultsActivity : BaseActivity() {
         }
 
         onBackPressedDispatcher.addCallback(this) {
-            if (!handleBackPressed()) {
+            if (!handleFragmentBackPressed()) {
                 isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
+                handleBackPressed()
             }
         }
 
@@ -433,7 +434,7 @@ class ScanResultsActivity : BaseActivity() {
         )
     }
 
-    private fun handleBackPressed(): Boolean {
+    private fun handleFragmentBackPressed(): Boolean {
         return if (supportFragmentManager.fragments.isNotEmpty()) {
             supportFragmentManager.popBackStack()
             if(supportFragmentManager.fragments.isEmpty()){
@@ -452,5 +453,19 @@ class ScanResultsActivity : BaseActivity() {
         transaction.add(container.id, infoFragment)
         transaction.addToBackStack(null)
         transaction.commit()
+    }
+
+    private fun returnToStatusActivity(){
+        val intent = Intent(this, StatusActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun handleBackPressed(){
+        if(intent.getBooleanExtra("fromHistory", false)){
+            onBackPressedDispatcher.onBackPressed()
+        } else {
+            returnToStatusActivity()
+        }
     }
 }

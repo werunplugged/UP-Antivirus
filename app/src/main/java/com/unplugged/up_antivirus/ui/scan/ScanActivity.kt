@@ -74,7 +74,6 @@ class ScanActivity : BaseActivity() {
                     {})
             }
         }
-
         goToFullResultsButton.isActivated = true
         goToFullResultsButton.setOnClickListener {
             if (!viewModel.isScanning()) {
@@ -84,6 +83,7 @@ class ScanActivity : BaseActivity() {
                     putExtra("fromHistory", false)
                     startActivity(this)
                 }
+                finish()
             }
         }
 

@@ -7,6 +7,6 @@ data class AppInfo(
     val packageName: String,
     val versionName: String,
     val versionCode: Long,
-    val icon: Drawable,
+    val icon: Drawable?,
     val apkInfo: ApkInfo?
 )

@@ -61,7 +61,7 @@ import com.unplugged.up_antivirus.domain.use_case.GetSessionUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetSubscriptionDataUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetUserAppListForTrackersUseCase
 import com.unplugged.up_antivirus.domain.use_case.LogoutUseCase
-import com.unplugged.up_antivirus.domain.use_case.SaveHistoryUseCase
+import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
 import com.unplugged.up_antivirus.domain.use_case.StopScanServiceUseCase
@@ -322,7 +322,7 @@ object AppModule {
         trackers: TrackersAccessPoint,
         blacklist: SignatureScannerAccessPoint,
         stringProvider: StringProvider,
-        saveHistoryUseCase: SaveHistoryUseCase,
+        historyActionsUseCase: HistoryActionsUseCase,
         updateScanDoneUseCase: UpdateScanDoneUseCase,
         saveMalwareUseCase: SaveMalwareUseCase,
         saveTrackerUseCase: SaveTrackerUseCase,
@@ -337,7 +337,7 @@ object AppModule {
             trackers,
             blacklist,
             stringProvider,
-            saveHistoryUseCase,
+            historyActionsUseCase,
             updateScanDoneUseCase,
             saveMalwareUseCase,
             saveTrackerUseCase,
@@ -379,8 +379,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetApplicationInfoUseCase(@ApplicationContext context: Context): GetApplicationInfoUseCase {
-        return GetApplicationInfoUseCase(context)
+    fun provideGetApplicationInfoUseCase(@ApplicationContext context: Context, getApplicationIconUseCase: GetApplicationIconUseCase): GetApplicationInfoUseCase {
+        return GetApplicationInfoUseCase(context, getApplicationIconUseCase)
     }
 
     @Provides

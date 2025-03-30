@@ -4,7 +4,7 @@ import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.data.history.HistoryRepository
 import javax.inject.Inject
 
-class SaveHistoryUseCase @Inject constructor(private val historyRepository: HistoryRepository) {
+class HistoryActionsUseCase @Inject constructor(private val historyRepository: HistoryRepository) {
 
     suspend operator fun invoke(historyModel: HistoryModel): Int {
         return historyRepository.insert(historyModel)

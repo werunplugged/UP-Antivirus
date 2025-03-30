@@ -54,7 +54,7 @@ class ScanActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
         initViews()
-        scanType.text = viewModel.getScanType(intent.getBooleanExtra("scanType", true))
+        scanType.text = viewModel.getScanType(this, intent.getBooleanExtra("scanType", true))
 
         setupObservers()
 

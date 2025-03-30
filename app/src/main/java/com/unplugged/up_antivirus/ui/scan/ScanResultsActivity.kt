@@ -1,7 +1,6 @@
 package com.unplugged.up_antivirus.ui.scan
 
 import android.animation.LayoutTransition
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -19,7 +18,6 @@ import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
@@ -33,11 +31,11 @@ import com.example.trackerextension.TrackerModel
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
-import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.up_antivirus.ui.CellMarginDecoration
 import com.unplugged.up_antivirus.ui.status.StatusActivity
 import com.unplugged.upantiviruscommon.malware.MalwareModel
 import com.unplugged.upantiviruscommon.malware.ThreatStatus
+import com.unplugged.upantiviruscommon.model.AppInfo
 import com.unplugged.upantiviruscommon.utils.Constants.SCAN_ID
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLEncoder
@@ -76,7 +74,13 @@ class ScanResultsActivity : BaseActivity() {
     private lateinit var trackerAdapter: TrackerAdapter
 
     private val malwareAdapter by lazy {
-        MalwareAdapter(malwareClickListener, malwareActionClickListener)
+        val apps = this.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        val appInfoList : MutableList<AppInfo?> = mutableListOf()
+        for (app in apps) {
+            appInfoList.add(viewModel.getAppInfo(app.packageName))
+        }
+
+        MalwareAdapter(this, malwareClickListener, malwareActionClickListener, installedApplications = appInfoList)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -231,7 +235,7 @@ class ScanResultsActivity : BaseActivity() {
                 malwareFound.setTextColor(Color.RED)
             }
 
-            viewModel.setTitleFromScan(!viewModel.isActiveThreatsExist)
+            viewModel.setTitleFromScan(this, !viewModel.isActiveThreatsExist)
             malwareResultsRv.isEnabled = viewModel.isActiveThreatsExist
             viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
         }
@@ -313,7 +317,7 @@ class ScanResultsActivity : BaseActivity() {
                 //Already removed, the adapter will be updated
                 viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
                 malwareResultsRv.isEnabled = viewModel.isActiveThreatsExist
-                viewModel.setTitleFromScan(viewModel.isActiveThreatsExist)
+                viewModel.setTitleFromScan(this, viewModel.isActiveThreatsExist)
             }
 
             ThreatStatus.FAILED -> {
@@ -380,50 +384,6 @@ class ScanResultsActivity : BaseActivity() {
         }
     }
 
-    private fun showCustomTrackerDialog(appName: String, packageId: String, trackers: String) {
-        val builder = AlertDialog.Builder(this)
-        val inflater = layoutInflater
-        val dialogLayout = inflater.inflate(R.layout.tracker_custom_dialog, null)
-
-        val appIcon = dialogLayout.findViewById<ImageView>(R.id.dialog_app_icon)
-        val appNameTitle = dialogLayout.findViewById<TextView>(R.id.dialog_app_name_title)
-        val trackerList = dialogLayout.findViewById<TextView>(R.id.dialog_tracker_list)
-        val appNotInstalledLayout =
-            dialogLayout.findViewById<LinearLayout>(R.id.dialog_app_not_installed_layout)
-
-        val appIconDrawable = viewModel.getApplicationIcon(packageId)
-        appIcon.setImageDrawable(appIconDrawable)
-
-        appNameTitle.text = appName
-
-        // Join the list items into a single string with line breaks
-        val trackersConvertedList = TrackerListConverter().toTrackerList(trackers)
-        val trackerNames = trackersConvertedList.map { it.name }
-        trackerList.text = trackerNames.joinToString(separator = "\n")
-
-        // Check if the app is installed
-        if (isPackageInstalled(packageId, packageManager)) {
-            appNotInstalledLayout.visibility = View.GONE
-        } else {
-            appNotInstalledLayout.visibility = View.VISIBLE
-        }
-
-        builder.setView(dialogLayout)
-        builder.setCancelable(false)
-        builder.setPositiveButton(R.string.up_av_ok) { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        val dialog = builder.create()
-        dialog.show()
-        dialog.window?.setBackgroundDrawable(
-            AppCompatResources.getDrawable(
-                this, R.drawable.background_dialog
-            )
-        )
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            .setTextColor(this.getColor(R.color.main_text_color))
-    }
 
     private fun setTransitionAnimations(transaction: FragmentTransaction) {
         transaction.setCustomAnimations(

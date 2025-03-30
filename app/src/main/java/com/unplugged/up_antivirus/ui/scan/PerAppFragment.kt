@@ -82,7 +82,10 @@ class PerAppFragment: Fragment(R.layout.fragment_per_app) {
     private fun observe(){
         viewModel.trackerList.observe(viewLifecycleOwner){
             expandableTrackerAdapter.submitList(it)
-            trackersIdentified.text = it.size.toString()
+        }
+
+        viewModel.trackersFound.observe(viewLifecycleOwner){
+            trackersIdentified.text = it.toString()
         }
     }
 }

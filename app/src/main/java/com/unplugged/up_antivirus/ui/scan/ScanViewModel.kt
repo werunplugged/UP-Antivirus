@@ -16,6 +16,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.trackerextension.TrackerModel
+import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
@@ -26,6 +27,7 @@ import com.unplugged.up_antivirus.domain.use_case.CreateScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetActiveScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetHistoryModelByScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
+import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetMalwaresByScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetScanUpdatesFlowUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetTrackersByScanIdUseCase
@@ -42,6 +44,7 @@ import com.unplugged.upantiviruscommon.malware.MalwareModel
 import com.unplugged.upantiviruscommon.malware.ScanMessage
 import com.unplugged.upantiviruscommon.malware.ScanStats
 import com.unplugged.upantiviruscommon.malware.ThreatStatus
+import com.unplugged.upantiviruscommon.model.AppInfo
 import com.unplugged.upantiviruscommon.model.ScannerType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +70,8 @@ class ScanViewModel @Inject constructor(
     private val scannerRepository: ScannerRepository,
     private val workManager: WorkManager,
     private val getApplicationIconUseCase: GetApplicationIconUseCase,
-    private val trackerDetailsRepository: TrackerDetailsRepository
+    private val trackerDetailsRepository: TrackerDetailsRepository,
+    private val getApplicationInfoUseCase : GetApplicationInfoUseCase
 ) : ViewModel() {
 
     private val _historyModel = MutableLiveData<HistoryModel?>()
@@ -327,10 +331,10 @@ class ScanViewModel @Inject constructor(
         return scannerRepository.getScannerProgress(scanner)
     }
 
-    fun getScanType(isQuickScan: Boolean): String{
+    fun getScanType(context: Context, isQuickScan: Boolean): String{
         return when(isQuickScan){
-            true -> "Quick Scan"
-            false -> "Full Scan"
+            true -> context.getString(R.string.quick_scan)
+            false -> context.getString(R.string.full_scan)
         }
     }
 
@@ -339,11 +343,11 @@ class ScanViewModel @Inject constructor(
         shieldLogo.postValue(activeThreat)
     }
 
-    fun setTitleFromScan(isEmpty: Boolean){
+    fun setTitleFromScan(context: Context , isEmpty: Boolean){
         val text = if(isEmpty) {
-            "Your Device is Protected"
+            context.getString(R.string.your_device_is_protected)
         } else{
-            "Your Device is Compromised"
+            context.getString(R.string.your_device_is_compromised)
         }
         _setTitle.postValue(text)
     }
@@ -356,5 +360,9 @@ class ScanViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             trackerDetailsRepository.getTrackerDetails(context)
         }
+    }
+
+    fun getAppInfo(packageName: String): AppInfo? {
+        return getApplicationInfoUseCase.invoke(packageName)
     }
 }

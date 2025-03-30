@@ -16,7 +16,7 @@ import com.unplugged.up_antivirus.common.notifications.NotificationManager
 import com.unplugged.upantiviruscommon.utils.DateTimeUtils
 import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
-import com.unplugged.up_antivirus.domain.use_case.SaveHistoryUseCase
+import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
 import com.unplugged.upantiviruscommon.malware.MalwareModel
@@ -27,13 +27,12 @@ import com.unplugged.upantiviruscommon.model.ScannerType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.random.Random
 
 class CheckAppTask @Inject constructor(
     private val scanPackageTask: ScanPackageTask,
-    private var saveHistoryUseCase: SaveHistoryUseCase,
+    private var historyActionsUseCase: HistoryActionsUseCase,
     private var saveMalwareUseCase: SaveMalwareUseCase,
     private var saveTrackerUseCase: SaveTrackerUseCase,
     private val trackerAccessPoint: TrackersAccessPoint,
@@ -232,6 +231,6 @@ class CheckAppTask @Inject constructor(
             scanStats.megabytesHashed
         )
 
-        return saveHistoryUseCase(historyItem)
+        return historyActionsUseCase(historyItem)
     }
 }

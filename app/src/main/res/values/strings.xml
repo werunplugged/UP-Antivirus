@@ -286,4 +286,7 @@
     </string>
     <string name="trackers_and_malware">Trackers And Malware</string>
     <string name="malware">Malware</string>
+    <string name="your_device_is_protected">Your Device is Protected</string>
+    <string name="your_device_is_compromised">Your Device is Compromised</string>
+    <string name="quick_scan">Quick Scan</string>
 </resources>

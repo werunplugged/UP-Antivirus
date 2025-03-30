@@ -27,6 +27,9 @@ class PerAppViewModel @Inject constructor(
     private val _expandableTrackerList = MutableLiveData<List<ExpandableItem>>()
     val trackerList: LiveData<List<ExpandableItem>> = _expandableTrackerList
 
+    private val _trackersFound = MutableLiveData<Int>()
+    val trackersFound: LiveData<Int> = _trackersFound
+
     suspend fun getListOfTrackers(context: Context, trackerModel: TrackerModel) {
         val listOfTrackers = getTrackersInfo(context, trackerModel)
         val expandableList: MutableList<ExpandableItem> = mutableListOf()
@@ -43,7 +46,7 @@ class PerAppViewModel @Inject constructor(
 
     private suspend fun getTrackersInfo(context: Context, trackerModel: TrackerModel): List<TrackerDetails> {
         val trackerNames = trackerListConverter.toTrackerList(trackerModel.trackers)
-
+        _trackersFound.postValue(trackerNames.size)
         var trackerList: MutableList<TrackerDetails>
         withContext(Dispatchers.Main) {
             trackerList = trackerDetailsRepository.getTrackerDetailsByNames(context, trackerNames).toMutableList()

@@ -1,6 +1,7 @@
 package com.unplugged.up_antivirus.data.receiver
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -53,6 +54,7 @@ class CheckAppTask @Inject constructor(
 
         this.context = context
 
+        if (isSystemApp(context, packageName)) return
         malwareScanner = PackageScanner(context, scanPackageTask.appRepository)
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -232,5 +234,21 @@ class CheckAppTask @Inject constructor(
         )
 
         return historyActionsUseCase(historyItem)
+    }
+
+    private fun isSystemApp(context: Context, packageName: String): Boolean {
+        val packageManager = context.packageManager
+        return try {
+            val applicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0L))
+            } else {
+                packageManager.getApplicationInfo(packageName, 0)
+            }
+            (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        } catch (e: PackageManager.NameNotFoundException) {
+            // Handle the case where the package name is not found
+            e.printStackTrace()
+            false // Or throw an exception, depending on your needs
+        }
     }
 }

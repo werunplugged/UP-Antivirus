@@ -102,12 +102,8 @@ class AppRepositoryImpl(
             val pm = context.packageManager
             val apps = pm.getInstalledApplications(PackageManager.MATCH_ALL)
 
-
-
             val userAppsInfo = mutableListOf<ApplicationInfo>()
             val systemAppsInfo = mutableListOf<ApplicationInfo>()
-
-
 
             for (app in apps) {
                 if ((app.flags and ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM) {

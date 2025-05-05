@@ -5,6 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/up_background_main"
+    android:focusable="true"
+    android:clickable="true"
     android:animateLayoutChanges="true"
     android:padding="16dp">
 
@@ -31,14 +33,14 @@
         android:id="@+id/info_title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/satoshi_bold"
         android:text="@string/trackers_and_malware"
         android:textColor="@color/white"
         android:textSize="20sp"
-        android:layout_marginStart="8dp"
-        android:fontFamily="@font/satoshi_bold"
+        app:layout_constraintBottom_toBottomOf="@id/close_button"
         app:layout_constraintStart_toEndOf="@id/close_button"
-        app:layout_constraintTop_toTopOf="@id/close_button"
-        app:layout_constraintBottom_toBottomOf="@id/close_button"/>
+        app:layout_constraintTop_toTopOf="@id/close_button"/>
 
     <ImageView
         android:id="@+id/app_icon"

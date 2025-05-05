@@ -78,7 +78,7 @@ class ExpandableTrackerAdapter :
                 links.isVisible = true
                 links.makeLinksClickable(item.tracker.website)
 
-                    HtmlCompat.fromHtml(item.tracker.website, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                HtmlCompat.fromHtml(item.tracker.website, HtmlCompat.FROM_HTML_MODE_COMPACT)
             }
 
             tagsRecycler.adapter = TagsAdapter(item.tracker.category)

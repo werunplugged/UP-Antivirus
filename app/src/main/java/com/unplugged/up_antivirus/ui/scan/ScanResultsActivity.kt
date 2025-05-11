@@ -1,9 +1,9 @@
 package com.unplugged.up_antivirus.ui.scan
 
 import android.animation.LayoutTransition
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Build
@@ -14,26 +14,28 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trackerextension.TrackerModel
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
-import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
-import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
+import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.ui.CellMarginDecoration
+import com.unplugged.up_antivirus.ui.status.StatusActivity
 import com.unplugged.upantiviruscommon.malware.MalwareModel
 import com.unplugged.upantiviruscommon.malware.ThreatStatus
+import com.unplugged.upantiviruscommon.model.AppInfo
 import com.unplugged.upantiviruscommon.utils.Constants.SCAN_ID
 import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLEncoder
@@ -41,25 +43,44 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScanResultsActivity : BaseActivity() {
-    private lateinit var resultsRv: RecyclerView
-    private val concatAdapter = ConcatAdapter()
+    private lateinit var malwareResultsRv: RecyclerView
+    private lateinit var trackersResultsRv: RecyclerView
+    private lateinit var shieldLogo: ImageView
+    private lateinit var tvTitleFromScan: TextView
+    private lateinit var tvSubtitleFromScan: TextView
+    private lateinit var tvTitleFromHistory: TextView
+    private lateinit var tvSubtitleFromHistory: TextView
+    private lateinit var filesScanned: TextView
+    private lateinit var malwareFound: TextView
+    private lateinit var appsScanned: TextView
+    private lateinit var trackersResultsTitle: TextView
+    private lateinit var trackersIdentified: TextView
     private lateinit var closeButton: AppCompatButton
+    private lateinit var learnMoreButton: AppCompatButton
+    private lateinit var searchView: SearchView
     private lateinit var loadingIndicator: View
     private lateinit var infoButton: ImageView
     private lateinit var scanResultsTitleTv: TextView
-    private val viewModel: ScanViewModel by viewModels()
+    private lateinit var container: FragmentContainerView
+
     private var malwareToBeDeleted: MalwareModel? = null
+
+    private var deviceModel: String? = getDeviceModel()
+
+    private val viewModel: ScanViewModel by viewModels()
 
     @Inject
     lateinit var trackerAdapterFactory: TrackerAdapter.Factory
-
-    @Inject
-    lateinit var getApplicationIconUseCase: GetApplicationIconUseCase
-
     private lateinit var trackerAdapter: TrackerAdapter
 
     private val malwareAdapter by lazy {
-        MalwareAdapter(malwareClickListener, malwareActionClickListener)
+        val apps = this.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        val appInfoList : MutableList<AppInfo?> = mutableListOf()
+        for (app in apps) {
+            appInfoList.add(viewModel.getAppInfo(app.packageName))
+        }
+
+        MalwareAdapter(this, malwareClickListener, malwareActionClickListener, installedApplications = appInfoList)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,50 +88,100 @@ class ScanResultsActivity : BaseActivity() {
 
         setContentView(R.layout.activity_scan_results)
         initViews()
-
+        viewModel.loadTrackersDetails(this)
         trackerAdapter = trackerAdapterFactory.create(trackerClickListener)
 
         setupObservers()
 
         val scanId = intent.extras?.getInt(SCAN_ID)
-
         scanId?.let {
             //If activity started with scanId, means need to load data from db
             viewModel.scanId = it
-        }
-            ?: null //TODO: Needs to be replaced with text that says it has an issue pulling results
+        } ?: null //TODO: Needs to be replaced with text that says it has an issue pulling results
 
         //Init rvs and adapters
-        resultsRv.layoutManager = LinearLayoutManager(this)
-        resultsRv.adapter = concatAdapter
-        resultsRv.addItemDecoration(CellMarginDecoration(32, 0))
-        resultsRv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        trackersResultsRv.addItemDecoration(CellMarginDecoration(32, 0))
+        trackersResultsRv.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
+        malwareResultsRv.addItemDecoration(CellMarginDecoration(32, 0))
+        malwareResultsRv.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
 
         closeButton.setOnClickListener {
-            finish()
+            handleBackPressed()
         }
 
-        infoButton.setOnClickListener { openInfoDialog() }
+        learnMoreButton.setOnClickListener {
+            infoButton.callOnClick()
+        }
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (!handleFragmentBackPressed()) {
+                isEnabled = false
+                handleBackPressed()
+            }
+        }
+
+        malwareResultsRv.adapter = malwareAdapter
+        trackersResultsRv.adapter = trackerAdapter
+        infoButton.setOnClickListener {
+            container.isVisible = true
+           openInfoFragment()
+        }
+    }
+
+    private fun setValues(historyModel: HistoryModel?) {
+        filesScanned.text = historyModel?.filesScanned.toString()
+        appsScanned.text = historyModel?.appsScanned.toString()
+        trackersIdentified.text = historyModel?.trackersFound.toString()
     }
 
     private fun initViews() {
-        resultsRv = findViewById(R.id.scan_results_rv)
+        trackersResultsRv = findViewById(R.id.trackers_results_rv)
+        malwareResultsRv = findViewById(R.id.malware_recyclerview)
+
+        shieldLogo = findViewById(R.id.shield_logo)
+        tvTitleFromScan = findViewById(R.id.tv_title_from_scan)
+        tvSubtitleFromScan = findViewById(R.id.tv_subtitle_from_scan)
+        tvTitleFromHistory = findViewById(R.id.tv_title_from_history)
+        tvSubtitleFromHistory = findViewById(R.id.tv_subtitle_from_history)
         closeButton = findViewById(R.id.close_button)
+        learnMoreButton = findViewById(R.id.learn_more_button)
         loadingIndicator = findViewById(R.id.loading_indicator)
         infoButton = findViewById(R.id.info_button)
         scanResultsTitleTv = findViewById(R.id.scan_results_activity_title_tv)
+        filesScanned = findViewById(R.id.files_scanned_number)
+        malwareFound = findViewById(R.id.malware_found_number)
+        appsScanned = findViewById(R.id.apps_scanned_number)
+        trackersResultsTitle = findViewById(R.id.tv_trackers_scan_results)
+        trackersIdentified = findViewById(R.id.trackers_identified_number)
+        container = findViewById(R.id.container)
 
         // SearchBar stuff
-        val searchView = findViewById<SearchView>(R.id.search_view)
-        val searchEditText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+        searchView = findViewById(R.id.search_view)
+        val searchEditText =
+            searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         searchEditText.setHintTextColor(ContextCompat.getColor(this, R.color.white_70))
         searchEditText.setTextColor(ContextCompat.getColor(this, R.color.white_70))
         searchEditText.setPadding(70, 0, 0, 0)
         searchEditText.textSize = 16f
-        val closeButton = searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
-        closeButton.setColorFilter(ContextCompat.getColor(this, R.color.white_70), PorterDuff.Mode.SRC_IN)
+        val closeButton =
+            searchView.findViewById<ImageView>(androidx.appcompat.R.id.search_close_btn)
+        closeButton.setColorFilter(
+            ContextCompat.getColor(this, R.color.white_70),
+            PorterDuff.Mode.SRC_IN
+        )
         closeButton.setPadding(0, 0, 50, 0)
-        val searchBar = searchView.findViewById<LinearLayout>(com.google.android.material.R.id.search_bar)
+        val searchBar =
+            searchView.findViewById<LinearLayout>(com.google.android.material.R.id.search_bar)
         searchBar.layoutTransition = LayoutTransition()
 
         searchView.clearFocus()
@@ -118,8 +189,7 @@ class ScanResultsActivity : BaseActivity() {
         // Listener to handle SearchView expand and collapse to show or hide the page title
         searchView.setOnSearchClickListener {
             // Hide the title and info button when SearchView is expanded
-            scanResultsTitleTv.visibility = View.INVISIBLE
-            infoButton.visibility = View.INVISIBLE
+            trackersResultsTitle.visibility = View.INVISIBLE
             val searchBarParams = searchView.layoutParams
             searchBarParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             searchBarParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -128,8 +198,7 @@ class ScanResultsActivity : BaseActivity() {
 
         searchView.setOnCloseListener {
             // Show the title and info button when SearchView is closed
-            scanResultsTitleTv.visibility = View.VISIBLE
-            infoButton.visibility = View.VISIBLE
+            trackersResultsTitle.visibility = View.VISIBLE
             val searchBarParams = searchView.layoutParams
             searchBarParams.width = ViewGroup.LayoutParams.WRAP_CONTENT // Original width
             searchBarParams.height = ViewGroup.LayoutParams.WRAP_CONTENT // Original height
@@ -156,18 +225,75 @@ class ScanResultsActivity : BaseActivity() {
 
     private fun setupObservers() {
         viewModel.malwareData.observe(this) {
-            concatAdapter.addAdapter(0, malwareAdapter)
-
             if (it.isEmpty()) {
                 malwareAdapter.setMalwares(emptyList())
+                val mainColor = ContextCompat.getColor(this, R.color.results_numbers_color)
+                malwareFound.setTextColor(mainColor)
             } else {
                 malwareAdapter.setMalwares(it)
+                malwareFound.text = it.size.toString()
+                malwareFound.setTextColor(Color.RED)
             }
+
+            viewModel.setTitleFromScan(this, !viewModel.isActiveThreatsExist)
+            malwareResultsRv.isEnabled = viewModel.isActiveThreatsExist
+            viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
         }
 
         viewModel.trackerData.observe(this) {
-            concatAdapter.addAdapter(trackerAdapter)
             trackerAdapter.setTrackers(it)
+            if (it.isEmpty()) {
+                searchView.isVisible = false
+                trackersResultsTitle.isVisible = false
+            }
+        }
+
+        viewModel.historyModel.observe(this) {
+            setValues(it)
+
+            if (intent.getBooleanExtra("fromHistory", false)) {
+                tvTitleFromScan.isVisible = false
+                tvSubtitleFromScan.isVisible = false
+                tvTitleFromHistory.isVisible = true
+                tvSubtitleFromHistory.isVisible = true
+                tvTitleFromHistory.text = it?.name
+                tvSubtitleFromHistory.text = it?.date
+                scanResultsTitleTv.text = getString(R.string.history_scan_results)
+            } else {
+                tvTitleFromScan.isVisible = true
+                tvSubtitleFromScan.isVisible = true
+                tvTitleFromHistory.isVisible = false
+                tvSubtitleFromHistory.isVisible = false
+
+                tvSubtitleFromScan.text = getString(
+                    R.string.scan_result_subtitle_format,
+                    it?.name, it?.date
+                )
+                scanResultsTitleTv.text = getString(R.string.up_av_scan_results)
+            }
+        }
+
+        viewModel.shieldLogoLiveData.observe(this) {
+            shieldLogo.setImageResource(
+                when (it) {
+                    false -> {
+                        R.drawable.ic_small_shield_logo_normal
+                        //if(deviceModel == "UP01")R.drawable.ic_small_shield_logo_attention
+                    }
+
+                    true -> {
+                        R.drawable.ic_small_shield_logo_broken
+                    }
+
+                    else -> {
+                        R.drawable.ic_small_shield_logo_normal
+                    }
+                }
+            )
+        }
+
+        viewModel.setTitle.observe(this) {
+            tvTitleFromScan.text = it
         }
     }
 
@@ -189,6 +315,9 @@ class ScanResultsActivity : BaseActivity() {
 
             ThreatStatus.REMOVED -> {
                 //Already removed, the adapter will be updated
+                viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
+                malwareResultsRv.isEnabled = viewModel.isActiveThreatsExist
+                viewModel.setTitleFromScan(this, viewModel.isActiveThreatsExist)
             }
 
             ThreatStatus.FAILED -> {
@@ -198,24 +327,14 @@ class ScanResultsActivity : BaseActivity() {
     }
 
     private val trackerClickListener: (tracker: TrackerModel) -> Unit = { tracker ->
-        showCustomTrackerDialog(tracker.appName, tracker.packageId, tracker.trackers)
-    }
-
-    private fun openInfoDialog() {
-        val deviceModel = getDeviceModel()
-        if (deviceModel == "UP01") {
-            showDialog(
-                getString(R.string.up_av_malware_trackers_info_title),
-                getString(R.string.up_av_malware_trackers_info_message_up_phone)
-            ) {}
-        } else {
-            showDialogWithIntent(
-                getString(R.string.up_av_malware_trackers_info_title),
-                getString(R.string.up_av_malware_trackers_info_message),
-                getString(R.string.up_av_unplugged_website_clickable_text),
-                getString(R.string.up_av_unplugged_website)
-            ) {}
-        }
+        //showCustomTrackerDialog(tracker.appName, tracker.packageId, tracker.trackers)
+        container.isVisible = true
+        val perAppFragment = PerAppFragment.newInstance(tracker)
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        setTransitionAnimations(transaction)
+        transaction.add(container.id, perAppFragment, "PerAppFragment")
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 
     private fun getDeviceModel(): String? {
@@ -230,6 +349,7 @@ class ScanResultsActivity : BaseActivity() {
                     val malware = it.copy(status = ThreatStatus.REMOVED)
                     viewModel.updateMalwareStatus(malware)
                     malwareAdapter.updateMalware(malware)
+                    viewModel.setShieldLogo(viewModel.isActiveThreatsExist)
                 }
             }
         }
@@ -264,48 +384,48 @@ class ScanResultsActivity : BaseActivity() {
         }
     }
 
-    private fun showCustomTrackerDialog(appName: String, packageId: String, trackers: String) {
-        val builder = AlertDialog.Builder(this)
-        val inflater = layoutInflater
-        val dialogLayout = inflater.inflate(R.layout.tracker_custom_dialog, null)
 
-        val appIcon = dialogLayout.findViewById<ImageView>(R.id.dialog_app_icon)
-        val appNameTitle = dialogLayout.findViewById<TextView>(R.id.dialog_app_name_title)
-        val trackerList = dialogLayout.findViewById<TextView>(R.id.dialog_tracker_list)
-        val appNotInstalledLayout =
-            dialogLayout.findViewById<LinearLayout>(R.id.dialog_app_not_installed_layout)
-
-        val appIconDrawable = getApplicationIconUseCase(packageId)
-        appIcon.setImageDrawable(appIconDrawable)
-
-        appNameTitle.text = appName
-
-        // Join the list items into a single string with line breaks
-        val trackersConvertedList = TrackerListConverter().toTrackerList(trackers)
-        val trackerNames = trackersConvertedList.map { it.name }
-        trackerList.text = trackerNames.joinToString(separator = "\n")
-
-        // Check if the app is installed
-        if (isPackageInstalled(packageId, packageManager)) {
-            appNotInstalledLayout.visibility = View.GONE
-        } else {
-            appNotInstalledLayout.visibility = View.VISIBLE
-        }
-
-        builder.setView(dialogLayout)
-        builder.setCancelable(false)
-        builder.setPositiveButton(R.string.up_av_ok) { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        val dialog = builder.create()
-        dialog.show()
-        dialog.window?.setBackgroundDrawable(
-            AppCompatResources.getDrawable(
-                this, R.drawable.background_dialog
-            )
+    private fun setTransitionAnimations(transaction: FragmentTransaction) {
+        transaction.setCustomAnimations(
+            R.anim.fragment_in_right,
+            R.anim.fragment_out_left,
+            R.anim.fragment_in_left,
+            R.anim.fragment_out_right
         )
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            .setTextColor(this.getColor(R.color.main_text_color))
+    }
+
+    private fun handleFragmentBackPressed(): Boolean {
+        return if (supportFragmentManager.fragments.isNotEmpty()) {
+            supportFragmentManager.popBackStack()
+            if(supportFragmentManager.fragments.isEmpty()){
+                container.isVisible = false
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    fun openInfoFragment(){
+        val infoFragment = InfoFragment()
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        setTransitionAnimations(transaction)
+        transaction.add(container.id, infoFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    private fun returnToStatusActivity(){
+        val intent = Intent(this, StatusActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun handleBackPressed(){
+        if(intent.getBooleanExtra("fromHistory", false)){
+            onBackPressedDispatcher.onBackPressed()
+        } else {
+            returnToStatusActivity()
+        }
     }
 }

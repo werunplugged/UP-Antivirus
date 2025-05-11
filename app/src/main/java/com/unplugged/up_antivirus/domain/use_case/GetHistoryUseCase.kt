@@ -9,4 +9,8 @@ class GetHistoryUseCase @Inject constructor(private val historyRepository: Histo
     suspend operator fun invoke(): List<HistoryModel> {
         return historyRepository.getAll()
     }
+
+    suspend fun getHistoryById(id: Int): HistoryModel?{
+        return historyRepository.getHistoryById(id)
+    }
 }

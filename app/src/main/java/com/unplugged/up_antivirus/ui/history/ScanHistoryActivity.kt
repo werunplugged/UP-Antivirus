@@ -50,6 +50,7 @@ class ScanHistoryActivity : BaseActivity() {
         scanHistoryRv.layoutManager = LinearLayoutManager(this)
         scanHistoryRv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
+        closeButton.isActivated = true
         closeButton.setOnClickListener {
             finish()
         }
@@ -74,6 +75,8 @@ class ScanHistoryActivity : BaseActivity() {
         val scanId = historyItem.id
         Intent(this, ScanResultsActivity::class.java).apply {
             putExtra(Constants.SCAN_ID, scanId)
+            putExtra("fromHistory", true)
+            intent.putExtra("history_item", historyItem)
             startActivity(this)
         }
     }

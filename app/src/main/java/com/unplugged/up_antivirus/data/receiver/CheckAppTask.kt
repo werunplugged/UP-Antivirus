@@ -1,6 +1,7 @@
 package com.unplugged.up_antivirus.data.receiver
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -16,7 +17,7 @@ import com.unplugged.up_antivirus.common.notifications.NotificationManager
 import com.unplugged.upantiviruscommon.utils.DateTimeUtils
 import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
-import com.unplugged.up_antivirus.domain.use_case.SaveHistoryUseCase
+import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
 import com.unplugged.upantiviruscommon.malware.MalwareModel
@@ -27,13 +28,12 @@ import com.unplugged.upantiviruscommon.model.ScannerType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.random.Random
 
 class CheckAppTask @Inject constructor(
     private val scanPackageTask: ScanPackageTask,
-    private var saveHistoryUseCase: SaveHistoryUseCase,
+    private var historyActionsUseCase: HistoryActionsUseCase,
     private var saveMalwareUseCase: SaveMalwareUseCase,
     private var saveTrackerUseCase: SaveTrackerUseCase,
     private val trackerAccessPoint: TrackersAccessPoint,
@@ -54,6 +54,7 @@ class CheckAppTask @Inject constructor(
 
         this.context = context
 
+        if (isSystemApp(context, packageName)) return
         malwareScanner = PackageScanner(context, scanPackageTask.appRepository)
 
         CoroutineScope(Dispatchers.Default).launch {
@@ -221,18 +222,33 @@ class CheckAppTask @Inject constructor(
         trackersFound: Int
     ): Int {
         val dateTimeString = DateTimeUtils.getCurrentDateTimeString()
-        val timeString = DateTimeUtils.getCurrentTimeString()
-
         val historyItem = HistoryModel(
             0,
-            String.format(context.getString(R.string.up_av_app_installation_scan_s), timeString),
+            context.getString(R.string.up_av_app_installation_scan_s),
             dateTimeString,
             malwareFound,
             trackersFound,
-            scanStats.totalFilesScanned,
+            0,
+            1,
             scanStats.megabytesHashed
         )
 
-        return saveHistoryUseCase(historyItem)
+        return historyActionsUseCase(historyItem)
+    }
+
+    private fun isSystemApp(context: Context, packageName: String): Boolean {
+        val packageManager = context.packageManager
+        return try {
+            val applicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0L))
+            } else {
+                packageManager.getApplicationInfo(packageName, 0)
+            }
+            (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        } catch (e: PackageManager.NameNotFoundException) {
+            // Handle the case where the package name is not found
+            e.printStackTrace()
+            false // Or throw an exception, depending on your needs
+        }
     }
 }

@@ -7,7 +7,7 @@ import com.unplugged.upantiviruscommon.model.AppInfo
 import javax.inject.Inject
 
 
-class GetApplicationInfoUseCase @Inject constructor(private val context: Context) {
+class GetApplicationInfoUseCase @Inject constructor(private val context: Context, private val getApplicationIconUseCase: GetApplicationIconUseCase) {
     operator fun invoke(packageName: String?): AppInfo? {
         if (packageName == null) return null
 
@@ -25,7 +25,8 @@ class GetApplicationInfoUseCase @Inject constructor(private val context: Context
             }
 
         val name = context.packageManager.getApplicationLabel(applicationInfo).toString()
-        val icon = applicationInfo.loadIcon(context.packageManager)
+//        val icon = applicationInfo.loadIcon(context.packageManager)
+        val icon = getApplicationIconUseCase.invoke(packageName)
 
         return AppInfo(name, packageName, "", 0, icon, null)
     }

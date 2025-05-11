@@ -35,5 +35,6 @@
     <color name="main_text_color">#3EF6FC</color>
     <color name="dark_grey">#363636</color>
 
+    <color name="results_numbers_color">#58C1A8</color>
 
 </resources>

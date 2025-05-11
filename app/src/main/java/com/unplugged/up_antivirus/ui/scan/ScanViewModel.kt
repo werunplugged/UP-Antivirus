@@ -1,5 +1,7 @@
 package com.unplugged.up_antivirus.ui.scan
 
+import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,12 +16,18 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.trackerextension.TrackerModel
+import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.Utils
+import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
 import com.unplugged.up_antivirus.workers.ScannerWorker
 import com.unplugged.upantiviruscommon.model.Resource
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
 import com.unplugged.up_antivirus.domain.use_case.CreateScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetActiveScanIdUseCase
+import com.unplugged.up_antivirus.domain.use_case.GetHistoryModelByScanIdUseCase
+import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
+import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetMalwaresByScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetScanUpdatesFlowUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetTrackersByScanIdUseCase
@@ -36,6 +44,7 @@ import com.unplugged.upantiviruscommon.malware.MalwareModel
 import com.unplugged.upantiviruscommon.malware.ScanMessage
 import com.unplugged.upantiviruscommon.malware.ScanStats
 import com.unplugged.upantiviruscommon.malware.ThreatStatus
+import com.unplugged.upantiviruscommon.model.AppInfo
 import com.unplugged.upantiviruscommon.model.ScannerType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -52,14 +61,21 @@ class ScanViewModel @Inject constructor(
     private val removeMalwareUseCase: RemoveMalwareUseCase,
     private val getMalwareByScanIdUseCase: GetMalwaresByScanIdUseCase,
     private val getTrackersByScanIdUseCase: GetTrackersByScanIdUseCase,
+    private val getHistoryModelByScanIdUseCase: GetHistoryModelByScanIdUseCase,
     private val observeTrackersByScanIdUseCase: ObserveTrackersByScanIdUseCase,
     private val stopScanServiceUseCase: StopScanServiceUseCase,
     private val createScanIdUseCase: CreateScanIdUseCase,
     private val getActiveScanIdUseCase: GetActiveScanIdUseCase,
     private val isScanningUseCase: IsScanningUseCase,
     private val scannerRepository: ScannerRepository,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val getApplicationIconUseCase: GetApplicationIconUseCase,
+    private val trackerDetailsRepository: TrackerDetailsRepository,
+    private val getApplicationInfoUseCase : GetApplicationInfoUseCase
 ) : ViewModel() {
+
+    private val _historyModel = MutableLiveData<HistoryModel?>()
+    var historyModel : LiveData<HistoryModel?> = _historyModel
 
     private val _malware = mutableListOf<MalwareModel>()
 
@@ -86,6 +102,12 @@ class ScanViewModel @Inject constructor(
     val navigateBack: LiveData<Boolean> = _navigateBack.distinctUntilChanged()
 
     private var scannerWorkerRequest: OneTimeWorkRequest? = null
+
+    private val shieldLogo = MutableLiveData(false)
+    val shieldLogoLiveData: LiveData<Boolean> = shieldLogo
+
+    private val _setTitle = MutableLiveData<String>()
+    val setTitle: LiveData<String> = _setTitle
 
     fun createScanId() {
         viewModelScope.launch {
@@ -158,7 +180,7 @@ class ScanViewModel @Inject constructor(
 
     val isActiveThreatsExist: Boolean
         get() {
-            return _malwareData.value?.filter { it.status == ThreatStatus.EXIST } != null
+           return !(_malwareData.value?.filter { it.status == ThreatStatus.EXIST }.isNullOrEmpty())
         }
 
     var scanId: Int? = null
@@ -171,6 +193,10 @@ class ScanViewModel @Inject constructor(
                 getTrackersByScanIdUseCase(it).onEach {
                     _trackersData.postValue(it)
                 }.launchIn(viewModelScope)
+
+                viewModelScope.launch {
+                    _historyModel.postValue(getHistoryModelByScanIdUseCase(it))
+                }
             }
             field = value
         }
@@ -303,5 +329,40 @@ class ScanViewModel @Inject constructor(
 
     fun getScanProgress(scanner: ScannerType): Double {
         return scannerRepository.getScannerProgress(scanner)
+    }
+
+    fun getScanType(context: Context, isQuickScan: Boolean): String{
+        return when(isQuickScan){
+            true -> context.getString(R.string.quick_scan)
+            false -> context.getString(R.string.full_scan)
+        }
+    }
+
+    //this function is here because we will add up phone trackers handle in the privacy
+    fun setShieldLogo(activeThreat: Boolean){
+        shieldLogo.postValue(activeThreat)
+    }
+
+    fun setTitleFromScan(context: Context , isEmpty: Boolean){
+        val text = if(isEmpty) {
+            context.getString(R.string.your_device_is_protected)
+        } else{
+            context.getString(R.string.your_device_is_compromised)
+        }
+        _setTitle.postValue(text)
+    }
+
+    fun getApplicationIcon(id: String?): Drawable? {
+        return getApplicationIconUseCase.invoke(id)
+    }
+
+    fun loadTrackersDetails(context: Context){
+        viewModelScope.launch(Dispatchers.IO) {
+            trackerDetailsRepository.getTrackerDetails(context)
+        }
+    }
+
+    fun getAppInfo(packageName: String): AppInfo? {
+        return getApplicationInfoUseCase.invoke(packageName)
     }
 }

@@ -50,6 +50,8 @@ import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerMapper
 import com.unplugged.up_antivirus.data.tracker.model.TrackerMapper
 import com.unplugged.up_antivirus.domain.account.AccountRepository
 import com.unplugged.up_antivirus.data.history.HistoryRepository
+import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerDetailsRepository
+import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
 import com.unplugged.up_antivirus.domain.preferences.PreferencesRepository
 import com.unplugged.up_antivirus.domain.use_case.CreateScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetActiveScanIdUseCase
@@ -59,7 +61,7 @@ import com.unplugged.up_antivirus.domain.use_case.GetSessionUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetSubscriptionDataUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetUserAppListForTrackersUseCase
 import com.unplugged.up_antivirus.domain.use_case.LogoutUseCase
-import com.unplugged.up_antivirus.domain.use_case.SaveHistoryUseCase
+import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
 import com.unplugged.up_antivirus.domain.use_case.StopScanServiceUseCase
@@ -113,6 +115,12 @@ object AppModule {
             hypatia,
             notificationManager
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideTrackerDetailsRepository(): TrackerDetailsRepository {
+        return DefaultTrackerDetailsRepository()
     }
 
     @Provides
@@ -314,28 +322,30 @@ object AppModule {
         trackers: TrackersAccessPoint,
         blacklist: SignatureScannerAccessPoint,
         stringProvider: StringProvider,
-        saveHistoryUseCase: SaveHistoryUseCase,
+        historyActionsUseCase: HistoryActionsUseCase,
         updateScanDoneUseCase: UpdateScanDoneUseCase,
         saveMalwareUseCase: SaveMalwareUseCase,
         saveTrackerUseCase: SaveTrackerUseCase,
         stopScanServiceUseCase: StopScanServiceUseCase,
         getApplicationInfoUseCase: GetApplicationInfoUseCase,
         getUserAppListForTrackersUseCase: GetUserAppListForTrackersUseCase,
-        notificationManager: NotificationManager
+        notificationManager: NotificationManager,
+        appRepository: AppRepository
     ): ScannerRepository {
         return DefaultScannerRepository(
             hypatia,
             trackers,
             blacklist,
             stringProvider,
-            saveHistoryUseCase,
+            historyActionsUseCase,
             updateScanDoneUseCase,
             saveMalwareUseCase,
             saveTrackerUseCase,
             stopScanServiceUseCase,
             getApplicationInfoUseCase,
             getUserAppListForTrackersUseCase,
-            notificationManager
+            notificationManager,
+            appRepository
         )
     }
 
@@ -369,8 +379,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetApplicationInfoUseCase(@ApplicationContext context: Context): GetApplicationInfoUseCase {
-        return GetApplicationInfoUseCase(context)
+    fun provideGetApplicationInfoUseCase(@ApplicationContext context: Context, getApplicationIconUseCase: GetApplicationIconUseCase): GetApplicationInfoUseCase {
+        return GetApplicationInfoUseCase(context, getApplicationIconUseCase)
     }
 
     @Provides

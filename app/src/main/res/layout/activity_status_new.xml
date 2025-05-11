@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background">
+    android:background="@drawable/up_background_main">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/status_container"
@@ -50,7 +50,7 @@
             android:letterSpacing="0"
             android:textSize="34dp"
             android:fontFamily="@font/satoshi_bold"
-            android:text="@string/up_av_you_are_protected"
+            android:text="UP Antivirus"
             android:textColor="#FDFFFF"/>
 
         <TextView
@@ -65,9 +65,6 @@
             android:textSize="18dp"
             android:fontFamily="@font/satoshi_medium"
             android:textColor="#C0EEFF"/>
-
-
-
 
             <ImageButton
                 android:id="@+id/info_button"

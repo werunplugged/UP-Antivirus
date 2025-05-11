@@ -32,7 +32,6 @@ import com.unplugged.account.UpAccount
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.base.BaseActivity
-import com.unplugged.upantiviruscommon.utils.DateTimeUtils
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.data.receiver.PackageMonitorService
 import com.unplugged.up_antivirus.ui.history.ScanHistoryActivity
@@ -74,6 +73,7 @@ class StatusActivity : BaseActivity() {
         setContentView(R.layout.activity_status_new)
         initViews()
 
+        startScanBtn.isActivated = true
         startScanBtn.setOnClickListener {
             MainScope().launch {
                 startScan()
@@ -199,16 +199,16 @@ class StatusActivity : BaseActivity() {
             }
 
             subscriptionState.accountSubscription?.let {
-                if (it.expirationDays in 0..2) {
+                if (it.expirationDays() in 0..2) {
                     //less than 3 days left
-                    var message: String = if (it.expirationDays == 0) {
+                    var message: String = if (it.expirationDays() == 0) {
                         //expires today
                         getString(R.string.up_av_premium_subscription_expires_today_warning)
                     } else {
                         //1-3 days left
                         getString(
                             R.string.up_av_premium_subscription_expiration_warning,
-                            it.expirationDays.toString()
+                            it.expirationDays().toString()
                         )
                     }
 
@@ -369,6 +369,7 @@ class StatusActivity : BaseActivity() {
             ).show()
         } else {
             val intent = Intent(this, ScanActivity::class.java)
+            intent.putExtra("scanType", viewModel.getScanPreferences().isQuickScan)
             startActivity(intent)
             finish()
         }

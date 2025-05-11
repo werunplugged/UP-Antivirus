@@ -22,7 +22,7 @@ import java.security.MessageDigest
 
 class AppRepositoryImpl(
     private val context: Context,
-    private val blacklistPackageRepository: BlacklistPackageRepository
+    private val blacklistPackageRepository: BlacklistPackageRepository,
 ) : AppRepository {
 
     override suspend fun getInstalledApp(packageName: String): AppInfo? {
@@ -91,6 +91,12 @@ class AppRepositoryImpl(
         }
     }
 
+    override fun countAllApps(): Int {
+        val pm = context.packageManager
+        val apps = pm.getInstalledApplications(PackageManager.MATCH_ALL)
+        return apps.size
+    }
+
     private fun getAllAppsInternal(listener: MalwareScannerListener): AppListState {
         try {
             val pm = context.packageManager
@@ -116,8 +122,8 @@ class AppRepositoryImpl(
 
             val userApps = userAppsInfo.map { extractAppInfo(pm, it) }
             val systemApps = systemAppsInfo.map { extractAppInfo(pm, it) }
-
-            return AppListState(systemApps, userApps)
+            val appsList = AppListState(systemApps, userApps)
+            return appsList
 
         } catch (e: Exception) {
             return AppListState(listOf(), listOf())

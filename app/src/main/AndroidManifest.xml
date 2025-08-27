@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -29,10 +28,10 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_logo"
+        android:icon="@mipmap/ic_logo_new"
         android:label="@string/up_av_label_name"
         android:largeHeap="true"
-        android:roundIcon="@drawable/ic_logo"
+        android:roundIcon="@mipmap/ic_logo_new"
         android:supportsRtl="false"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.UPAccount"

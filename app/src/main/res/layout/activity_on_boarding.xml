@@ -6,12 +6,12 @@
     android:background="@drawable/up_bg_greed_gradient"
     android:padding="16dp">
 
-    <ImageView
+    <com.unplugged.account.ui.custom.CircleImageView
         android:id="@+id/logo_iv"
-        android:layout_width="0dp"
+        android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginTop="50dp"
-        android:src="@drawable/ic_logo"
+        android:src="@mipmap/ic_logo_new_round"
         android:fontFamily="@font/satoshi_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

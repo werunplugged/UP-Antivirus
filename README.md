@@ -91,7 +91,7 @@ A great bug report contains a description of the problem and steps to reproduce 
 When reporting a bug, please make sure to provide the following information:
 - A full description of the issue, including screenshots if possible.
 - Steps to reproduce the issue.
-- UP Antivirus version.
+- Antivirus version.
 - Device / OS information.
 
 
@@ -119,4 +119,4 @@ We extend our gratitude to:
 
 ## **Contact**
 
-For questions or comments about **UP Antivirus**, contact **[Unplugged Support](mailto:support@unplugged.com)**.
+For questions or comments about **Antivirus**, contact **[Unplugged Support](mailto:support@unplugged.com)**.

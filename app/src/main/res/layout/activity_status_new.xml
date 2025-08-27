@@ -50,7 +50,7 @@
             android:letterSpacing="0"
             android:textSize="34dp"
             android:fontFamily="@font/satoshi_bold"
-            android:text="UP Antivirus"
+            android:text="Antivirus"
             android:textColor="#FDFFFF"/>
 
         <TextView

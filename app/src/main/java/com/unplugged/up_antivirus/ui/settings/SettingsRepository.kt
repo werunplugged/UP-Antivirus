@@ -10,7 +10,7 @@ class SettingsRepository@Inject constructor() {
 
     var legalsList: List<LegalItem> =
         listOf(
-            LegalItem("title","UP Antivirus policy"),
+            LegalItem("title","Antivirus policy"),
             LegalItem("item","Terms & Conditions","https://unplugged.com/pages/end-user-license-agreement"),
             LegalItem("item","Privacy Policy","https://unplugged.com/policies/privacy-policy"),
             LegalItem("title","Third party libraries"),

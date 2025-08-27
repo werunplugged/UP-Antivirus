@@ -54,7 +54,7 @@ class CheckAppTask @Inject constructor(
 
         this.context = context
 
-        if (isSystemApp(context, packageName)) return
+        if (isSystemApp(context, packageName) || packageName == "com.unplugged.messenger") return
         malwareScanner = PackageScanner(context, scanPackageTask.appRepository)
 
         CoroutineScope(Dispatchers.Default).launch {

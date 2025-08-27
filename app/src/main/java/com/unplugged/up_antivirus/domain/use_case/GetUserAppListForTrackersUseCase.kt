@@ -25,7 +25,7 @@ class GetUserAppListForTrackersUseCase @Inject constructor(private val context: 
             val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
 
             val userAppsInfo = apps.filter {
-                (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0
+                (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 && it.packageName != "com.unplugged.messenger"
             }.map {
                 it.packageName
             }.toMutableList()

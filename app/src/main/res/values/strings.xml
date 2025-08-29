@@ -289,4 +289,5 @@
     <string name="your_device_is_protected">Your Device is Protected</string>
     <string name="your_device_is_compromised">Your Device is Compromised</string>
     <string name="quick_scan">Quick Scan</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

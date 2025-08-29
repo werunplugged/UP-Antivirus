@@ -201,7 +201,7 @@ class StatusActivity : BaseActivity() {
             subscriptionState.accountSubscription?.let {
                 if (it.expirationDays in 0..2) {
                     //less than 3 days left
-                    val message: String = if (it.expirationDays == 0) {
+                    val message = if (it.expirationDays == 0) {
                         //expires today
                         getString(R.string.up_av_premium_subscription_expires_today_warning)
                     } else {
@@ -222,7 +222,7 @@ class StatusActivity : BaseActivity() {
                             .enableInfiniteDuration(true)
                             .setDismissable(true)
                             .addButton(
-                                "Dismiss",
+                                getString(R.string.dismiss),
                                 R.style.Widget_Vector_Button_Text_Alerter
                             ) {
                                 Alerter.hide()

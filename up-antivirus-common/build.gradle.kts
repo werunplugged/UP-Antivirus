@@ -57,4 +57,8 @@ dependencies {
     debugApi(project(":up-account-debug"))
     releaseApi(project(":up-account-release"))
     implementation ("dnsjava:dnsjava:3.5.0")
+
+    implementation("com.airbnb.android:lottie:6.6.7")
+    implementation("com.goterl:lazysodium-android:5.1.0@aar")
+    implementation("net.java.dev.jna:jna:5.8.0@aar")
 }

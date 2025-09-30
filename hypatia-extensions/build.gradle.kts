@@ -45,7 +45,10 @@ dependencies {
     implementation ("androidx.activity:activity-ktx:1.8.2")
     implementation ("androidx.fragment:fragment-ktx:1.6.2")
 
-    api(files("libs/up-hypatia-release.aar"))
+    //api(files("libs/up-hypatia-release.aar"))
+
+
+    api(project(":hypatia-core"))
 
     implementation("com.github.tapadoo:alerter:7.2.4")
 

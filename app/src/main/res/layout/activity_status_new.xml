@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/up_background_main">
@@ -50,7 +49,7 @@
             android:letterSpacing="0"
             android:textSize="34dp"
             android:fontFamily="@font/satoshi_bold"
-            android:text="Antivirus"
+            android:text="@string/up_av_you_are_protected"
             android:textColor="#FDFFFF"/>
 
         <TextView
@@ -126,12 +125,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
-            android:paddingVertical="16dp"
-            android:background="@drawable/button_background_state"
-            android:paddingHorizontal="36dp"
+            android:paddingVertical="12dp"
+            android:background="@drawable/rounded_white_shape"
+            android:paddingHorizontal="79dp"
             android:text="@string/up_av_start_scan_button"
             android:textAllCaps="false"
-            android:textColor="#191E20"
+            android:textColor="@color/transparent"
             android:textSize="16dp"
             android:letterSpacing="0"
             android:fontFamily="@font/satoshi_bold"

@@ -100,14 +100,13 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/close_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="36dp"
-            android:layout_marginHorizontal="32dp"
-            android:background="@drawable/button_background_state"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/rounded_white_shape"
             android:fontFamily="@font/satoshi_bold"
             android:textAllCaps="false"
-            android:textColor="#191E20"
+            android:textColor="@color/transparent"
             android:textSize="16dp"
             android:letterSpacing="0"
             android:text="@string/up_av_close"

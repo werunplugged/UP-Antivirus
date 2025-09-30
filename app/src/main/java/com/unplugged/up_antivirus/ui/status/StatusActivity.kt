@@ -30,8 +30,8 @@ import com.google.android.material.tabs.TabLayout
 import com.tapadoo.alerter.Alerter
 import com.unplugged.account.UpAccount
 import com.unplugged.antivirus.R
-import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.base.BaseActivity
+import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.data.receiver.PackageMonitorService
 import com.unplugged.up_antivirus.ui.history.ScanHistoryActivity
@@ -39,8 +39,8 @@ import com.unplugged.up_antivirus.ui.scan.ScanActivity
 import com.unplugged.up_antivirus.ui.scan.ScanViewModel
 import com.unplugged.up_antivirus.ui.settings.main.SettingsFragment
 import com.unplugged.up_antivirus.ui.splash.SplashActivity
-import com.unplugged.upantiviruscommon.model.ScanParams
 import com.unplugged.upantiviruscommon.model.Connectivity
+import com.unplugged.upantiviruscommon.model.ScanParams
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -201,7 +201,7 @@ class StatusActivity : BaseActivity() {
             subscriptionState.accountSubscription?.let {
                 if (it.expirationDays() in 0..2) {
                     //less than 3 days left
-                    var message: String = if (it.expirationDays() == 0) {
+                    val message = if (it.expirationDays() == 0) {
                         //expires today
                         getString(R.string.up_av_premium_subscription_expires_today_warning)
                     } else {
@@ -222,11 +222,11 @@ class StatusActivity : BaseActivity() {
                             .enableInfiniteDuration(true)
                             .setDismissable(true)
                             .addButton(
-                                "Dismiss",
-                                R.style.Widget_Vector_Button_Text_Alerter,
-                                View.OnClickListener {
-                                    Alerter.hide()
-                                })
+                                getString(R.string.dismiss),
+                                R.style.Widget_Vector_Button_Text_Alerter
+                            ) {
+                                Alerter.hide()
+                            }
                             .show()
                     }
                 }
@@ -349,7 +349,7 @@ class StatusActivity : BaseActivity() {
         ) {
             Utils.printLog(StatusActivity::class.java, "getNotificationPermission: ")
             val shouldShowRequestPermissionRationale =
-                shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
             Utils.printLog(
                 StatusActivity::class.java,
                 "getNotificationPermission: shouldShowRequestPermissionRationale:$shouldShowRequestPermissionRationale",

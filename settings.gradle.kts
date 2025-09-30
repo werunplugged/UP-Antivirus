@@ -24,3 +24,9 @@ include(":signature-scanner")
 include(":up-antivirus-common")
 include(":up-account-debug")
 include(":up-account-release")
+
+include(":tracker-core")
+project(":tracker-core").projectDir = File(rootDir, "tracker-extension/tracker-core/")
+
+include(":hypatia-core")
+project(":hypatia-core").projectDir = File(rootDir, "hypatia-extensions/hypatia-core/")

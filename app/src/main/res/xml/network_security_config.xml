@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Domain-specific certificate pinning for unplugged.com -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">unplugged.com</domain>
+
+        <pin-set expiration="2026-02-08">
+            <!-- Primary certificate pin (SHA-256 of public key) -->
+            <pin digest="SHA-256">EJQDAc5b8EPtU19MrlyMrztTCWEcSqRwhi5NBdt35ZY=</pin>
+
+            <!-- Backup certificate pin (SHA-256 of public key) -->
+            <pin digest="SHA-256">k0niw01fge9+AwbXdtVyJqBt6FCOQFbVEfjLD5oHXyg=</pin>
+
+            <!-- Let's Encrypt root certificate pins (backup pins) -->
+            <!-- ISRG Root X1 (RSA) -->
+            <pin digest="SHA-256">C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=</pin>
+
+            <!-- ISRG Root X2 (ECDSA) -->
+            <pin digest="SHA-256">diGVwiVYbubAI3RW4hB9xU8e/CH2GnkuvVFZE8zmgzI=</pin>
+        </pin-set>
+
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+
+</network-security-config>

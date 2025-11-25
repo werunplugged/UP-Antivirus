@@ -1,8 +1,8 @@
 FROM amazoncorretto:17
-#antivirus
+
 WORKDIR project/
 
-# Install Build Essentials
+# Install Build Essentials 
 RUN yum -y update \
     && yum -y group install 'Development Tools' \
     && yum -y install coreutils

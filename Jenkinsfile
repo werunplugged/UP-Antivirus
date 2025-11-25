@@ -46,8 +46,10 @@ pipeline {
                         env.ORGANIZATION = env.GIT_ORG
                         echo "🏢 Organization: ${env.ORGANIZATION}"
 
+                        def repoLower = env.REPO.toLowerCase()
+                        
                         env.DOCKER_TAG = 'latest'
-                        env.DOCKER_IMAGE_BASE = "${env.REGISTRY}/${env.GIT_ORG}/${env.REPO}"
+                        env.DOCKER_IMAGE_BASE = "${env.REGISTRY}/${env.GIT_ORG}/${repoLower}"
                         env.DOCKER_IMAGE_FULL = "${env.DOCKER_IMAGE_BASE}:${env.DOCKER_TAG}"
 
                         echo "🐳 Docker image will be: ${env.DOCKER_IMAGE_FULL}"

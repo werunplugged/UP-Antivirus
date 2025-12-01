@@ -1,21 +1,30 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ProGuard rules for tracker-extension module
+# Security-focused obfuscation for tracker detection
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# ==== AGGRESSIVE OBFUSCATION ====
+-overloadaggressively
+-repackageclasses 'trk'
+-allowaccessmodification
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Hide source files completely for security
+-renamesourcefileattribute ""
+-keepattributes !SourceFile,!LineNumberTable,!LocalVariableTable,!LocalVariableTypeTable
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# ==== PROJECT-SPECIFIC CLASSES ====
+# Keep main tracker access point interface
+-keep interface com.example.trackerextension.TrackersAccessPoint { *; }
+
+# Keep tracker control and listener interfaces
+-keep class com.example.trackerextension.TrackerControl {
+    <init>(...);
+    *** analyse(...);
+    *** stop(...);
+}
+-keep interface com.example.trackerextension.TrackerListener { *; }
+
+# ==== SECURITY HARDENING ====
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+
+# Suppress warnings
+-dontwarn javax.annotation.**
+-dontwarn org.checkerframework.**

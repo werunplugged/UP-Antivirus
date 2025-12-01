@@ -1,9 +1,18 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("kotlin-parcelize")
+}
+
+// Load signing properties from user.properties
+val userPropertiesFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/signing.properties")
+val userProperties = Properties()
+if (userPropertiesFile.exists()) {
+    userProperties.load(userPropertiesFile.inputStream())
 }
 
 android {
@@ -15,7 +24,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 110
-        versionName = "2.31.6"
+        versionName = "2.31.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -35,13 +44,30 @@ android {
         }
     }
 
+    signingConfigs {
+        val keystoreFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/up_dev.keystore")
+        if (keystoreFile.exists()) {
+            getByName("debug") {
+                storeFile = keystoreFile
+                storePassword = userProperties.getProperty("keystorePassword", "")
+                keyAlias = userProperties.getProperty("keyAlias", "")
+                keyPassword = userProperties.getProperty("keyPassword", "")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             multiDexEnabled = true
             applicationIdSuffix = ".dev"
+            val keystoreFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/up_dev.keystore")
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

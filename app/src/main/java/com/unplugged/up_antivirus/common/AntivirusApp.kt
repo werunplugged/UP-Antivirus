@@ -7,9 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import com.unplugged.account.AccountListener
-import com.unplugged.account.Event
-import com.unplugged.account.UpAccount
+import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.accounthelper.AccountListener
+
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.data.AntivirusRoomDatabase
@@ -29,16 +29,23 @@ import javax.inject.Inject
 class AntivirusApp : Application() {
     @Inject
     lateinit var packageStateReceiver: PackageStateReceiver
+
     @Inject
     lateinit var database: AntivirusRoomDatabase
+
     @Inject
     lateinit var updateDatabaseUseCase: UpdateDatabaseUseCase
+
     @Inject
     lateinit var getScanPreferencesUseCase: GetScanPreferencesUseCase
+
     @Inject
     lateinit var logoutUseCase: LogoutUseCase
 
     var isReceiverRegistered = false
+
+    @Inject
+    lateinit var accountHelper: AccountHelper
 
     override fun onCreate() {
         super.onCreate()
@@ -48,19 +55,20 @@ class AntivirusApp : Application() {
         Utils.printLog(AntivirusApp::class.java, "Application onCreate()")
 
         setHypatiaUtilsContext()
-        UpAccount.initialize(applicationContext)
-        getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE).edit().putString("DATABASE_SERVER", com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL).apply()
-        UpAccount.addAccountListener(object : AccountListener {
-            override fun onUpdate(event: Event, accountType: String) {
-                if (event == Event.REMOVED) {
-                    stopPackageMonitorService()
-                    MainScope().launch {
-                        logoutUseCase()
-                        Intent(applicationContext, SplashActivity::class.java).also {
-                            it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(it)
-                        }
-                    }
+
+        getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE).edit()
+            .putString("DATABASE_SERVER", com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
+            .apply()
+
+        accountHelper.setAccountListener(object : AccountListener {
+            override fun onLoggedIn(username: String?) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onLoggedOut() {
+                Intent(applicationContext, SplashActivity::class.java).also {
+                    it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(it)
                 }
             }
         })

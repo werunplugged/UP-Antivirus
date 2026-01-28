@@ -1,6 +1,7 @@
 package com.unplugged.up_antivirus.ui.status
 
-import com.unplugged.account.AccountSubscription
+import com.unplugged.accounthelper.AccountSubscription
+
 
 data class SubscriptionState(
     val accountSubscription: AccountSubscription? = null,

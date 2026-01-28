@@ -28,7 +28,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentContainerView
 import com.google.android.material.tabs.TabLayout
 import com.tapadoo.alerter.Alerter
-import com.unplugged.account.UpAccount
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.base.Utils
@@ -84,7 +83,7 @@ class StatusActivity : BaseActivity() {
             showDialog(R.string.up_av_scan_info_title, R.string.up_av_scan_tooltip_info) {}
         }
 
-        settingsButton.text = UpAccount.getSession()?.username?.first()?.uppercase().toString()
+        settingsButton.text = viewModel.sessionLiveData.value?.username?.uppercase()
         settingsButton.setOnClickListener {
             container.isVisible = true
             val transaction = supportFragmentManager.beginTransaction()

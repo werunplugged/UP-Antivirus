@@ -2,23 +2,17 @@ package com.unplugged.up_antivirus.ui.splash
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.lifecycle.lifecycleScope
-import com.unplugged.account.UpAccount
+import com.unplugged.accounthelper.getAuthActivityIntent
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
-import com.unplugged.up_antivirus.common.AntivirusApp
-import com.unplugged.up_antivirus.data.receiver.PackageMonitorService
 import com.unplugged.up_antivirus.ui.onBoarding.OnBoardingActivity
 import com.unplugged.up_antivirus.ui.scan.ScanActivity
 import com.unplugged.up_antivirus.ui.status.StatusActivity
 import com.unplugged.upantiviruscommon.utils.Constants
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SplashActivity : BaseActivity() {
@@ -31,7 +25,7 @@ class SplashActivity : BaseActivity() {
         if (savedInstanceState == null) {
             val session = viewModel.getSession()
             if (session == null) {
-                registerResult.launch(UpAccount.getAuthActivityIntent(this))
+                registerResult.launch(getAuthActivityIntent(this))
             } else {
                 onSession()
             }

@@ -1,0 +1,10 @@
+
+
+configurations.maybeCreate("default")
+
+configurations.create('debugDefault')
+configurations.create('releaseDefault')
+
+artifacts.add("debugDefault", file('account-helper-debug.aar'))
+artifacts.add("releaseDefault", file('account-helper-release.aar'))
+artifacts.add("default", file('account-helper-release.aar'))

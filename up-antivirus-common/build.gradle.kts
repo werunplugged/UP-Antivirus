@@ -55,8 +55,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    debugApi(project(":up-account-debug"))
-    releaseApi(project(":up-account-release"))
+    debugApi(project(mapOf("path" to ":account-helper", "configuration" to "debugDefault")))
+    releaseApi(project(mapOf("path" to ":account-helper", "configuration" to "releaseDefault")))
+
     implementation ("dnsjava:dnsjava:3.5.0")
 
     implementation("com.airbnb.android:lottie:6.6.7")

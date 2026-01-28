@@ -35,7 +35,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="false"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/Theme.UPAccount"
+        android:theme="@style/Theme.UPResources"
         tools:ignore="DataExtractionRules"
         tools:replace="android:theme,android:icon,android:allowBackup,android:label,android:roundIcon,android:supportsRtl"
         tools:targetApi="31">

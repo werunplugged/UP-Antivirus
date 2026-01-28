@@ -6,7 +6,7 @@
     android:background="@drawable/up_bg_greed_gradient"
     android:padding="16dp">
 
-    <com.unplugged.account.ui.custom.CircleImageView
+    <com.unplugged.up_antivirus.ui.CircleImageView
         android:id="@+id/logo_iv"
         android:layout_width="200dp"
         android:layout_height="200dp"

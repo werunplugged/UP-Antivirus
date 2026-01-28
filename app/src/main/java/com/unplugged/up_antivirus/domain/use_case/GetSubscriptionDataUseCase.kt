@@ -1,11 +1,12 @@
 package com.unplugged.up_antivirus.domain.use_case
 
-import com.unplugged.account.AccountSubscription
-import com.unplugged.account.UpAccount
+import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.accounthelper.AccountSubscription
 
-class GetSubscriptionDataUseCase {
+
+class GetSubscriptionDataUseCase(private val accountHelper: AccountHelper) {
 
     operator fun invoke(): AccountSubscription? {
-        return UpAccount.getAccountSubscription()
+        return accountHelper.getAccountSubscription()
     }
 }

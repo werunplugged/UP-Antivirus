@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
@@ -18,7 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.unplugged.account.UpAccount
+import com.unplugged.accounthelper.getAccountActivityIntent
+import com.unplugged.accounthelper.launchSupport
 import com.unplugged.antivirus.BuildConfig
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.data.receiver.PackageMonitorService
@@ -120,11 +120,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings_home), SettingsOnCl
     override fun onMainItemClick(item: String) {
         when (item) {
             "Account" -> {
-                UpAccount.getMyAccountActivityIntent(requireContext())?.let {
-                    startActivity(it)
-                } ?: run {
-                    Toast.makeText(requireContext(), "Not Implemented", Toast.LENGTH_SHORT).show()
-                }
+                startActivity(getAccountActivityIntent(requireContext()))
             }
 
             "Scheduler" -> {
@@ -139,7 +135,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings_home), SettingsOnCl
 
             "Support" -> {
                 lifecycleScope.launch(Dispatchers.Main) {
-                    UpAccount.launchSupport(requireActivity())
+                    launchSupport(requireContext())
                 }
             }
 

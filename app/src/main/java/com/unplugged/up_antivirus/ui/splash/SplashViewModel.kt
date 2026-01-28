@@ -2,7 +2,7 @@ package com.unplugged.up_antivirus.ui.splash
 
 
 import androidx.lifecycle.ViewModel
-import com.unplugged.account.SessionData
+import com.unplugged.accounthelper.SessionData
 import com.unplugged.up_antivirus.domain.preferences.PreferencesRepository
 import com.unplugged.up_antivirus.domain.use_case.GetSessionUseCase
 import com.unplugged.up_antivirus.domain.use_case.IsScanningUseCase

@@ -5,6 +5,8 @@ import androidx.work.WorkManager
 import com.example.trackerextension.TrackerControl
 import com.example.trackerextension.TrackerModel
 import com.example.trackerextension.TrackersAccessPoint
+import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.antivirus.R
 import com.unplugged.hypatia_extensions.Hypatia
 import com.unplugged.hypatia_extensions.HypatiaAccessPoint
 import com.unplugged.signature_scanner.SignatureScannerAccessPoint
@@ -295,8 +297,8 @@ object AppModule {
     }
 
     @Provides
-    fun provideRemoteDataStore(): RemoteDataStore {
-        return RemoteDataStore()
+    fun provideRemoteDataStore(accountHelper: AccountHelper): RemoteDataStore {
+        return RemoteDataStore(accountHelper)
     }
 
     @Provides
@@ -307,7 +309,7 @@ object AppModule {
     @Provides
     @Named("base_url")
     fun provideBaseUrl(@ApplicationContext context: Context): String {
-        return context.getString(com.unplugged.account.R.string.base_url)
+        return context.getString(com.unplugged.accounthelper.R.string.base_url)
     }
 
     @Provides
@@ -424,24 +426,32 @@ object AppModule {
     fun provideUpdateDatabaseUseCase(
         @ApplicationContext context: Context,
         preferencesRepository: PreferencesRepository,
-        databaseRepository: DatabaseRepository
+        databaseRepository: DatabaseRepository,
+        accountHelper: AccountHelper
     ): UpdateDatabaseUseCase {
         return UpdateDatabaseUseCase(
             context,
             preferencesRepository,
-            databaseRepository
+            databaseRepository,
+            accountHelper
         )
     }
 
     @Provides
     @Singleton
-    fun provideFetchAuthData(): GetSessionUseCase {
-        return GetSessionUseCase()
+    fun provideFetchAuthData(accountHelper: AccountHelper): GetSessionUseCase {
+        return GetSessionUseCase(accountHelper)
     }
 
     @Provides
     @Singleton
-    fun provideFetchSubscriptionUseCase(): GetSubscriptionDataUseCase {
-        return GetSubscriptionDataUseCase()
+    fun provideFetchSubscriptionUseCase(accountHelper: AccountHelper): GetSubscriptionDataUseCase {
+        return GetSubscriptionDataUseCase(accountHelper)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountHelper(@ApplicationContext context: Context): AccountHelper {
+        return AccountHelper(context, context.getString(R.string.account_type))
     }
 }

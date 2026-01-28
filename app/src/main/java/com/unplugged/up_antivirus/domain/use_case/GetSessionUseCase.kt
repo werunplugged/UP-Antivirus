@@ -1,11 +1,11 @@
 package com.unplugged.up_antivirus.domain.use_case
 
-import com.unplugged.account.SessionData
-import com.unplugged.account.UpAccount
+import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.accounthelper.SessionData
 
-class GetSessionUseCase {
+class GetSessionUseCase(private val accountHelper: AccountHelper) {
 
     operator fun invoke(): SessionData? {
-        return UpAccount.getSession()
+        return accountHelper.getSession()
     }
 }

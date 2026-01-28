@@ -69,7 +69,7 @@ class StatusActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_status_new)
+        setContentView(R.layout.activity_status)
         initViews()
 
         startScanBtn.isActivated = true
@@ -83,7 +83,7 @@ class StatusActivity : BaseActivity() {
             showDialog(R.string.up_av_scan_info_title, R.string.up_av_scan_tooltip_info) {}
         }
 
-        settingsButton.text = viewModel.sessionLiveData.value?.username?.uppercase()
+
         settingsButton.setOnClickListener {
             container.isVisible = true
             val transaction = supportFragmentManager.beginTransaction()
@@ -186,6 +186,8 @@ class StatusActivity : BaseActivity() {
         viewModel.sessionLiveData.observe(this) {
             if (it == null) {
                 onSessionNotFound()
+            } else {
+                settingsButton.text = it.username.first().uppercase()
             }
         }
 

@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import com.unplugged.accounthelper.AccountHelper
 import com.unplugged.accounthelper.AccountListener
 
@@ -50,6 +51,8 @@ class AntivirusApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
         us.spotco.malwarescanner.Utils.setDatabaseUrl(com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
 
         Utils.printLog(AntivirusApp::class.java, "Application onCreate()")
@@ -62,7 +65,10 @@ class AntivirusApp : Application() {
 
         accountHelper.setAccountListener(object : AccountListener {
             override fun onLoggedIn(username: String?) {
-                TODO("Not yet implemented")
+                Intent(applicationContext, SplashActivity::class.java).also {
+                    it.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(it)
+                }
             }
 
             override fun onLoggedOut() {

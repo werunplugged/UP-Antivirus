@@ -23,8 +23,8 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 110
-        versionName = "2.31.8"
+        versionCode = 112
+        versionName = "2.31.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

@@ -1,12 +1,15 @@
 package com.unplugged.up_antivirus.ui.settings.main
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Outline
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
@@ -44,6 +47,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings_home), SettingsOnCl
 
     private val viewModel: SettingsViewModel by viewModels()
 
+    private val TAG = SettingsFragment::class.simpleName
 
 //    override fun onCreateView(
 //        inflater: LayoutInflater,
@@ -120,7 +124,23 @@ class SettingsFragment : Fragment(R.layout.fragment_settings_home), SettingsOnCl
     override fun onMainItemClick(item: String) {
         when (item) {
             "Account" -> {
-                startActivity(getAccountActivityIntent(requireContext()))
+                try {
+                    startActivity(getAccountActivityIntent(requireContext()))
+                } catch (e: ActivityNotFoundException) {
+                    Log.d(TAG, "${e.message}")
+                    Toast.makeText(
+                        requireContext(),
+                        getString(com.unplugged.resources.resources.R.string.up_account_app_not_installed),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } catch (e: SecurityException) {
+                    Log.d(TAG, "${e.message}")
+                    Toast.makeText(
+                        requireContext(),
+                        getString(com.unplugged.resources.resources.R.string.no_permission_account_activity),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
 
             "Scheduler" -> {

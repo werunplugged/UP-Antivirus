@@ -23,8 +23,8 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 110
-        versionName = "2.31.8"
+        versionCode = 112
+        versionName = "2.31.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -39,6 +39,7 @@ android {
 
             this.outputs.all {
                 val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+                println("output name: $output")
                 output.outputFileName = "${appNamePrefix}_${versionName}_${buildType}.apk"
             }
         }
@@ -73,6 +74,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

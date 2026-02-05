@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -200,6 +201,7 @@ class StatusActivity : BaseActivity() {
             }
 
             subscriptionState.accountSubscription?.let {
+                Log.d("UP_Subscription", "subscription: $it, days: ${it.expirationDays()}")
                 if (it.expirationDays() in 0..2) {
                     //less than 3 days left
                     val message = if (it.expirationDays() == 0) {

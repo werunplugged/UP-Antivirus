@@ -193,25 +193,19 @@ class StatusActivity : BaseActivity() {
         }
 
         viewModel.subscriptionStateLiveData.observe(this) { subscriptionState ->
-            if (subscriptionState.error != null) {
-                if (subscriptionState.error == "NO_DATA_FOUND") {
-                    //onSubscriptionNotFound() TODO
-                }
-                return@observe
-            }
-
             subscriptionState.accountSubscription?.let {
-                Log.d("UP_Subscription", "subscription: $it, days: ${it.expirationDays()}")
-                if (it.expirationDays() in 0..2) {
+                val expirationDays = it.expirationDays()
+                Log.d("UP_Subscription", "subscription: $it, expirationDays: ${expirationDays}")
+                if (expirationDays in 0..2 && it.isPremium()) {
                     //less than 3 days left
-                    val message = if (it.expirationDays() == 0) {
+                    val message = if (expirationDays == 0) {
                         //expires today
                         getString(R.string.up_av_premium_subscription_expires_today_warning)
                     } else {
                         //1-3 days left
                         getString(
                             R.string.up_av_premium_subscription_expiration_warning,
-                            it.expirationDays().toString()
+                            expirationDays.toString()
                         )
                     }
 
@@ -229,8 +223,7 @@ class StatusActivity : BaseActivity() {
                                 R.style.Widget_Vector_Button_Text_Alerter
                             ) {
                                 Alerter.hide()
-                            }
-                            .show()
+                            }.show()
                     }
                 }
             } ?: run {

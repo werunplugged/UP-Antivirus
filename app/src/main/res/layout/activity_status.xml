@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:minHeight="0dp"
-                    android:buttonTint="@color/main_text_color"
+                    app:buttonTint="@color/main_text_color"
                     android:fontFamily="@font/satoshi_medium"
                     android:text="@string/up_av_quick_scan"
                     android:textColor="@color/white" />
@@ -113,7 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:minHeight="0dp"
-                    android:buttonTint="@color/main_text_color"
+                    app:buttonTint="@color/main_text_color"
                     android:text="@string/up_av_full_scan"
                     android:fontFamily="@font/satoshi_medium"
                     android:textColor="@color/white" />

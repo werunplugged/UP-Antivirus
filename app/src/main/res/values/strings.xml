@@ -1,6 +1,7 @@
 <resources>
     <string name="up_av_label_name" translatable="false">Antivirus</string>
-    <string name="account_type">com.unplugged.account</string>
+    <string name="account_type">com.unplugged.android.account</string>
+    <string name="account_type_old">com.unplugged.account</string>
     <string name="up_av_app_copyright" translatable="false">Copyright 2017-2021 Divested Computing Group</string>
     <string name="up_av_app_license" translatable="false">License: GPL-3.0</string>
     <string name="up_av_app_version" translatable="false">Version: %s</string>

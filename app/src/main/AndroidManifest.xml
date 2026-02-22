@@ -91,6 +91,17 @@
             android:name="com.unplugged.up_antivirus.ui.scan.ScanService"
             android:foregroundServiceType="specialUse" >
         </service>
+
+        <service
+            android:name="com.unplugged.up_antivirus.StubAuthenticatorService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator_old" />
+        </service>
     </application>
 
 </manifest>

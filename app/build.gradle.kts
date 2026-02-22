@@ -9,12 +9,16 @@ plugins {
 }
 
 // Load signing properties from user.properties
-val userPropertiesFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/signing.properties")
-val userProperties = Properties()
-if (userPropertiesFile.exists()) {
-    userProperties.load(userPropertiesFile.inputStream())
-}
+val keystoreProperties = Properties().apply {
+    val primaryPath = "${System.getProperty("user.home")}/Documents/up_dev_signature/signing.properties"
+    val fallbackPath = "signing.properties"
 
+    val propsFile = File(primaryPath).takeIf { it.exists() }
+        ?: rootProject.file(fallbackPath).takeIf { it.exists() }
+        ?: error("No signing.properties found at $primaryPath or $fallbackPath")
+
+    propsFile.reader().use { load(it) }
+}
 android {
     namespace = "com.unplugged.antivirus"
     compileSdk = 34
@@ -23,8 +27,8 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 112
-        versionName = "2.31.10"
+        versionCode = 114
+        versionName = "2.31.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -46,14 +50,12 @@ android {
     }
 
     signingConfigs {
-        val keystoreFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/up_dev.keystore")
-        if (keystoreFile.exists()) {
-            getByName("debug") {
-                storeFile = keystoreFile
-                storePassword = userProperties.getProperty("keystorePassword", "")
-                keyAlias = userProperties.getProperty("keyAlias", "")
-                keyPassword = userProperties.getProperty("keyPassword", "")
-            }
+        getByName("debug") {
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storeFile = file(keystoreProperties.getProperty("keystorePath"))
+            storePassword = keystoreProperties.getProperty("keystorePassword")
+            enableV2Signing = true
         }
     }
 
@@ -61,10 +63,7 @@ android {
         debug {
             multiDexEnabled = true
             applicationIdSuffix = ".dev"
-            val keystoreFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/up_dev.keystore")
-            if (keystoreFile.exists()) {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             isMinifyEnabled = true
@@ -74,7 +73,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -152,7 +150,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
 
-    implementation ("com.mikhaellopez:circularprogressbar:3.1.0")
+    implementation("com.mikhaellopez:circularprogressbar:3.1.0")
 
     implementation(project(":up-resources"))
 

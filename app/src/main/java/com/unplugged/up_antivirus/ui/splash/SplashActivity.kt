@@ -1,8 +1,11 @@
 package com.unplugged.up_antivirus.ui.splash
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import com.unplugged.accounthelper.getAuthActivityIntent
@@ -17,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class SplashActivity : BaseActivity() {
 
+    private val TAG = SplashActivity::class.simpleName
     private val viewModel: SplashViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +29,24 @@ class SplashActivity : BaseActivity() {
         if (savedInstanceState == null) {
             val session = viewModel.getSession()
             if (session == null) {
-                registerResult.launch(getAuthActivityIntent(this))
+
+                try {
+                    registerResult.launch(getAuthActivityIntent(this))
+                } catch (e: ActivityNotFoundException) {
+                    Log.d(TAG, "${e.message}")
+                    Toast.makeText(
+                        this,
+                        getString(com.unplugged.resources.resources.R.string.up_account_app_not_installed),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } catch (e: SecurityException) {
+                    Log.d(TAG, "${e.message}")
+                    Toast.makeText(
+                        this,
+                        getString(com.unplugged.resources.resources.R.string.no_permission_account_activity),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } else {
                 onSession()
             }

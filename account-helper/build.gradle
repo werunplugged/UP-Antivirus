@@ -1,10 +1,11 @@
 
-
 configurations.maybeCreate("default")
 
-configurations.create('debugDefault')
-configurations.create('releaseDefault')
+configurations.create('developmentDefault')
+configurations.create('stagingDefault')
+configurations.create('productionDefault')
 
-artifacts.add("debugDefault", file('account-helper-debug.aar'))
-artifacts.add("releaseDefault", file('account-helper-release.aar'))
-artifacts.add("default", file('account-helper-release.aar'))
+artifacts.add("developmentDefault", file('account-helper-development.aar'))
+artifacts.add("stagingDefault", file('account-helper-staging.aar'))
+artifacts.add("productionDefault", file('account-helper-production.aar'))
+artifacts.add("default", file('account-helper-production.aar'))

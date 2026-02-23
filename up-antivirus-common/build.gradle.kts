@@ -15,6 +15,14 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("development") { dimension = "environment" }
+        create("staging") { dimension = "environment" }
+        create("production") { dimension = "environment" }
     }
 
     buildTypes {
@@ -55,8 +63,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    debugApi(project(mapOf("path" to ":account-helper", "configuration" to "debugDefault")))
-    releaseApi(project(mapOf("path" to ":account-helper", "configuration" to "releaseDefault")))
+    "developmentApi"(project(mapOf("path" to ":account-helper", "configuration" to "developmentDefault")))
+    "stagingApi"(project(mapOf("path" to ":account-helper", "configuration" to "stagingDefault")))
+    "productionApi"(project(mapOf("path" to ":account-helper", "configuration" to "productionDefault")))
 
     implementation ("dnsjava:dnsjava:3.5.0")
 

@@ -5,44 +5,43 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.unplugged.antivirus.R
-import com.unplugged.up_antivirus.common.AntivirusApp
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PackageMonitorService: Service() {
     private val CHANNEL_ID = "PackageMonitorServiceChannel"
 
-    companion object{
-        var isRunning = false
-    }
+    @Inject
+    lateinit var packageStateReceiver: PackageStateReceiver
 
     override fun onCreate() {
         super.onCreate()
-        isRunning = true
         createNotificationChannel()
         val notification: Notification = createNotification()
         startForeground(1, notification)
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package")
+        }
+        registerReceiver(packageStateReceiver, filter)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("onStartCommand", "$this")
-
-        // Register the BroadcastReceiver
-        (application as AntivirusApp).listenPackagesState()
         return START_STICKY
     }
 
     override fun onDestroy() {
-        // Unregister the BroadcastReceiver to avoid memory leaks
         try {
-            if((application as AntivirusApp).isReceiverRegistered){
-                (application as AntivirusApp).unregisterReceiver()
-                (application as AntivirusApp).isReceiverRegistered = false
-            }
-            isRunning = false
+            unregisterReceiver(packageStateReceiver)
         } catch (e: IllegalArgumentException) {
             Log.e("unregisterReceiver", "Receiver was not registered", e)
         }

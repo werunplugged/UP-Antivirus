@@ -15,8 +15,8 @@ import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.base.Utils
+import com.unplugged.up_antivirus.common.restartApplication
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
-import com.unplugged.up_antivirus.ui.splash.SplashActivity
 import com.unplugged.up_antivirus.ui.status.StatusActivity
 import com.unplugged.upantiviruscommon.model.ScannerType
 import com.unplugged.upantiviruscommon.utils.Constants
@@ -196,10 +196,7 @@ class ScanActivity : BaseActivity() {
                         dialogTitle = getString(R.string.up_av_session_revoke_title)
                         dialogMessage = getString(R.string.up_av_session_revoke_message)
                         action = {
-                            val intent = Intent(this, SplashActivity::class.java)
-                            intent.flags =
-                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
+                            restartApplication()
                             finish()
                         }
                     }

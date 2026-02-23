@@ -34,18 +34,29 @@ android {
 
         applicationVariants.all {
             val versionName = versionName
-            val buildType = if (buildType.name.lowercase() == "release") {
-                "release"
-            } else if (buildType.name.lowercase() == "debug") {
-                "debug"
-            } else "unknown"
+            val buildType = buildType.name.lowercase()
+            val flavorName = flavorName
             val appNamePrefix = "up_antivirus"
 
             this.outputs.all {
                 val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-                println("output name: $output")
-                output.outputFileName = "${appNamePrefix}_${versionName}_${buildType}.apk"
+                output.outputFileName = "${appNamePrefix}_${versionName}_${flavorName}_${buildType}.apk"
             }
+        }
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("development") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+        }
+        create("production") {
+            dimension = "environment"
         }
     }
 
@@ -62,7 +73,6 @@ android {
     buildTypes {
         debug {
             multiDexEnabled = true
-            applicationIdSuffix = ".dev"
             signingConfig = signingConfigs.getByName("debug")
         }
         release {

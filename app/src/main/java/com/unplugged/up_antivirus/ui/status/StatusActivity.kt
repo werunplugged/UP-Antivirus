@@ -173,9 +173,7 @@ class StatusActivity : BaseActivity() {
                 } else {
                     loadingIndicator.visibility = View.GONE
                     checkFileManagerPermission()
-                    if (!PackageMonitorService.isRunning) {
-                        monitorInstallations()
-                    }
+                    monitorInstallations()
                 }
             }
         }

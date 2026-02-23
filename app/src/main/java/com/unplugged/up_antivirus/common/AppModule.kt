@@ -187,10 +187,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAccountRepository(
-        accountRemoteSource: AccountRemoteSource,
-        sharedPreferencesSource: SharedPreferencesSource
+        accountRemoteSource: AccountRemoteSource
     ): AccountRepository {
-        return DefaultAccountRepository(accountRemoteSource, sharedPreferencesSource)
+        return DefaultAccountRepository(accountRemoteSource)
     }
 
     @Provides

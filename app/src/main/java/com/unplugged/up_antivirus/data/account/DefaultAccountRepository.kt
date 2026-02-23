@@ -1,13 +1,11 @@
 package com.unplugged.up_antivirus.data.account
 
-import com.unplugged.up_antivirus.data.preferences.SharedPreferencesSource
 import com.unplugged.upantiviruscommon.model.Resource
 import com.unplugged.up_antivirus.domain.account.AccountRepository
 import javax.inject.Inject
 
 class DefaultAccountRepository @Inject constructor(
-    private val accountRemoteSource: AccountRemoteSource,
-    private val sharedPreferencesSource: SharedPreferencesSource
+    private val accountRemoteSource: AccountRemoteSource
 ) : AccountRepository {
 
     private var remainingScans = 0

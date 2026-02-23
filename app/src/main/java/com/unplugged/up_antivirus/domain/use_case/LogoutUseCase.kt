@@ -27,8 +27,8 @@ class LogoutUseCase @Inject constructor(
         accountRepository.reset()
         sharedPreferencesSource.clearAll()
         workManager.cancelAllWorkByTag(UNIQUE_SCHEDULED_SCAN_WORKER_REQUEST)
-        CoroutineScope(Dispatchers.IO).launch{
-            if(scannerRepository.isScanning()) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (scannerRepository.isScanning()) {
                 scannerRepository.stopScan(CancelScanningUseCase.CancelReason.SESSION_REVOKE)
             }
             historyRepository.deleteAll()

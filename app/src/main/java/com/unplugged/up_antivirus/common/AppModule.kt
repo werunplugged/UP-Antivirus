@@ -177,7 +177,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providTrackerRepository(
+    fun provideTrackerRepository(
         localSource: TrackerLocalSource,
         mapper: TrackerMapper
     ): TrackerRepository {

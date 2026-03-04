@@ -98,6 +98,19 @@ android {
     }
 }
 
+val copyPrivateAssets by tasks.registering(Copy::class) {
+    val privateDir = rootProject.file("private-assets/app/assets")
+    from(privateDir)
+    into(file("src/main/assets"))
+    enabled = privateDir.exists()
+}
+
+tasks.configureEach {
+    if (name.contains("merge") && name.contains("Assets")) {
+        dependsOn(copyPrivateAssets)
+    }
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

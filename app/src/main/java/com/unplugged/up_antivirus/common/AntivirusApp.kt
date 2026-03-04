@@ -14,6 +14,7 @@ import com.unplugged.up_antivirus.domain.use_case.GetScanPreferencesUseCase
 import com.unplugged.up_antivirus.domain.use_case.LogoutUseCase
 import com.unplugged.up_antivirus.domain.use_case.SoftLogoutUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateDatabaseUseCase
+import com.unplugged.up_antivirus.domain.AuthMode
 import dagger.hilt.android.HiltAndroidApp
 import us.spotco.malwarescanner.BuildConfig
 import javax.inject.Inject
@@ -35,36 +36,41 @@ class AntivirusApp : Application() {
     @Inject
     lateinit var accountHelper: AccountHelper
 
+    @Inject
+    lateinit var authMode: AuthMode
+
     override fun onCreate() {
         super.onCreate()
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
-        us.spotco.malwarescanner.Utils.setDatabaseUrl(com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
+        us.spotco.malwarescanner.Utils.setDatabaseUrl(com.unplugged.upantiviruscommon.BuildConfig.BASE_URL)
 
         Utils.printLog(AntivirusApp::class.java, "Application onCreate()")
 
         setHypatiaUtilsContext()
 
         getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE).edit {
-            putString("DATABASE_SERVER", com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
+            putString("DATABASE_SERVER", com.unplugged.upantiviruscommon.BuildConfig.BASE_URL)
         }
 
-        accountHelper.setAccountListener(object : AccountListener {
-            override fun onLoggedIn(username: String?) {
-                applicationContext.restartApplication()
-            }
+        if (authMode is AuthMode.Account) {
+            accountHelper.setAccountListener(object : AccountListener {
+                override fun onLoggedIn(username: String?) {
+                    applicationContext.restartApplication()
+                }
 
-            override fun onSoftLogout() {
-                softLogoutUseCase()
-                applicationContext.restartApplication()
-            }
+                override fun onSoftLogout() {
+                    softLogoutUseCase()
+                    applicationContext.restartApplication()
+                }
 
-            override fun onLoggedOut() {
-                logoutUseCase()
-                applicationContext.restartApplication()
-            }
-        })
+                override fun onLoggedOut() {
+                    logoutUseCase()
+                    applicationContext.restartApplication()
+                }
+            })
+        }
 
         registerNotificationChannels()
     }

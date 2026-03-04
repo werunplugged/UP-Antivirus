@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import com.unplugged.accounthelper.getAuthActivityIntent
 import com.unplugged.antivirus.databinding.ActivitySplashBinding
 import com.unplugged.up_antivirus.base.BaseActivity
+import com.unplugged.up_antivirus.domain.AuthMode
 import com.unplugged.up_antivirus.ui.onBoarding.OnBoardingActivity
 import com.unplugged.up_antivirus.ui.scan.ScanActivity
 import com.unplugged.up_antivirus.ui.status.StatusActivity
@@ -29,25 +30,43 @@ class SplashActivity : BaseActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
         if (savedInstanceState == null) {
-            val session = viewModel.getSession()
-            if (session == null) {
-                try {
-                    registerResult.launch(getAuthActivityIntent(this))
-                } catch (e: ActivityNotFoundException) {
-                    Log.d(TAG, "${e.message}")
-                    binding.errorTv.apply {
-                        text = getString(com.unplugged.resources.resources.R.string.up_account_app_not_installed)
-                        visibility = View.VISIBLE
+            when (viewModel.authMode) {
+                is AuthMode.Attestation -> {
+                    viewModel.tokenState.observe(this) { state ->
+                        when {
+                            state.tokenExist -> onSession()
+                            state.error != null -> {
+                                binding.errorTv.apply {
+                                    text = state.error
+                                    visibility = View.VISIBLE
+                                }
+                            }
+                        }
                     }
-                } catch (e: SecurityException) {
-                    Log.d(TAG, "${e.message}")
-                    binding.errorTv.apply {
-                        text = getString(com.unplugged.resources.resources.R.string.no_permission_account_activity)
-                        visibility = View.VISIBLE
+                    viewModel.getOrRefreshToken()
+                }
+                is AuthMode.Account -> {
+                    val session = viewModel.getSession()
+                    if (session == null) {
+                        try {
+                            registerResult.launch(getAuthActivityIntent(this))
+                        } catch (e: ActivityNotFoundException) {
+                            Log.d(TAG, "${e.message}")
+                            binding.errorTv.apply {
+                                text = getString(com.unplugged.resources.resources.R.string.up_account_app_not_installed)
+                                visibility = View.VISIBLE
+                            }
+                        } catch (e: SecurityException) {
+                            Log.d(TAG, "${e.message}")
+                            binding.errorTv.apply {
+                                text = getString(com.unplugged.resources.resources.R.string.no_permission_account_activity)
+                                visibility = View.VISIBLE
+                            }
+                        }
+                    } else {
+                        onSession()
                     }
                 }
-            } else {
-                onSession()
             }
         }
     }

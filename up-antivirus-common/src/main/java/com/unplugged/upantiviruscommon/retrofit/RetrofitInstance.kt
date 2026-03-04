@@ -11,7 +11,7 @@ object RetrofitInstance {
         val okHttpBuilder = OkHttpClient.Builder()
         okHttpBuilder.addInterceptor(UpAccount.getTokenInterceptor())
         Retrofit.Builder()
-            .baseUrl(BuildConfig.DEV_BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpBuilder.build())
             .build()

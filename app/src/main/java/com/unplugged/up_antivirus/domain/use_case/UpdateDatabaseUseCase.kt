@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.attestation.auth.AttestationAuthManager
 import com.unplugged.up_antivirus.domain.preferences.PreferencesRepository
 import com.unplugged.upantiviruscommon.model.Connectivity
 import com.unplugged.upantiviruscommon.model.ScannerType
@@ -18,7 +19,8 @@ class UpdateDatabaseUseCase @Inject constructor(
     private val context: Context,
     private val preferencesRepository: PreferencesRepository,
     private val databaseRepository: DatabaseRepository,
-    private val accountHelper: AccountHelper
+    private val accountHelper: AccountHelper,
+    private val attestationAuthManager: AttestationAuthManager?
 ) {
 
     private val BLACKLIST_KEY = "blackListKey"
@@ -49,7 +51,10 @@ class UpdateDatabaseUseCase @Inject constructor(
                 removeOldFiles()
             }
             try {
-                val result = databaseRepository.updateDatabase(accountHelper.getSession()?.token.orEmpty())
+                val token = accountHelper.getSession()?.token
+                    ?: attestationAuthManager?.getOrRefreshToken()
+                    ?: ""
+                val result = databaseRepository.updateDatabase(token)
                 return@withContext if (result) {
                     saveHypatiaDatabaseVersion(remoteHypatiaVersion)
                     preferencesRepository.saveData(NEW_APP_DATA, true)

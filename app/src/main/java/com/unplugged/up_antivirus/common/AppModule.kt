@@ -6,7 +6,6 @@ import com.example.trackerextension.TrackerControl
 import com.example.trackerextension.TrackerModel
 import com.example.trackerextension.TrackersAccessPoint
 import com.unplugged.accounthelper.AccountHelper
-import com.unplugged.antivirus.R
 import com.unplugged.hypatia_extensions.Hypatia
 import com.unplugged.hypatia_extensions.HypatiaAccessPoint
 import com.unplugged.signature_scanner.SignatureScannerAccessPoint
@@ -74,11 +73,17 @@ import com.unplugged.up_antivirus.scanner.repository.ScannerRepository
 import com.unplugged.up_antivirus.ui.scan.TrackerAdapter
 import com.unplugged.up_antivirus.domain.updates.DatabaseRepository
 import com.unplugged.up_antivirus.domain.updates.DefaultDatabaseRepository
+import com.unplugged.up_antivirus.domain.AuthMode
+import com.unplugged.up_antivirus.domain.use_case.GetOrRefreshAttestationTokenUseCase
+import com.unplugged.attestation.auth.AttestationAuthConfig
+import com.unplugged.attestation.auth.AttestationAuthManager
+import com.unplugged.attestation.auth.AttestationTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -296,8 +301,43 @@ object AppModule {
     }
 
     @Provides
-    fun provideRemoteDataStore(accountHelper: AccountHelper): RemoteDataStore {
-        return RemoteDataStore(accountHelper)
+    @Singleton
+    fun provideAuthMode(accountHelper: AccountHelper): AuthMode =
+        if (accountHelper.getSession() != null) AuthMode.Account else AuthMode.Attestation
+
+    @Provides
+    @Singleton
+    fun provideAttestationAuthManager(
+        @ApplicationContext context: Context,
+        authMode: AuthMode,
+        @Named("base_url") baseUrl: String
+    ): AttestationAuthManager? =
+        if (authMode is AuthMode.Attestation)
+            AttestationAuthManager(context, AttestationAuthConfig(baseUrl, "antivirus_attestation_prefs"))
+        else null
+
+    @Provides
+    @Singleton
+    fun provideTokenInterceptor(
+        authMode: AuthMode,
+        accountHelper: AccountHelper,
+        attestationAuthManager: AttestationAuthManager?
+    ): Interceptor =
+        if (authMode is AuthMode.Account)
+            accountHelper.getTokenInterceptor()
+        else
+            AttestationTokenInterceptor(attestationAuthManager!!)
+
+    @Provides
+    @Singleton
+    fun provideGetOrRefreshAttestationTokenUseCase(
+        attestationAuthManager: AttestationAuthManager?
+    ): GetOrRefreshAttestationTokenUseCase? =
+        attestationAuthManager?.let { GetOrRefreshAttestationTokenUseCase(it) }
+
+    @Provides
+    fun provideRemoteDataStore(tokenInterceptor: Interceptor): RemoteDataStore {
+        return RemoteDataStore(tokenInterceptor)
     }
 
     @Provides
@@ -307,8 +347,8 @@ object AppModule {
 
     @Provides
     @Named("base_url")
-    fun provideBaseUrl(@ApplicationContext context: Context): String {
-        return context.getString(com.unplugged.accounthelper.R.string.base_url)
+    fun provideBaseUrl(): String {
+        return com.unplugged.upantiviruscommon.BuildConfig.BASE_URL
     }
 
     @Provides
@@ -426,13 +466,15 @@ object AppModule {
         @ApplicationContext context: Context,
         preferencesRepository: PreferencesRepository,
         databaseRepository: DatabaseRepository,
-        accountHelper: AccountHelper
+        accountHelper: AccountHelper,
+        attestationAuthManager: AttestationAuthManager?
     ): UpdateDatabaseUseCase {
         return UpdateDatabaseUseCase(
             context,
             preferencesRepository,
             databaseRepository,
-            accountHelper
+            accountHelper,
+            attestationAuthManager
         )
     }
 
@@ -444,13 +486,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFetchSubscriptionUseCase(accountHelper: AccountHelper): GetSubscriptionDataUseCase {
-        return GetSubscriptionDataUseCase(accountHelper)
+    fun provideFetchSubscriptionUseCase(accountHelper: AccountHelper, authMode: AuthMode): GetSubscriptionDataUseCase {
+        return GetSubscriptionDataUseCase(accountHelper, authMode)
     }
 
     @Provides
     @Singleton
     fun provideAccountHelper(@ApplicationContext context: Context): AccountHelper {
-        return AccountHelper(context, context.getString(R.string.account_type))
+        return AccountHelper(context)
     }
 }

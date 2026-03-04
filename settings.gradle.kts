@@ -23,6 +23,7 @@ include(":tracker-extension")
 include(":signature-scanner")
 include(":up-antivirus-common")
 include(":account-helper")
+include(":attestation-helper")
 include(":up-resources")
 
 include(":tracker-core")

@@ -1,9 +1,19 @@
+import java.util.Properties
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
 
-val DEV_BASE_URL = (System.getenv("HYPATIA_BASE_URL")) ?: "https://divested.dev/MalwareScannerSignatures/"
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use { load(it) }
+}
+
+fun resolveBaseUrl(flavorName: String): String {
+    return localProps.getProperty("unplugged.base.url.$flavorName")
+        ?: localProps.getProperty("unplugged.base.url")
+        ?: error("Missing 'unplugged.base.url.$flavorName' in local.properties")
+}
 
 android {
     namespace = "com.unplugged.upantiviruscommon"
@@ -20,9 +30,18 @@ android {
 
     flavorDimensions += "environment"
     productFlavors {
-        create("development") { dimension = "environment" }
-        create("staging") { dimension = "environment" }
-        create("production") { dimension = "environment" }
+        create("development") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"${resolveBaseUrl("development")}\"")
+        }
+        create("staging") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"${resolveBaseUrl("staging")}\"")
+        }
+        create("production") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"${resolveBaseUrl("production")}\"")
+        }
     }
 
     buildTypes {
@@ -32,11 +51,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "DEV_BASE_URL", "\"$DEV_BASE_URL\"")
         }
 
         debug {
-            buildConfigField("String", "DEV_BASE_URL", "\"$DEV_BASE_URL\"")
         }
     }
     compileOptions {
@@ -66,6 +83,8 @@ dependencies {
     "developmentApi"(project(mapOf("path" to ":account-helper", "configuration" to "developmentDefault")))
     "stagingApi"(project(mapOf("path" to ":account-helper", "configuration" to "stagingDefault")))
     "productionApi"(project(mapOf("path" to ":account-helper", "configuration" to "productionDefault")))
+
+    api(project(mapOf("path" to ":attestation-helper", "configuration" to "default")))
 
     implementation ("dnsjava:dnsjava:3.5.0")
 

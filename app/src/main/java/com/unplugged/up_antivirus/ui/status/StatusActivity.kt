@@ -182,13 +182,13 @@ class StatusActivity : BaseActivity() {
             setupLatestScan(it)
         }
 
-        viewModel.sessionLiveData.observe(this) {
+        /*viewModel.sessionLiveData.observe(this) {
             if (it == null) {
                 onSessionNotFound()
             } else {
                 settingsButton.text = it.username.first().uppercase()
             }
-        }
+        }*/
 
         viewModel.subscriptionStateLiveData.observe(this) { subscriptionState ->
             subscriptionState.accountSubscription?.let {

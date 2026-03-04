@@ -35,6 +35,19 @@ android {
     }
 }
 
+val copyPrivateAssets by tasks.registering(Copy::class) {
+    val privateDir = rootProject.file("private-assets/signature-scanner/assets")
+    from(privateDir)
+    into(file("src/main/assets"))
+    enabled = privateDir.exists()
+}
+
+tasks.configureEach {
+    if (name.contains("merge") && name.contains("Assets")) {
+        dependsOn(copyPrivateAssets)
+    }
+}
+
 dependencies {
 
     implementation("androidx.core:core-ktx:1.12.0")

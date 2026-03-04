@@ -19,7 +19,8 @@ local.properties
 local.properties
 TrackerExtension/build/
 
-# Data files - never commit or push
-signature-scanner/src/main/assets/black_list_packages.csv
-signature-scanner/src/main/assets/BlackListedPackages.json
+# Private assets overlay (real data for internal builds)
+private-assets/
+
+# Tracker data overwritten by copyPrivateAssets at build time
 app/src/main/assets/trackers_with_details.json

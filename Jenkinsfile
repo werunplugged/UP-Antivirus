@@ -6,6 +6,10 @@ pipeline {
         }
     }
 
+    parameters {
+        choice(name: 'FLAVOR', choices: ['production', 'staging', 'development'], description: 'Product flavor / environment to build')
+    }
+
     options {
         ansiColor('xterm')
         skipDefaultCheckout(false)
@@ -137,7 +141,8 @@ pipeline {
                             string(name: 'GIT_URL', value: env.GIT_URL),
                             string(name: 'PARENT_BUILD_NUMBER', value: env.BUILD_NUMBER),
                             string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
-                            string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH)
+                            string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
+                            string(name: 'FLAVOR', value: params.FLAVOR ?: 'production')
                         ],
                         wait: true,
                         propagate: true

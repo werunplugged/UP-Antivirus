@@ -10,9 +10,15 @@ val localProps = Properties().apply {
 }
 
 fun resolveBaseUrl(flavorName: String): String {
-    return localProps.getProperty("unplugged.base.url.$flavorName")
+    val envVar = when (flavorName) {
+        "production" -> System.getenv("ANTIVIRUS_URL_PROD")
+        "staging"    -> System.getenv("ANTIVIRUS_URL_STAGING")
+        else         -> System.getenv("ANTIVIRUS_URL_DEV")
+    }
+    return envVar
+        ?: localProps.getProperty("unplugged.base.url.$flavorName")
         ?: localProps.getProperty("unplugged.base.url")
-        ?: error("Missing 'unplugged.base.url.$flavorName' in local.properties")
+        ?: error("Missing URL for flavor '$flavorName'. Set env var or local.properties.")
 }
 
 android {

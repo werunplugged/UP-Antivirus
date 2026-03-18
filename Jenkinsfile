@@ -132,7 +132,7 @@ pipeline {
                     def dockerImage = "${env.DOCKER_IMAGE_BASE}:latest"
                     echo "🐳 Selected Docker image: ${dockerImage}"
 
-                    def buildResult = build job: 'DeploymentHelper/AndroidBuilder',
+                    def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
                         parameters: [
                             string(name: 'DOCKER_IMAGE', value: dockerImage),
                             string(name: 'REPO_NAME', value: env.REPO),
@@ -150,7 +150,7 @@ pipeline {
                     if (buildResult.result == 'SUCCESS') {
                         echo "✅ Android build completed successfully"
 
-                        copyArtifacts projectName: 'DeploymentHelper/AndroidBuilder',
+                        copyArtifacts projectName: 'DeploymentHelper/AndroidBuilderTest',
                                      selector: specific("${buildResult.number}"),
                                      filter: 'build-results.json',
                                      optional: true

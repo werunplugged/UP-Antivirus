@@ -41,10 +41,9 @@ class AntivirusApp : Application() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
         us.spotco.malwarescanner.Utils.setDatabaseUrl(com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
+        us.spotco.malwarescanner.Utils.setContext(applicationContext)
 
         Utils.printLog(AntivirusApp::class.java, "Application onCreate()")
-
-        setHypatiaUtilsContext()
 
         getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE).edit {
             putString("DATABASE_SERVER", com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
@@ -89,10 +88,5 @@ class AntivirusApp : Application() {
             notificationManager.createNotificationChannel(realtimeScannerChannel)
         }
     }
-
-    private fun setHypatiaUtilsContext() {
-        us.spotco.malwarescanner.Utils.setContext(applicationContext)
-    }
-
 }
 

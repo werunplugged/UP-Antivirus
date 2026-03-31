@@ -451,6 +451,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAccountHelper(@ApplicationContext context: Context): AccountHelper {
-        return AccountHelper(context, context.getString(R.string.account_type))
+        return AccountHelper(context)
     }
 }

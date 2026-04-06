@@ -3,8 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val DEV_BASE_URL = (System.getenv("HYPATIA_BASE_URL")) ?: "https://divested.dev/MalwareScannerSignatures/"
-
 android {
     namespace = "com.unplugged.upantiviruscommon"
     compileSdk = 34
@@ -32,11 +30,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "DEV_BASE_URL", "\"$DEV_BASE_URL\"")
         }
 
         debug {
-            buildConfigField("String", "DEV_BASE_URL", "\"$DEV_BASE_URL\"")
         }
     }
     compileOptions {
@@ -63,9 +59,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    "developmentApi"("com.unplugged:account-helper-development:1.0.3")
-    "stagingApi"("com.unplugged:account-helper-staging:1.0.3")
-    "productionApi"("com.unplugged:account-helper-production:1.0.3")
+    "developmentApi"("com.unplugged:account-helper-development:1.0.5")
+    "stagingApi"("com.unplugged:account-helper-staging:1.0.5")
+    "productionApi"("com.unplugged:account-helper-production:1.0.5")
 
     implementation ("dnsjava:dnsjava:3.5.0")
 

@@ -4,19 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.unplugged.accounthelper.SessionData
+import com.unplugged.accounthelper.AccountHelper
 import com.unplugged.upantiviruscommon.model.ScanParams
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.onEach
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
-import com.unplugged.up_antivirus.domain.use_case.GetSubscriptionDataUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetLatestScanFlowUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetScanPreferencesUseCase
-import com.unplugged.up_antivirus.domain.use_case.GetSessionUseCase
 import com.unplugged.up_antivirus.domain.use_case.LoadBlacklistPackagesUseCase
-import com.unplugged.up_antivirus.domain.use_case.SyncRemainingScansUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateDatabaseUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateScanPreferencesUseCase
 import com.unplugged.upantiviruscommon.model.Connectivity
@@ -26,25 +23,18 @@ import javax.inject.Inject
 @HiltViewModel
 class StatusViewModel @Inject constructor(
     private val getLatestScanFlowUseCase: GetLatestScanFlowUseCase,
-    private val getSubscriptionDataUseCase: GetSubscriptionDataUseCase,
-    private val syncRemainingScansUseCase: SyncRemainingScansUseCase,
     private val getScanPreferencesUseCase: GetScanPreferencesUseCase,
     private val updateScanPreferencesUseCase: UpdateScanPreferencesUseCase,
     private val updateDatabaseUseCase: UpdateDatabaseUseCase,
     private val loadBlacklistPackagesUseCase: LoadBlacklistPackagesUseCase,
-    private val getSessionUseCase: GetSessionUseCase
+    private val accountHelper: AccountHelper
 ) : ViewModel() {
-
-    var shouldShowExpirationMessage = true
 
     private val _latestScan = MutableLiveData<HistoryModel?>()
     val latestScan: LiveData<HistoryModel?> = _latestScan
 
-    private val _subscriptionStateLiveData = MutableLiveData<SubscriptionState>()
-    val subscriptionStateLiveData: LiveData<SubscriptionState> = _subscriptionStateLiveData
-
-    private val _sessionLiveData = MutableLiveData<SessionData?>()
-    val sessionLiveData: LiveData<SessionData?> = _sessionLiveData
+    private val _authLiveData = MutableLiveData<Boolean>()
+    val authLiveData: LiveData<Boolean> = _authLiveData
 
     private val _loadBlacklistedApps = MutableLiveData<Boolean?>()
     val blackListedAppLiveData: LiveData<Boolean?> = _loadBlacklistedApps
@@ -53,15 +43,11 @@ class StatusViewModel @Inject constructor(
         getLatestScanFlowUseCase().onEach {
             _latestScan.postValue(it)
         }.launchIn(viewModelScope)
-
-        viewModelScope.launch {
-            syncRemainingScansUseCase()
-        }
     }
 
-    fun getSession() {
-        val session = getSessionUseCase()
-        _sessionLiveData.postValue(session)
+    fun checkAuth() {
+        val isAuthenticated = accountHelper.getAttToken() != null
+        _authLiveData.postValue(isAuthenticated)
     }
 
     fun loadBlacklistApps() {
@@ -69,17 +55,6 @@ class StatusViewModel @Inject constructor(
             _loadBlacklistedApps.postValue(true)
             loadBlacklistPackagesUseCase()
             _loadBlacklistedApps.postValue(false)
-        }
-    }
-
-    fun fetchAccountSubscription() {
-        viewModelScope.launch {
-            val accountSubscription = getSubscriptionDataUseCase()
-            if (accountSubscription != null) {
-                _subscriptionStateLiveData.postValue(SubscriptionState(accountSubscription))
-            } else {
-                _subscriptionStateLiveData.postValue(SubscriptionState(error = "Error occurred while fetching subscription data"))
-            }
         }
     }
 

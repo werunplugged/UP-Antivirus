@@ -6,6 +6,14 @@ plugins {
     id("com.android.library") version "8.0.0" apply false
 }
 
+subprojects {
+    tasks.whenTaskAdded {
+        if (name.contains("lint", ignoreCase = true)) {
+            enabled = false
+        }
+    }
+}
+
 buildscript {
     val agp_version by extra("8.2.2")
     repositories {

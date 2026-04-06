@@ -49,7 +49,7 @@ class UpdateDatabaseUseCase @Inject constructor(
                 removeOldFiles()
             }
             try {
-                val result = databaseRepository.updateDatabase(accountHelper.getSession()?.token.orEmpty())
+                val result = databaseRepository.updateDatabase(accountHelper.getAttToken().orEmpty())
                 return@withContext if (result) {
                     saveHypatiaDatabaseVersion(remoteHypatiaVersion)
                     preferencesRepository.saveData(NEW_APP_DATA, true)

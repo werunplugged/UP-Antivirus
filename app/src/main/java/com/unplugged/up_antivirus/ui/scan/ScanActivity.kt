@@ -166,16 +166,6 @@ class ScanActivity : BaseActivity() {
                 var dialogMessage: String
                 var action = { finish() }
                 when (scanningState.error) {
-                    "NO_SUBSCRIPTION" -> {
-                        dialogTitle = getString(R.string.up_av_subscription_expired)
-                        dialogMessage = getString(R.string.up_av_subscription_expired_message)
-                    }
-
-                    "SCAN_LIMIT_REACHED" -> {
-                        dialogTitle = getString(R.string.up_av_scan_limit_reached)
-                        dialogMessage = getString(R.string.up_av_scan_limit_reached_message)
-                    }
-
                     "NO_DATABASE_AVAILABLE" -> {
                         dialogTitle = getString(R.string.up_av_scan_fail_db_missing_title)
                         dialogMessage = getString(R.string.up_av_scan_fail_db_missing_message)

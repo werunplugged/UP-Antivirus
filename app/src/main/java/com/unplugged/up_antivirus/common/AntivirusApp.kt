@@ -40,13 +40,13 @@ class AntivirusApp : Application() {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
 
-        us.spotco.malwarescanner.Utils.setDatabaseUrl(com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
+        us.spotco.malwarescanner.Utils.setDatabaseUrl(getString(com.unplugged.accounthelper.R.string.base_url) + "hypatia/")
         us.spotco.malwarescanner.Utils.setContext(applicationContext)
 
         Utils.printLog(AntivirusApp::class.java, "Application onCreate()")
 
         getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE).edit {
-            putString("DATABASE_SERVER", com.unplugged.upantiviruscommon.BuildConfig.DEV_BASE_URL)
+            putString("DATABASE_SERVER", getString(com.unplugged.accounthelper.R.string.base_url) + "hypatia/")
         }
 
         accountHelper.setAccountListener(object : AccountListener {

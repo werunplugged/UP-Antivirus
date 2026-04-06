@@ -29,8 +29,7 @@ class SplashActivity : BaseActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
         if (savedInstanceState == null) {
-            val session = viewModel.getSession()
-            if (session == null) {
+            if (!viewModel.isAuthenticated()) {
                 try {
                     registerResult.launch(getAuthActivityIntent(this))
                 } catch (e: ActivityNotFoundException) {

@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -28,7 +27,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentContainerView
 import com.google.android.material.tabs.TabLayout
-import com.tapadoo.alerter.Alerter
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.base.Utils
@@ -62,8 +60,7 @@ class StatusActivity : BaseActivity() {
     private val scanViewModel: ScanViewModel by viewModels()
 
     override fun onStart() {
-        viewModel.fetchAccountSubscription()
-        viewModel.getSession()
+        viewModel.checkAuth()
         viewModel.loadBlacklistApps()
         super.onStart()
     }
@@ -182,52 +179,12 @@ class StatusActivity : BaseActivity() {
             setupLatestScan(it)
         }
 
-        viewModel.sessionLiveData.observe(this) {
-            if (it == null) {
+        viewModel.authLiveData.observe(this) { isAuthenticated ->
+            if (!isAuthenticated) {
                 onSessionNotFound()
-            } else {
-                settingsButton.text = it.username.first().uppercase()
             }
         }
 
-        viewModel.subscriptionStateLiveData.observe(this) { subscriptionState ->
-            subscriptionState.accountSubscription?.let {
-                val expirationDays = it.expirationDays()
-                Log.d("UP_Subscription", "subscription: $it, expirationDays: ${expirationDays}")
-                if (expirationDays in 0..2 && it.isPremium()) {
-                    //less than 3 days left
-                    val message = if (expirationDays == 0) {
-                        //expires today
-                        getString(R.string.up_av_premium_subscription_expires_today_warning)
-                    } else {
-                        //1-3 days left
-                        getString(
-                            R.string.up_av_premium_subscription_expiration_warning,
-                            expirationDays.toString()
-                        )
-                    }
-
-                    if (viewModel.shouldShowExpirationMessage) {
-                        viewModel.shouldShowExpirationMessage = false
-                        Alerter.create(this@StatusActivity)
-                            .setTitle("")
-                            .setText(message)
-                            .setIcon(R.drawable.ic_info)
-                            .setBackgroundColorRes(R.color.warning_yellow)
-                            .enableInfiniteDuration(true)
-                            .setDismissable(true)
-                            .addButton(
-                                getString(R.string.dismiss),
-                                R.style.Widget_Vector_Button_Text_Alerter
-                            ) {
-                                Alerter.hide()
-                            }.show()
-                    }
-                }
-            } ?: run {
-                //onSubscriptionNotFound()
-            }
-        }
     }
 
     private fun monitorInstallations() {

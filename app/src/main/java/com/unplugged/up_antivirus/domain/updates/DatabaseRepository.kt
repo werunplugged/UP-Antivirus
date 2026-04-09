@@ -9,7 +9,7 @@ interface DatabaseRepository {
     suspend fun isDatabaseLoaded(): Boolean
     suspend fun loadDatabase()
     fun errorNotification(title: String, subtitle: String)
-    suspend fun updateDatabase(token: String): Boolean
+    suspend fun updateDatabase(token: String): UpdateResult
     suspend fun isDatabaseAvailable(): Boolean
     suspend fun downloadHypatiaFiles()
 }

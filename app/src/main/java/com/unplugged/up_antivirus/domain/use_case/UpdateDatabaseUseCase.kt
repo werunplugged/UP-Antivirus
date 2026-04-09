@@ -9,6 +9,7 @@ import com.unplugged.up_antivirus.domain.preferences.PreferencesRepository
 import com.unplugged.upantiviruscommon.model.Connectivity
 import com.unplugged.upantiviruscommon.model.ScannerType
 import com.unplugged.up_antivirus.domain.updates.DatabaseRepository
+import com.unplugged.up_antivirus.domain.updates.UpdateResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -49,8 +50,11 @@ class UpdateDatabaseUseCase @Inject constructor(
                 removeOldFiles()
             }
             try {
-                val result = databaseRepository.updateDatabase(accountHelper.getAttToken().orEmpty())
-                return@withContext if (result) {
+                var result = databaseRepository.updateDatabase(accountHelper.getAttToken().orEmpty())
+                if (result == UpdateResult.UNAUTHORIZED) {
+                    result = databaseRepository.updateDatabase(accountHelper.getAttToken().orEmpty())
+                }
+                return@withContext if (result == UpdateResult.SUCCESS) {
                     saveHypatiaDatabaseVersion(remoteHypatiaVersion)
                     preferencesRepository.saveData(NEW_APP_DATA, true)
                     true

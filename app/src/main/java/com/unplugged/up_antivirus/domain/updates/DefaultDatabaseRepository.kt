@@ -50,7 +50,7 @@ class DefaultDatabaseRepository @Inject constructor(
         return hypatia.isDatabaseLoaded()
     }
 
-    override suspend fun updateDatabase(token: String): Boolean {
+    override suspend fun updateDatabase(token: String): UpdateResult {
         return withContext(Dispatchers.IO) {
             var isResumed = false
             suspendCoroutine { continuation ->
@@ -59,7 +59,16 @@ class DefaultDatabaseRepository @Inject constructor(
                         synchronized(this) {
                             if (!isResumed) {
                                 isResumed = true
-                                continuation.resume(true)
+                                continuation.resume(UpdateResult.SUCCESS)
+                            }
+                        }
+                    }
+
+                    override fun onUnauthorized() {
+                        synchronized(this) {
+                            if (!isResumed) {
+                                isResumed = true
+                                continuation.resume(UpdateResult.UNAUTHORIZED)
                             }
                         }
                     }
@@ -68,7 +77,7 @@ class DefaultDatabaseRepository @Inject constructor(
                         synchronized(this) {
                             if (!isResumed) {
                                 isResumed = true
-                                continuation.resume(false)
+                                continuation.resume(UpdateResult.FAILURE)
                             }
                         }
                     }

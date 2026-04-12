@@ -11,5 +11,4 @@ interface DatabaseRepository {
     fun errorNotification(title: String, subtitle: String)
     suspend fun updateDatabase(token: String): UpdateResult
     suspend fun isDatabaseAvailable(): Boolean
-    suspend fun downloadHypatiaFiles()
 }

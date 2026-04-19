@@ -50,7 +50,7 @@ class StatusActivity : BaseActivity() {
     private lateinit var lastScanTime: TextView
     private lateinit var scanPreferencesGroup: RadioGroup
     private lateinit var loadingIndicator: View
-    private lateinit var settingsButton: Button
+    private lateinit var settingsButton: ImageButton
     private lateinit var container: FragmentContainerView
     private lateinit var scanInfoButton: ImageButton
     private lateinit var tabLayout: TabLayout

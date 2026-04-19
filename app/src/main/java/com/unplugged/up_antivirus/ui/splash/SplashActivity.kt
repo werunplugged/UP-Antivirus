@@ -1,14 +1,10 @@
 package com.unplugged.up_antivirus.ui.splash
 
-import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import com.unplugged.accounthelper.getAuthActivityIntent
+import com.unplugged.antivirus.R
 import com.unplugged.antivirus.databinding.ActivitySplashBinding
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.ui.onBoarding.OnBoardingActivity
@@ -20,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class SplashActivity : BaseActivity() {
 
-    private val TAG = SplashActivity::class.simpleName
     private val viewModel: SplashViewModel by viewModels()
     private lateinit var binding: ActivitySplashBinding
 
@@ -30,34 +25,13 @@ class SplashActivity : BaseActivity() {
         setContentView(binding.root)
         if (savedInstanceState == null) {
             if (!viewModel.isAuthenticated()) {
-                try {
-                    registerResult.launch(getAuthActivityIntent(this))
-                } catch (e: ActivityNotFoundException) {
-                    Log.d(TAG, "${e.message}")
-                    binding.errorTv.apply {
-                        text = getString(com.unplugged.resources.resources.R.string.up_account_app_not_installed)
-                        visibility = View.VISIBLE
-                    }
-                } catch (e: SecurityException) {
-                    Log.d(TAG, "${e.message}")
-                    binding.errorTv.apply {
-                        text = getString(com.unplugged.resources.resources.R.string.no_permission_account_activity)
-                        visibility = View.VISIBLE
-                    }
+                binding.errorTv.apply {
+                    text = getString(R.string.up_av_up_phone_only)
+                    visibility = View.VISIBLE
                 }
             } else {
                 onSession()
             }
-        }
-    }
-
-    private val registerResult = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            onSession()
-        } else {
-            finish()
         }
     }
 

@@ -61,9 +61,6 @@ class SettingsAdapter(private val settingsOnClickListener: SettingsOnClickListen
 
             title.text = setting
             when(setting){
-                "Account"->{
-                    icon.setImageDrawable(AppCompatResources.getDrawable(itemView.context, R.drawable.ic_settings_18dp))
-                }
                 "Scheduler"->{
                     icon.setImageDrawable(AppCompatResources.getDrawable(itemView.context, R.drawable.ic_settings_scheduler))
                 }

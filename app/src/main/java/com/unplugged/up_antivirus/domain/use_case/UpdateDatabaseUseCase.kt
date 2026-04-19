@@ -21,12 +21,8 @@ class UpdateDatabaseUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository,
     private val accountHelper: AccountHelper
 ) {
-
-    private val BLACKLIST_KEY = "blackListKey"
     private val HYPATIA_KEY = "hypatiaKey"
     private val NEW_APP_DATA = "newAppDatabase"
-
-    private var blackListVersion: Int? = 0
     private var localHypatiaVersion: Int = 0
     private var remoteHypatiaVersion: Int = 0
 

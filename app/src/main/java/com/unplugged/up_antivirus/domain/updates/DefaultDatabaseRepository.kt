@@ -29,11 +29,11 @@ class DefaultDatabaseRepository @Inject constructor(
         return hypatia.isDatabaseLoaded()
     }
 
-    override suspend fun updateDatabase(token: String): UpdateResult {
+    override suspend fun updateDatabase(attToken: String, userToken: String): UpdateResult {
         return withContext(Dispatchers.IO) {
             var isResumed = false
             suspendCoroutine { continuation ->
-                hypatia.updateDatabase(token, object : UpdateListener {
+                hypatia.updateDatabase(attToken, userToken, object : UpdateListener {
                     override fun onSuccess() {
                         synchronized(this) {
                             if (!isResumed) {

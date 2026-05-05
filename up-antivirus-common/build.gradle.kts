@@ -55,9 +55,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    "developmentApi"("com.unplugged:account-helper-development:1.1.1")
-    "stagingApi"("com.unplugged:account-helper-staging:1.1.1")
-    "productionApi"("com.unplugged:account-helper-production:1.1.1")
+    "developmentApi"("com.unplugged:account-helper-development:1.1.2")
+    "stagingApi"("com.unplugged:account-helper-staging:1.1.2")
+    "productionApi"("com.unplugged:account-helper-production:1.1.2")
 
     implementation ("dnsjava:dnsjava:3.5.0")
 

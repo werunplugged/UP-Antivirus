@@ -17,7 +17,8 @@ class RemoteDataStore(private val context: Context, private val accountHelper: A
 
     private val api: ApiInterface by lazy {
         val okHttpBuilder = OkHttpClient.Builder()
-        okHttpBuilder.addInterceptor(accountHelper.getAttestationTokenInterceptor())
+            .addInterceptor(accountHelper.getAttestationTokenInterceptor())
+            .addInterceptor(accountHelper.getTokenInterceptor())
         Retrofit.Builder()
             .baseUrl(context.getString(com.unplugged.accounthelper.R.string.base_url))
             .addConverterFactory(GsonConverterFactory.create())

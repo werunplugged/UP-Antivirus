@@ -44,9 +44,9 @@ class Hypatia(private val context: Context) : HypatiaAccessPoint {
         }
     }
 
-    override fun updateDatabase(token: String, listener: UpdateListener) {
+    override fun updateDatabase(attToken: String, userToken: String, listener: UpdateListener) {
         // Call the suspend function that performs the database update
-        Database.updateDatabase(context, Database.signatureDatabases, token, listener)
+        Database.updateDatabase(context, Database.signatureDatabases, attToken, userToken, listener)
     }
 
     override fun stopScan() {

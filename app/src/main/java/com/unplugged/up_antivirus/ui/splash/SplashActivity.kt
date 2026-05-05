@@ -1,9 +1,12 @@
 package com.unplugged.up_antivirus.ui.splash
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
+import com.unplugged.accounthelper.getAuthActivityIntent
 import com.unplugged.antivirus.R
 import com.unplugged.antivirus.databinding.ActivitySplashBinding
 import com.unplugged.up_antivirus.base.BaseActivity
@@ -24,13 +27,23 @@ class SplashActivity : BaseActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
         if (savedInstanceState == null) {
-            if (!viewModel.isAuthenticated()) {
-                binding.errorTv.apply {
-                    text = getString(R.string.up_av_up_phone_only)
-                    visibility = View.VISIBLE
-                }
-            } else {
-                onSession()
+            when {
+                viewModel.hasAttestation() -> onSession()
+                viewModel.hasSession() -> onSession()
+                else -> launchAuthActivityOrShowError()
+            }
+        }
+    }
+
+    private fun launchAuthActivityOrShowError() {
+        try {
+            startActivity(getAuthActivityIntent(this))
+            finish()
+        } catch (e: ActivityNotFoundException) {
+            Log.w("SplashActivity", "up_account AuthActivity not available", e)
+            binding.errorTv.apply {
+                text = getString(R.string.up_av_up_phone_only)
+                visibility = View.VISIBLE
             }
         }
     }

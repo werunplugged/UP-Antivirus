@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.onEach
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
 import com.unplugged.up_antivirus.domain.use_case.GetLatestScanFlowUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetScanPreferencesUseCase
+import com.unplugged.up_antivirus.domain.use_case.IsAuthenticatedUseCase
 import com.unplugged.up_antivirus.domain.use_case.LoadBlacklistPackagesUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateDatabaseUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateScanPreferencesUseCase
@@ -27,6 +28,7 @@ class StatusViewModel @Inject constructor(
     private val updateScanPreferencesUseCase: UpdateScanPreferencesUseCase,
     private val updateDatabaseUseCase: UpdateDatabaseUseCase,
     private val loadBlacklistPackagesUseCase: LoadBlacklistPackagesUseCase,
+    private val isAuthenticatedUseCase: IsAuthenticatedUseCase,
     private val accountHelper: AccountHelper
 ) : ViewModel() {
 
@@ -46,8 +48,7 @@ class StatusViewModel @Inject constructor(
     }
 
     fun checkAuth() {
-        val isAuthenticated = accountHelper.getAttToken() != null
-        _authLiveData.postValue(isAuthenticated)
+        _authLiveData.postValue(isAuthenticatedUseCase())
     }
 
     fun loadBlacklistApps() {

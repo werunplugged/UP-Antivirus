@@ -7,6 +7,6 @@ interface DatabaseRepository {
     suspend fun isDatabaseLoaded(): Boolean
     suspend fun loadDatabase()
     fun errorNotification(title: String, subtitle: String)
-    suspend fun updateDatabase(token: String): UpdateResult
+    suspend fun updateDatabase(attToken: String, userToken: String): UpdateResult
     suspend fun isDatabaseAvailable(): Boolean
 }

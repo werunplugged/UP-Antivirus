@@ -4,7 +4,11 @@ import com.unplugged.accounthelper.AccountHelper
 
 class IsAuthenticatedUseCase(private val accountHelper: AccountHelper) {
 
+    fun hasAttestation(): Boolean = accountHelper.getAttToken(refresh = false) != null
+
+    fun hasSession(): Boolean = accountHelper.getSession() != null
+
     operator fun invoke(): Boolean {
-        return accountHelper.getAttToken() != null
+        return hasAttestation() || hasSession()
     }
 }

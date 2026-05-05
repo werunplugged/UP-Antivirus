@@ -17,9 +17,9 @@ class SplashViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository
 ) : ViewModel() {
 
-    fun isAuthenticated(): Boolean {
-        return isAuthenticatedUseCase()
-    }
+    fun hasAttestation(): Boolean = isAuthenticatedUseCase.hasAttestation()
+
+    fun hasSession(): Boolean = isAuthenticatedUseCase.hasSession()
 
     fun shouldShowOnBoardingFirstTime(): Boolean {
         return getSetShouldShowOnBoardingScreenUseCase(setShouldShow = false)

@@ -46,9 +46,11 @@ class UpdateDatabaseUseCase @Inject constructor(
                 removeOldFiles()
             }
             try {
-                var result = databaseRepository.updateDatabase(accountHelper.getAttToken().orEmpty())
+                val attToken = accountHelper.getAttToken(refresh = false).orEmpty()
+                val userToken = accountHelper.getSession()?.token.orEmpty()
+                var result = databaseRepository.updateDatabase(attToken, userToken)
                 if (result == UpdateResult.UNAUTHORIZED) {
-                    result = databaseRepository.updateDatabase(accountHelper.getAttToken().orEmpty())
+                    result = databaseRepository.updateDatabase(attToken, userToken)
                 }
                 return@withContext if (result == UpdateResult.SUCCESS) {
                     saveHypatiaDatabaseVersion(remoteHypatiaVersion)

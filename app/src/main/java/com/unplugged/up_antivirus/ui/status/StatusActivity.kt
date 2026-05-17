@@ -27,8 +27,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentContainerView
 import com.google.android.material.tabs.TabLayout
-import com.tapadoo.alerter.Alerter
-import com.unplugged.account.UpAccount
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.base.Utils
@@ -52,7 +50,7 @@ class StatusActivity : BaseActivity() {
     private lateinit var lastScanTime: TextView
     private lateinit var scanPreferencesGroup: RadioGroup
     private lateinit var loadingIndicator: View
-    private lateinit var settingsButton: Button
+    private lateinit var settingsButton: ImageButton
     private lateinit var container: FragmentContainerView
     private lateinit var scanInfoButton: ImageButton
     private lateinit var tabLayout: TabLayout
@@ -62,15 +60,14 @@ class StatusActivity : BaseActivity() {
     private val scanViewModel: ScanViewModel by viewModels()
 
     override fun onStart() {
-        viewModel.fetchAccountSubscription()
-        viewModel.getSession()
+        viewModel.checkAuth()
         viewModel.loadBlacklistApps()
         super.onStart()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_status_new)
+        setContentView(R.layout.activity_status)
         initViews()
 
         startScanBtn.isActivated = true
@@ -84,7 +81,7 @@ class StatusActivity : BaseActivity() {
             showDialog(R.string.up_av_scan_info_title, R.string.up_av_scan_tooltip_info) {}
         }
 
-        settingsButton.text = UpAccount.getSession()?.username?.first()?.uppercase().toString()
+
         settingsButton.setOnClickListener {
             container.isVisible = true
             val transaction = supportFragmentManager.beginTransaction()
@@ -173,9 +170,7 @@ class StatusActivity : BaseActivity() {
                 } else {
                     loadingIndicator.visibility = View.GONE
                     checkFileManagerPermission()
-                    if (!PackageMonitorService.isRunning) {
-                        monitorInstallations()
-                    }
+                    monitorInstallations()
                 }
             }
         }
@@ -184,56 +179,12 @@ class StatusActivity : BaseActivity() {
             setupLatestScan(it)
         }
 
-        viewModel.sessionLiveData.observe(this) {
-            if (it == null) {
+        viewModel.authLiveData.observe(this) { isAuthenticated ->
+            if (!isAuthenticated) {
                 onSessionNotFound()
             }
         }
 
-        viewModel.subscriptionStateLiveData.observe(this) { subscriptionState ->
-            if (subscriptionState.error != null) {
-                if (subscriptionState.error == "NO_DATA_FOUND") {
-                    //onSubscriptionNotFound() TODO
-                }
-                return@observe
-            }
-
-            subscriptionState.accountSubscription?.let {
-                if (it.expirationDays() in 0..2) {
-                    //less than 3 days left
-                    val message = if (it.expirationDays() == 0) {
-                        //expires today
-                        getString(R.string.up_av_premium_subscription_expires_today_warning)
-                    } else {
-                        //1-3 days left
-                        getString(
-                            R.string.up_av_premium_subscription_expiration_warning,
-                            it.expirationDays().toString()
-                        )
-                    }
-
-                    if (viewModel.shouldShowExpirationMessage) {
-                        viewModel.shouldShowExpirationMessage = false
-                        Alerter.create(this@StatusActivity)
-                            .setTitle("")
-                            .setText(message)
-                            .setIcon(R.drawable.ic_info)
-                            .setBackgroundColorRes(R.color.warning_yellow)
-                            .enableInfiniteDuration(true)
-                            .setDismissable(true)
-                            .addButton(
-                                getString(R.string.dismiss),
-                                R.style.Widget_Vector_Button_Text_Alerter
-                            ) {
-                                Alerter.hide()
-                            }
-                            .show()
-                    }
-                }
-            } ?: run {
-                //onSubscriptionNotFound()
-            }
-        }
     }
 
     private fun monitorInstallations() {

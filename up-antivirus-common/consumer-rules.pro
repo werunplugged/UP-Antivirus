@@ -23,7 +23,47 @@
 
 # ==== GSON SERIALIZATION ====
 # Keep GSON annotations and serialized fields
+-keep class com.google.gson.** { *; }
 -keep class com.unplugged.upantiviruscommon.model.** {
     @com.google.gson.annotations.SerializedName <fields>;
     *;
 }
+-keep class com.unplugged.upantiviruscommon.** {
+    @com.google.gson.annotations.SerializedName <fields>;
+    <init>();
+    *** get*();
+    *** set*(...);
+}
+
+# ==== RETROFIT NETWORKING ====
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
+
+# ==== THIRD PARTY LIBRARIES ====
+# Picasso image loading
+-keep class com.squareup.picasso.** { *; }
+-dontwarn com.squareup.picasso.**
+
+# DNS Java for network operations
+-keep class org.xbill.DNS.** { *; }
+-dontwarn org.xbill.DNS.**
+
+# Lottie animations
+-keep class com.airbnb.lottie.** { *; }
+-dontwarn com.airbnb.lottie.**
+
+# Lazy Sodium cryptography
+-keep class com.goterl.lazysodium.** { *; }
+-keep class com.goterl.lazysodium.interfaces.** { *; }
+-dontwarn com.goterl.lazysodium.**
+
+# JNA (Java Native Access)
+-keep class com.sun.jna.** { *; }
+-keep class net.java.dev.jna.** { *; }
+-dontwarn com.sun.jna.**
+-dontwarn net.java.dev.jna.**
+
+# ==== UP ACCOUNT INTEGRATION ====
+# Keep account modules (they're imported as AAR files)
+-keep class com.unplugged.account.** { *; }

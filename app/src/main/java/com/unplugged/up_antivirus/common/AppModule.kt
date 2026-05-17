@@ -5,6 +5,8 @@ import androidx.work.WorkManager
 import com.example.trackerextension.TrackerControl
 import com.example.trackerextension.TrackerModel
 import com.example.trackerextension.TrackersAccessPoint
+import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.antivirus.R
 import com.unplugged.hypatia_extensions.Hypatia
 import com.unplugged.hypatia_extensions.HypatiaAccessPoint
 import com.unplugged.signature_scanner.SignatureScannerAccessPoint
@@ -23,9 +25,6 @@ import com.unplugged.signature_scanner.repository.BlacklistPackageRepository
 import com.unplugged.signature_scanner.repository.DefaultBlacklistPackagesRepository
 import com.unplugged.up_antivirus.common.notifications.NotificationManager
 import com.unplugged.up_antivirus.data.AntivirusRoomDatabase
-import com.unplugged.up_antivirus.data.account.AccountRemoteSource
-import com.unplugged.up_antivirus.data.account.DefaultAccountRepository
-import com.unplugged.up_antivirus.data.account.RetrofitAccountApi
 import com.unplugged.up_antivirus.data.history.DefaultHistoryRepository
 import com.unplugged.up_antivirus.data.history.HistoryDao
 import com.unplugged.up_antivirus.data.history.HistoryLocalSource
@@ -48,7 +47,6 @@ import com.unplugged.up_antivirus.data.tracker.TrackerRepository
 import com.unplugged.up_antivirus.data.tracker.TrackerRoomSource
 import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerMapper
 import com.unplugged.up_antivirus.data.tracker.model.TrackerMapper
-import com.unplugged.up_antivirus.domain.account.AccountRepository
 import com.unplugged.up_antivirus.data.history.HistoryRepository
 import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerDetailsRepository
 import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
@@ -57,8 +55,7 @@ import com.unplugged.up_antivirus.domain.use_case.CreateScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetActiveScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
-import com.unplugged.up_antivirus.domain.use_case.GetSessionUseCase
-import com.unplugged.up_antivirus.domain.use_case.GetSubscriptionDataUseCase
+import com.unplugged.up_antivirus.domain.use_case.IsAuthenticatedUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetUserAppListForTrackersUseCase
 import com.unplugged.up_antivirus.domain.use_case.LogoutUseCase
 import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
@@ -66,7 +63,6 @@ import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
 import com.unplugged.up_antivirus.domain.use_case.StopScanServiceUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateDatabaseUseCase
-import com.unplugged.up_antivirus.domain.use_case.UpdateScanDoneUseCase
 import com.unplugged.up_antivirus.scanner.repository.DefaultScannerRepository
 import com.unplugged.up_antivirus.scanner.repository.ScannerRepository
 import com.unplugged.up_antivirus.ui.scan.TrackerAdapter
@@ -77,7 +73,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -175,20 +170,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providTrackerRepository(
+    fun provideTrackerRepository(
         localSource: TrackerLocalSource,
         mapper: TrackerMapper
     ): TrackerRepository {
         return DefaultTrackerRepository(localSource, mapper)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAccountRepository(
-        accountRemoteSource: AccountRemoteSource,
-        sharedPreferencesSource: SharedPreferencesSource
-    ): AccountRepository {
-        return DefaultAccountRepository(accountRemoteSource, sharedPreferencesSource)
     }
 
     @Provides
@@ -258,7 +244,6 @@ object AppModule {
     @Provides
     fun provideLogoutUseCase(
         workManager: WorkManager,
-        accountRepository: DefaultAccountRepository,
         sharedPreferencesSource: SharedPreferencesSource,
         historyRepository: HistoryRepository,
         malwareRepository: MalwareRepository,
@@ -266,7 +251,6 @@ object AppModule {
     ): LogoutUseCase {
         return LogoutUseCase(
             workManager,
-            accountRepository,
             sharedPreferencesSource,
             historyRepository,
             malwareRepository,
@@ -287,27 +271,13 @@ object AppModule {
     }
 
     @Provides
-    @Singleton
-    fun provideAccountRemoteSource(
-        @Named("base_url") baseUrl: String,
-    ): AccountRemoteSource {
-        return RetrofitAccountApi(baseUrl)
-    }
-
-    @Provides
-    fun provideRemoteDataStore(): RemoteDataStore {
-        return RemoteDataStore()
+    fun provideRemoteDataStore(@ApplicationContext context: Context, accountHelper: AccountHelper): RemoteDataStore {
+        return RemoteDataStore(context, accountHelper)
     }
 
     @Provides
     fun provideLocalDataStore(blacklistPackagesRepository: BlacklistPackageRepository): BlacklistLocalDataStore {
         return BlacklistLocalDataStore(blacklistPackagesRepository)
-    }
-
-    @Provides
-    @Named("base_url")
-    fun provideBaseUrl(@ApplicationContext context: Context): String {
-        return context.getString(com.unplugged.account.R.string.base_url)
     }
 
     @Provides
@@ -323,7 +293,6 @@ object AppModule {
         blacklist: SignatureScannerAccessPoint,
         stringProvider: StringProvider,
         historyActionsUseCase: HistoryActionsUseCase,
-        updateScanDoneUseCase: UpdateScanDoneUseCase,
         saveMalwareUseCase: SaveMalwareUseCase,
         saveTrackerUseCase: SaveTrackerUseCase,
         stopScanServiceUseCase: StopScanServiceUseCase,
@@ -338,7 +307,6 @@ object AppModule {
             blacklist,
             stringProvider,
             historyActionsUseCase,
-            updateScanDoneUseCase,
             saveMalwareUseCase,
             saveTrackerUseCase,
             stopScanServiceUseCase,
@@ -424,24 +392,26 @@ object AppModule {
     fun provideUpdateDatabaseUseCase(
         @ApplicationContext context: Context,
         preferencesRepository: PreferencesRepository,
-        databaseRepository: DatabaseRepository
+        databaseRepository: DatabaseRepository,
+        accountHelper: AccountHelper
     ): UpdateDatabaseUseCase {
         return UpdateDatabaseUseCase(
             context,
             preferencesRepository,
-            databaseRepository
+            databaseRepository,
+            accountHelper
         )
     }
 
     @Provides
     @Singleton
-    fun provideFetchAuthData(): GetSessionUseCase {
-        return GetSessionUseCase()
+    fun provideIsAuthenticatedUseCase(accountHelper: AccountHelper): IsAuthenticatedUseCase {
+        return IsAuthenticatedUseCase(accountHelper)
     }
 
     @Provides
     @Singleton
-    fun provideFetchSubscriptionUseCase(): GetSubscriptionDataUseCase {
-        return GetSubscriptionDataUseCase()
+    fun provideAccountHelper(@ApplicationContext context: Context): AccountHelper {
+        return AccountHelper(context)
     }
 }

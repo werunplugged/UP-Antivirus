@@ -15,8 +15,8 @@ import com.mikhaellopez.circularprogressbar.CircularProgressBar
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.BaseActivity
 import com.unplugged.up_antivirus.base.Utils
+import com.unplugged.up_antivirus.common.restartApplication
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
-import com.unplugged.up_antivirus.ui.splash.SplashActivity
 import com.unplugged.up_antivirus.ui.status.StatusActivity
 import com.unplugged.upantiviruscommon.model.ScannerType
 import com.unplugged.upantiviruscommon.utils.Constants
@@ -166,16 +166,6 @@ class ScanActivity : BaseActivity() {
                 var dialogMessage: String
                 var action = { finish() }
                 when (scanningState.error) {
-                    "NO_SUBSCRIPTION" -> {
-                        dialogTitle = getString(R.string.up_av_subscription_expired)
-                        dialogMessage = getString(R.string.up_av_subscription_expired_message)
-                    }
-
-                    "SCAN_LIMIT_REACHED" -> {
-                        dialogTitle = getString(R.string.up_av_scan_limit_reached)
-                        dialogMessage = getString(R.string.up_av_scan_limit_reached_message)
-                    }
-
                     "NO_DATABASE_AVAILABLE" -> {
                         dialogTitle = getString(R.string.up_av_scan_fail_db_missing_title)
                         dialogMessage = getString(R.string.up_av_scan_fail_db_missing_message)
@@ -196,10 +186,7 @@ class ScanActivity : BaseActivity() {
                         dialogTitle = getString(R.string.up_av_session_revoke_title)
                         dialogMessage = getString(R.string.up_av_session_revoke_message)
                         action = {
-                            val intent = Intent(this, SplashActivity::class.java)
-                            intent.flags =
-                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
+                            restartApplication()
                             finish()
                         }
                     }

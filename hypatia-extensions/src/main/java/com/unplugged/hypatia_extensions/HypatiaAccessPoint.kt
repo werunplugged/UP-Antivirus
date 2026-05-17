@@ -8,7 +8,7 @@ import us.spotco.malwarescanner.malware.HypatiaMalwareScannerListener
 interface HypatiaAccessPoint {
     fun startScan(quick: Boolean)
 
-    fun updateDatabase(token: String, listener: Database.UpdateListener)
+    fun updateDatabase(attToken: String, userToken: String, listener: Database.UpdateListener)
 
     fun enableMalwareService()
 

@@ -40,6 +40,8 @@
 # BouncyCastle cryptography
 -keep class org.bouncycastle.** { *; }
 -dontwarn org.bouncycastle.**
+-dontwarn org.bouncycastle.x509.**
+-dontwarn org.bouncycastle.jce.provider.**
 
 # Google Guava
 -keep class com.google.common.** { *; }
@@ -52,3 +54,11 @@
 
 # Alerter notifications
 -keep class com.tapadoo.alerter.** { *; }
+-dontwarn com.tapadoo.alerter.**
+
+# MultiDex support
+-keep class androidx.multidex.** { *; }
+-dontwarn androidx.multidex.**
+
+# Misc dependency warnings
+-dontwarn sun.misc.Unsafe

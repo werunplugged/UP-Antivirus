@@ -18,6 +18,7 @@
 -keep interface com.unplugged.signature_scanner.SignatureScannerAccessPoint { *; }
 -keep interface com.unplugged.signature_scanner.repository.AppRepository { *; }
 -keep interface com.unplugged.signature_scanner.repository.BlacklistPackageRepository { *; }
+-keep class com.unplugged.signature_scanner.repository.AppRepositoryImpl { *; }
 -keep class com.unplugged.signature_scanner.model.** { *; }
 
 # Keep scanner implementation classes
@@ -52,3 +53,22 @@
 -keep class au.com.bytecode.opencsv.** { *; }
 -dontwarn com.opencsv.**
 -dontwarn au.com.bytecode.opencsv.**
+
+# ==== GSON SERIALIZATION ====
+-keep class com.google.gson.** { *; }
+-keep class com.unplugged.signature_scanner.model.** {
+    @com.google.gson.annotations.SerializedName <fields>;
+    <init>();
+    *** get*();
+    *** set*(...);
+}
+
+# ==== RETROFIT NETWORKING ====
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
+
+# ==== ROOM DATABASE ====
+-keep @androidx.room.Entity class * { *; }
+-keep @androidx.room.Dao class * { *; }
+-keep class * extends androidx.room.RoomDatabase

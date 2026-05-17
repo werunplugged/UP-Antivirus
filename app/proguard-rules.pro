@@ -122,6 +122,7 @@
 # ==== ACCOUNT INTEGRATION ====
 # Keep account-related classes for UP account integration
 -keep class com.unplugged.account.** { *; }
+-keep class com.unplugged.accounthelper.AccountSubscription { *; }
 -keep interface com.unplugged.up_antivirus.domain.account.AccountRepository { *; }
 -keep interface com.unplugged.up_antivirus.data.account.AccountRemoteSource { *; }
 

@@ -18,3 +18,8 @@ local.properties
 .cxx
 local.properties
 TrackerExtension/build/
+
+# Data files - never commit or push
+signature-scanner/src/main/assets/black_list_packages.csv
+signature-scanner/src/main/assets/BlackListedPackages.json
+app/src/main/assets/trackers_with_details.json

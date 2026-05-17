@@ -9,12 +9,16 @@ plugins {
 }
 
 // Load signing properties from user.properties
-val userPropertiesFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/signing.properties")
-val userProperties = Properties()
-if (userPropertiesFile.exists()) {
-    userProperties.load(userPropertiesFile.inputStream())
-}
+val keystoreProperties = Properties().apply {
+    val primaryPath = "${System.getProperty("user.home")}/Documents/up_dev_signature/signing.properties"
+    val fallbackPath = "signing.properties"
 
+    val propsFile = File(primaryPath).takeIf { it.exists() }
+        ?: rootProject.file(fallbackPath).takeIf { it.exists() }
+        ?: error("No signing.properties found at $primaryPath or $fallbackPath")
+
+    propsFile.reader().use { load(it) }
+}
 android {
     namespace = "com.unplugged.antivirus"
     compileSdk = 34
@@ -23,47 +27,53 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 110
-        versionName = "2.31.8"
+        versionCode = 124
+        versionName = "2.31.22"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         applicationVariants.all {
             val versionName = versionName
-            val buildType = if (buildType.name.lowercase() == "release") {
-                "release"
-            } else if (buildType.name.lowercase() == "debug") {
-                "debug"
-            } else "unknown"
+            val buildType = buildType.name.lowercase()
+            val flavorName = flavorName
             val appNamePrefix = "up_antivirus"
 
             this.outputs.all {
                 val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-                output.outputFileName = "${appNamePrefix}_${versionName}_${buildType}.apk"
+                output.outputFileName = "${appNamePrefix}_${versionName}_${flavorName}_${buildType}.apk"
             }
         }
     }
 
+    flavorDimensions += "environment"
+    productFlavors {
+        create("development") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+        }
+        create("production") {
+            dimension = "environment"
+        }
+    }
+
     signingConfigs {
-        val keystoreFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/up_dev.keystore")
-        if (keystoreFile.exists()) {
-            getByName("debug") {
-                storeFile = keystoreFile
-                storePassword = userProperties.getProperty("keystorePassword", "")
-                keyAlias = userProperties.getProperty("keyAlias", "")
-                keyPassword = userProperties.getProperty("keyPassword", "")
-            }
+        getByName("debug") {
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storeFile = file(keystoreProperties.getProperty("keystorePath"))
+            storePassword = keystoreProperties.getProperty("keystorePassword")
+            enableV2Signing = true
         }
     }
 
     buildTypes {
         debug {
             multiDexEnabled = true
-            applicationIdSuffix = ".dev"
-            val keystoreFile = file("${System.getProperty("user.home")}/Documents/up_dev_signature/up_dev.keystore")
-            if (keystoreFile.exists()) {
-                signingConfig = signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             isMinifyEnabled = true
@@ -150,6 +160,8 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
 
-    implementation ("com.mikhaellopez:circularprogressbar:3.1.0")
+    implementation("com.mikhaellopez:circularprogressbar:3.1.0")
+
+    implementation(project(":up-resources"))
 
 }

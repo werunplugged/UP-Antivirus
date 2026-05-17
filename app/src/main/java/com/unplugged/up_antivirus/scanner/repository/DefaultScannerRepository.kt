@@ -23,7 +23,6 @@ import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
 import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
-import com.unplugged.up_antivirus.domain.use_case.UpdateScanDoneUseCase
 import com.unplugged.upantiviruscommon.model.ScanParams
 import com.unplugged.upantiviruscommon.model.ScanProgress
 import com.unplugged.upantiviruscommon.malware.ScanMessage
@@ -56,7 +55,6 @@ class DefaultScannerRepository @Inject constructor(
     private val blacklist: SignatureScannerAccessPoint,
     private val stringProvider: StringProvider,
     private val historyActionsUseCase: HistoryActionsUseCase,
-    private val updateScanDoneUseCase: UpdateScanDoneUseCase,
     private val saveMalwareUseCase: SaveMalwareUseCase,
     private var saveTrackerUseCase: SaveTrackerUseCase,
     private val stopScanServiceUseCase: StopScanServiceUseCase,
@@ -283,7 +281,6 @@ class DefaultScannerRepository @Inject constructor(
                     if (updatedScanStats.type != ScannerType.TRACKERS) {
                         malwareList.map { it.scanId = historyItemId }
                         saveMalwareUseCase(malwareList)
-                        updateScanDoneUseCase()
                     }
 
                     Handler(Looper.getMainLooper()).postDelayed({

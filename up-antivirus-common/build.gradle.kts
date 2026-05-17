@@ -3,8 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-val DEV_BASE_URL = (System.getenv("HYPATIA_BASE_URL")) ?: "https://divested.dev/MalwareScannerSignatures/"
-
 android {
     namespace = "com.unplugged.upantiviruscommon"
     compileSdk = 34
@@ -15,20 +13,22 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("development") { dimension = "environment" }
+        create("staging") { dimension = "environment" }
+        create("production") { dimension = "environment" }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            buildConfigField("String", "DEV_BASE_URL", "\"$DEV_BASE_URL\"")
+            isMinifyEnabled = false
         }
 
         debug {
-            buildConfigField("String", "DEV_BASE_URL", "\"$DEV_BASE_URL\"")
         }
     }
     compileOptions {
@@ -47,7 +47,7 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation(project(":tracker-extension"))
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.ext:junit:1.1.6")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -55,8 +55,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    debugApi(project(":up-account-debug"))
-    releaseApi(project(":up-account-release"))
+    "developmentApi"("com.unplugged:account-helper-development:1.1.7")
+    "stagingApi"("com.unplugged:account-helper-staging:1.1.7")
+    "productionApi"("com.unplugged:account-helper-production:1.1.7")
+
     implementation ("dnsjava:dnsjava:3.5.0")
 
     implementation("com.airbnb.android:lottie:6.6.7")

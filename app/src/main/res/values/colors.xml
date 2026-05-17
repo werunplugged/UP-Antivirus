@@ -36,5 +36,11 @@
     <color name="dark_grey">#363636</color>
 
     <color name="results_numbers_color">#58C1A8</color>
+    <color name="up_gray_40">#669C9C9C</color>
+    <color name="up_gray">#9C9C9C</color>
+
+    <color name="up_background_gradient_end">#F4F9FE</color>
+    <color name="up_background_gradient_start">#F4F9FE</color>
+    <color name="main_button_gradient_end">#58C1A8</color>
 
 </resources>

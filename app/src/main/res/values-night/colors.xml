@@ -2,4 +2,8 @@
 <resources>
     <color name="colorPrimary">#2B363F</color>
     <color name="colorPrimaryDark">#0E1015</color>
+
+    <color name="up_background_gradient_end">#262E35</color>
+    <color name="up_background_gradient_start">#070707</color>
+    <color name="main_button_gradient_end">#58C1A8</color>
 </resources>

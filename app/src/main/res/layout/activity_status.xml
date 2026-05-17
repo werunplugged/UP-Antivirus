@@ -14,15 +14,13 @@
         app:layout_constraintStart_toStartOf="parent"
         android:animateLayoutChanges="true">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <ImageButton
             android:id="@+id/settings_avatar"
             android:layout_width="42dp"
             android:layout_height="42dp"
-            android:background="@drawable/background_circle"
-            android:gravity="center"
-            android:text="A"
-            android:textColor="@color/main_text_color"
-            android:textSize="16sp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/up_av_settings"
+            android:src="@drawable/ic_hamburger_menu"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -102,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:minHeight="0dp"
-                    android:buttonTint="@color/main_text_color"
+                    app:buttonTint="@color/main_text_color"
                     android:fontFamily="@font/satoshi_medium"
                     android:text="@string/up_av_quick_scan"
                     android:textColor="@color/white" />
@@ -113,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
                     android:minHeight="0dp"
-                    android:buttonTint="@color/main_text_color"
+                    app:buttonTint="@color/main_text_color"
                     android:text="@string/up_av_full_scan"
                     android:fontFamily="@font/satoshi_medium"
                     android:textColor="@color/white" />

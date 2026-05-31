@@ -1,7 +1,8 @@
 pipeline {
     agent {
         kubernetes {
-            label 'k8s-dev'
+            cloud 'K8S-DEV'
+            inheritFrom 'k8s-dev'
             defaultContainer 'agent'
         }
     }

@@ -5,11 +5,11 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.unplugged.accounthelper.AccountHelper
-import com.unplugged.attestation.auth.AttestationAuthManager
 import com.unplugged.up_antivirus.domain.preferences.PreferencesRepository
 import com.unplugged.upantiviruscommon.model.Connectivity
 import com.unplugged.upantiviruscommon.model.ScannerType
 import com.unplugged.up_antivirus.domain.updates.DatabaseRepository
+import com.unplugged.up_antivirus.domain.updates.UpdateResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -19,15 +19,10 @@ class UpdateDatabaseUseCase @Inject constructor(
     private val context: Context,
     private val preferencesRepository: PreferencesRepository,
     private val databaseRepository: DatabaseRepository,
-    private val accountHelper: AccountHelper,
-    private val attestationAuthManager: AttestationAuthManager?
+    private val accountHelper: AccountHelper
 ) {
-
-    private val BLACKLIST_KEY = "blackListKey"
     private val HYPATIA_KEY = "hypatiaKey"
     private val NEW_APP_DATA = "newAppDatabase"
-
-    private var blackListVersion: Int? = 0
     private var localHypatiaVersion: Int = 0
     private var remoteHypatiaVersion: Int = 0
 
@@ -51,11 +46,13 @@ class UpdateDatabaseUseCase @Inject constructor(
                 removeOldFiles()
             }
             try {
-                val token = accountHelper.getSession()?.token
-                    ?: attestationAuthManager?.getOrRefreshToken()
-                    ?: ""
-                val result = databaseRepository.updateDatabase(token)
-                return@withContext if (result) {
+                val attToken = accountHelper.getAttToken(refresh = false).orEmpty()
+                val userToken = accountHelper.getSession()?.token.orEmpty()
+                var result = databaseRepository.updateDatabase(attToken, userToken)
+                if (result == UpdateResult.UNAUTHORIZED) {
+                    result = databaseRepository.updateDatabase(attToken, userToken)
+                }
+                return@withContext if (result == UpdateResult.SUCCESS) {
                     saveHypatiaDatabaseVersion(remoteHypatiaVersion)
                     preferencesRepository.saveData(NEW_APP_DATA, true)
                     true

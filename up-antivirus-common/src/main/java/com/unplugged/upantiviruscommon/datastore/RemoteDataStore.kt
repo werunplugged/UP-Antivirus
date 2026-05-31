@@ -1,25 +1,26 @@
 package com.unplugged.upantiviruscommon.datastore
 
+import android.content.Context
 import android.util.Log
-import com.unplugged.upantiviruscommon.BuildConfig
+import com.unplugged.accounthelper.AccountHelper
 import com.unplugged.upantiviruscommon.model.DatabaseInfo
 import com.unplugged.upantiviruscommon.model.ScannerType
 import com.unplugged.upantiviruscommon.model.Version
 import com.unplugged.upantiviruscommon.retrofit.ApiInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RemoteDataStore(private val tokenInterceptor: Interceptor) {
+class RemoteDataStore(private val context: Context, private val accountHelper: AccountHelper) {
 
     private val api: ApiInterface by lazy {
         val okHttpBuilder = OkHttpClient.Builder()
-        okHttpBuilder.addInterceptor(tokenInterceptor)
+            .addInterceptor(accountHelper.getAttestationTokenInterceptor())
+            .addInterceptor(accountHelper.getTokenInterceptor())
         Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl(context.getString(com.unplugged.accounthelper.R.string.base_url))
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpBuilder.build())
             .build()

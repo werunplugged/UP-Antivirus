@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 class SettingsRepository@Inject constructor() {
 
-    var settingsList: List<String> = listOf("Account", "Scheduler", "Support", "Legals")
+    var settingsList: List<String> = listOf("Scheduler", "Support", "Legals")
 
 
     var legalsList: List<LegalItem> =

@@ -6,6 +6,7 @@ import com.example.trackerextension.TrackerControl
 import com.example.trackerextension.TrackerModel
 import com.example.trackerextension.TrackersAccessPoint
 import com.unplugged.accounthelper.AccountHelper
+import com.unplugged.antivirus.R
 import com.unplugged.hypatia_extensions.Hypatia
 import com.unplugged.hypatia_extensions.HypatiaAccessPoint
 import com.unplugged.signature_scanner.SignatureScannerAccessPoint
@@ -24,9 +25,6 @@ import com.unplugged.signature_scanner.repository.BlacklistPackageRepository
 import com.unplugged.signature_scanner.repository.DefaultBlacklistPackagesRepository
 import com.unplugged.up_antivirus.common.notifications.NotificationManager
 import com.unplugged.up_antivirus.data.AntivirusRoomDatabase
-import com.unplugged.up_antivirus.data.account.AccountRemoteSource
-import com.unplugged.up_antivirus.data.account.DefaultAccountRepository
-import com.unplugged.up_antivirus.data.account.RetrofitAccountApi
 import com.unplugged.up_antivirus.data.history.DefaultHistoryRepository
 import com.unplugged.up_antivirus.data.history.HistoryDao
 import com.unplugged.up_antivirus.data.history.HistoryLocalSource
@@ -49,7 +47,6 @@ import com.unplugged.up_antivirus.data.tracker.TrackerRepository
 import com.unplugged.up_antivirus.data.tracker.TrackerRoomSource
 import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerMapper
 import com.unplugged.up_antivirus.data.tracker.model.TrackerMapper
-import com.unplugged.up_antivirus.domain.account.AccountRepository
 import com.unplugged.up_antivirus.data.history.HistoryRepository
 import com.unplugged.up_antivirus.data.tracker.model.DefaultTrackerDetailsRepository
 import com.unplugged.up_antivirus.data.tracker.model.TrackerDetailsRepository
@@ -58,8 +55,7 @@ import com.unplugged.up_antivirus.domain.use_case.CreateScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetActiveScanIdUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationIconUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
-import com.unplugged.up_antivirus.domain.use_case.GetSessionUseCase
-import com.unplugged.up_antivirus.domain.use_case.GetSubscriptionDataUseCase
+import com.unplugged.up_antivirus.domain.use_case.IsAuthenticatedUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetUserAppListForTrackersUseCase
 import com.unplugged.up_antivirus.domain.use_case.LogoutUseCase
 import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
@@ -67,24 +63,16 @@ import com.unplugged.up_antivirus.domain.use_case.SaveMalwareUseCase
 import com.unplugged.up_antivirus.domain.use_case.SaveTrackerUseCase
 import com.unplugged.up_antivirus.domain.use_case.StopScanServiceUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateDatabaseUseCase
-import com.unplugged.up_antivirus.domain.use_case.UpdateScanDoneUseCase
 import com.unplugged.up_antivirus.scanner.repository.DefaultScannerRepository
 import com.unplugged.up_antivirus.scanner.repository.ScannerRepository
 import com.unplugged.up_antivirus.ui.scan.TrackerAdapter
 import com.unplugged.up_antivirus.domain.updates.DatabaseRepository
 import com.unplugged.up_antivirus.domain.updates.DefaultDatabaseRepository
-import com.unplugged.up_antivirus.domain.AuthMode
-import com.unplugged.up_antivirus.domain.use_case.GetOrRefreshAttestationTokenUseCase
-import com.unplugged.attestation.auth.AttestationAuthConfig
-import com.unplugged.attestation.auth.AttestationAuthManager
-import com.unplugged.attestation.auth.AttestationTokenInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Interceptor
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -191,14 +179,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAccountRepository(
-        accountRemoteSource: AccountRemoteSource
-    ): AccountRepository {
-        return DefaultAccountRepository(accountRemoteSource)
-    }
-
-    @Provides
-    @Singleton
     fun providePreferencesRepository(
         sharedPreferencesSource: SharedPreferencesSource
     ): PreferencesRepository {
@@ -264,7 +244,6 @@ object AppModule {
     @Provides
     fun provideLogoutUseCase(
         workManager: WorkManager,
-        accountRepository: DefaultAccountRepository,
         sharedPreferencesSource: SharedPreferencesSource,
         historyRepository: HistoryRepository,
         malwareRepository: MalwareRepository,
@@ -272,7 +251,6 @@ object AppModule {
     ): LogoutUseCase {
         return LogoutUseCase(
             workManager,
-            accountRepository,
             sharedPreferencesSource,
             historyRepository,
             malwareRepository,
@@ -293,62 +271,13 @@ object AppModule {
     }
 
     @Provides
-    @Singleton
-    fun provideAccountRemoteSource(
-        @Named("base_url") baseUrl: String,
-    ): AccountRemoteSource {
-        return RetrofitAccountApi(baseUrl)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthMode(accountHelper: AccountHelper): AuthMode =
-        if (accountHelper.getSession() != null) AuthMode.Account else AuthMode.Attestation
-
-    @Provides
-    @Singleton
-    fun provideAttestationAuthManager(
-        @ApplicationContext context: Context,
-        authMode: AuthMode,
-        @Named("base_url") baseUrl: String
-    ): AttestationAuthManager? =
-        if (authMode is AuthMode.Attestation)
-            AttestationAuthManager(context, AttestationAuthConfig(baseUrl, "antivirus_attestation_prefs"))
-        else null
-
-    @Provides
-    @Singleton
-    fun provideTokenInterceptor(
-        authMode: AuthMode,
-        accountHelper: AccountHelper,
-        attestationAuthManager: AttestationAuthManager?
-    ): Interceptor =
-        if (authMode is AuthMode.Account)
-            accountHelper.getTokenInterceptor()
-        else
-            AttestationTokenInterceptor(attestationAuthManager!!)
-
-    @Provides
-    @Singleton
-    fun provideGetOrRefreshAttestationTokenUseCase(
-        attestationAuthManager: AttestationAuthManager?
-    ): GetOrRefreshAttestationTokenUseCase? =
-        attestationAuthManager?.let { GetOrRefreshAttestationTokenUseCase(it) }
-
-    @Provides
-    fun provideRemoteDataStore(tokenInterceptor: Interceptor): RemoteDataStore {
-        return RemoteDataStore(tokenInterceptor)
+    fun provideRemoteDataStore(@ApplicationContext context: Context, accountHelper: AccountHelper): RemoteDataStore {
+        return RemoteDataStore(context, accountHelper)
     }
 
     @Provides
     fun provideLocalDataStore(blacklistPackagesRepository: BlacklistPackageRepository): BlacklistLocalDataStore {
         return BlacklistLocalDataStore(blacklistPackagesRepository)
-    }
-
-    @Provides
-    @Named("base_url")
-    fun provideBaseUrl(): String {
-        return com.unplugged.upantiviruscommon.BuildConfig.BASE_URL
     }
 
     @Provides
@@ -364,7 +293,6 @@ object AppModule {
         blacklist: SignatureScannerAccessPoint,
         stringProvider: StringProvider,
         historyActionsUseCase: HistoryActionsUseCase,
-        updateScanDoneUseCase: UpdateScanDoneUseCase,
         saveMalwareUseCase: SaveMalwareUseCase,
         saveTrackerUseCase: SaveTrackerUseCase,
         stopScanServiceUseCase: StopScanServiceUseCase,
@@ -379,7 +307,6 @@ object AppModule {
             blacklist,
             stringProvider,
             historyActionsUseCase,
-            updateScanDoneUseCase,
             saveMalwareUseCase,
             saveTrackerUseCase,
             stopScanServiceUseCase,
@@ -466,28 +393,20 @@ object AppModule {
         @ApplicationContext context: Context,
         preferencesRepository: PreferencesRepository,
         databaseRepository: DatabaseRepository,
-        accountHelper: AccountHelper,
-        attestationAuthManager: AttestationAuthManager?
+        accountHelper: AccountHelper
     ): UpdateDatabaseUseCase {
         return UpdateDatabaseUseCase(
             context,
             preferencesRepository,
             databaseRepository,
-            accountHelper,
-            attestationAuthManager
+            accountHelper
         )
     }
 
     @Provides
     @Singleton
-    fun provideFetchAuthData(accountHelper: AccountHelper): GetSessionUseCase {
-        return GetSessionUseCase(accountHelper)
-    }
-
-    @Provides
-    @Singleton
-    fun provideFetchSubscriptionUseCase(accountHelper: AccountHelper, authMode: AuthMode): GetSubscriptionDataUseCase {
-        return GetSubscriptionDataUseCase(accountHelper, authMode)
+    fun provideIsAuthenticatedUseCase(accountHelper: AccountHelper): IsAuthenticatedUseCase {
+        return IsAuthenticatedUseCase(accountHelper)
     }
 
     @Provides

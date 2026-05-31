@@ -1,24 +1,6 @@
-import java.util.Properties
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-}
-
-val localProps = Properties().apply {
-    rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use { load(it) }
-}
-
-fun resolveBaseUrl(flavorName: String): String {
-    val envVar = when (flavorName) {
-        "production" -> System.getenv("ANTIVIRUS_URL_PROD")
-        "staging"    -> System.getenv("ANTIVIRUS_URL_STAGING")
-        else         -> System.getenv("ANTIVIRUS_URL_DEV")
-    }
-    return envVar
-        ?: localProps.getProperty("unplugged.base.url.$flavorName")
-        ?: localProps.getProperty("unplugged.base.url")
-        ?: error("Missing URL for flavor '$flavorName'. Set env var or local.properties.")
 }
 
 android {
@@ -36,27 +18,14 @@ android {
 
     flavorDimensions += "environment"
     productFlavors {
-        create("development") {
-            dimension = "environment"
-            buildConfigField("String", "BASE_URL", "\"${resolveBaseUrl("development")}\"")
-        }
-        create("staging") {
-            dimension = "environment"
-            buildConfigField("String", "BASE_URL", "\"${resolveBaseUrl("staging")}\"")
-        }
-        create("production") {
-            dimension = "environment"
-            buildConfigField("String", "BASE_URL", "\"${resolveBaseUrl("production")}\"")
-        }
+        create("development") { dimension = "environment" }
+        create("staging") { dimension = "environment" }
+        create("production") { dimension = "environment" }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            isMinifyEnabled = false
         }
 
         debug {
@@ -78,7 +47,7 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation(project(":tracker-extension"))
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.ext:junit:1.1.6")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -86,11 +55,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    "developmentApi"(project(mapOf("path" to ":account-helper", "configuration" to "developmentDefault")))
-    "stagingApi"(project(mapOf("path" to ":account-helper", "configuration" to "stagingDefault")))
-    "productionApi"(project(mapOf("path" to ":account-helper", "configuration" to "productionDefault")))
-
-    api(project(mapOf("path" to ":attestation-helper", "configuration" to "default")))
+    "developmentApi"("com.unplugged:account-helper-development:1.1.7")
+    "stagingApi"("com.unplugged:account-helper-staging:1.1.7")
+    "productionApi"("com.unplugged:account-helper-production:1.1.7")
 
     implementation ("dnsjava:dnsjava:3.5.0")
 

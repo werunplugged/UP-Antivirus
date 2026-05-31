@@ -13,6 +13,16 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://jitpack.io")
         }
+        maven {
+            url = uri("https://unplugged.jfrog.io/artifactory/unplugged-libraries")
+            credentials(HttpHeaderCredentials::class) {
+                name = "X-JFrog-Art-Api"
+                value = System.getenv("ARTIFACTORY_API_KEY")
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
     }
 }
 
@@ -22,8 +32,6 @@ include(":hypatia-extensions")
 include(":tracker-extension")
 include(":signature-scanner")
 include(":up-antivirus-common")
-include(":account-helper")
-include(":attestation-helper")
 include(":up-resources")
 
 include(":tracker-core")

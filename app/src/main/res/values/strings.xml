@@ -82,10 +82,6 @@
     <string name="up_av_on_boarding_button_close" translatable="false">Close</string>
     <string name="up_av_get_started" translatable="false">Get Started</string>
     <string name="up_av_welcome_to_unplugged" translatable="false">Welcome to Unplugged Antivirus</string>
-    <string name="up_av_subscription_expired" translatable="false">Subscription Expired</string>
-    <string name="up_av_subscription_expired_message" translatable="false">Unfortunately your subscription period is expired, you will be navigated to subscription page and would be able to renew it</string>
-    <string name="up_av_scan_limit_reached" translatable="false">Monthly Antivirus scans Limit Reached</string>
-    <string name="up_av_scan_limit_reached_message" translatable="false">You\'ve used all the free Antivirus scans included in your plan. Upgrade to Premium subscription via the UP Store to enjoy an unlimited Antivirus scans</string>
     <string name="up_av_scan_canceled_title" translatable="false">Scan is canceled</string>
     <string name="up_av_scan_canceled_message" translatable="false">Click OK to close the scan screen</string>
     <string name="up_av_cancel" translatable="false">Cancel</string>
@@ -93,10 +89,6 @@
     <string name="up_av_cancel_unknown_reason" translatable="false">Unfortunately the scan was canceled for unexpected reason, please try again later</string>
     <string name="up_av_session_revoke_title" translatable="false">Session Revoked</string>
     <string name="up_av_session_revoke_message" translatable="false">Seems like this session revoked, please restart application or make sure you are logged in at UP Store app</string>
-    <string name="up_av_subscription_not_found" translatable="false">Subscription Not Found</string>
-    <string name="up_av_subscription_not_found_message" translatable="false">Unfortunately seems like you don\'t have subscription yet, you will be navigated to subscription page and would be able to renew it</string>
-    <string name="up_av_premium_subscription_expiration_warning" translatable="false">Your Premium subscription is about to expire in %1s day(s)</string>
-    <string name="up_av_premium_subscription_expires_today_warning" translatable="false">Your Premium subscription expires today</string>
     <string name="up_av_support" translatable="false">Support</string>
     <string name="up_av_scan_fail_db_missing_message" translatable="false">Scan cannot be completed, missing main database.\nClick OK to download the main database and try again</string>
     <string name="up_av_scan_fail_db_missing_title" translatable="false">Scan Failed</string>
@@ -293,4 +285,5 @@
     <string name="your_device_is_compromised">Your Device is Compromised</string>
     <string name="quick_scan">Quick Scan</string>
     <string name="dismiss">Dismiss</string>
+    <string name="up_av_up_phone_only" translatable="false">This app is only available on UP Phone</string>
 </resources>

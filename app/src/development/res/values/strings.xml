@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="up_av_label_name" translatable="false">Dev Antivirus</string>
     <string name="account_type">com.unplugged.android.account.dev</string>
     <string name="account_type_old">com.unplugged.account.dev</string>
 </resources>

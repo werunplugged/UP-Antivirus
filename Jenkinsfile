@@ -39,7 +39,13 @@ pipeline {
                         error("Build skipped - not main branch and not manual trigger")
                     }
 
-                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME}"
+                    if (env.BRANCH_NAME != 'main' && (params.FLAVOR ?: 'production') == 'production') {
+                        currentBuild.result = 'ABORTED'
+                        currentBuild.description = "❌ Production builds are only allowed from main branch"
+                        error("❌ Cannot build production from branch '${env.BRANCH_NAME}'. Switch to main or choose development/staging.")
+                    }
+
+                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME} | flavor: ${params.FLAVOR}"
                 }
             }
         }

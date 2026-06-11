@@ -22,5 +22,9 @@ TrackerExtension/build/
 # Private assets overlay (real data for internal builds)
 private-assets/
 
-# Tracker data overwritten by copyPrivateAssets at build time
+# Data files overwritten by copyPrivateAssets at build time - never commit
 app/src/main/assets/trackers_with_details.json
+signature-scanner/src/main/assets/black_list_packages.csv
+signature-scanner/src/main/assets/BlackListedPackages.json
+
+.claude/settings.local.json

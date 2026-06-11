@@ -45,7 +45,7 @@ pipeline {
                         error("❌ Cannot build production from branch '${env.BRANCH_NAME}'. Switch to main or choose development/staging.")
                     }
 
-                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME} | flavor: ${params.FLAVOR}"
+                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME} | flavor: ${params.FLAVOR ?: 'production'}"
                 }
             }
         }

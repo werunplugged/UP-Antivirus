@@ -73,7 +73,7 @@ class CheckAppTask @Inject constructor(
                     trackersFound = it.upTracker.trackers
                 }
 
-                val appName = getApplicationName(packageName)!!
+                val appName = getApplicationName(packageName) ?: packageName
                 val trackers = TrackerListConverter().fromTrackerList(trackersFound)
 
                 trackerModel = TrackerModel(0, -1, appName, tracker.upTracker.appId, trackers)
@@ -200,20 +200,26 @@ class CheckAppTask @Inject constructor(
     private fun getApplicationName(packageName: String?): String? {
         if (packageName == null) return null
 
-        val appInfo =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.packageManager.getApplicationInfo(
-                    packageName,
-                    PackageManager.ApplicationInfoFlags.of(0)
-                )
-            } else {
-                context.packageManager.getApplicationInfo(
-                    packageName,
-                    PackageManager.GET_META_DATA
-                )
-            }
-
-        return context.packageManager.getApplicationLabel(appInfo).toString()
+        return try {
+            val appInfo =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.packageManager.getApplicationInfo(
+                        packageName,
+                        PackageManager.ApplicationInfoFlags.of(0)
+                    )
+                } else {
+                    context.packageManager.getApplicationInfo(
+                        packageName,
+                        PackageManager.GET_META_DATA
+                    )
+                }
+            context.packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            // Package isn't installed/visible at scan time (just uninstalled, other
+            // user/work profile, or hidden by package visibility). UNP-8090
+            Log.w("CheckAppTask", "getApplicationName: package not found: $packageName")
+            null
+        }
     }
 
     private suspend fun saveHistoryItem(

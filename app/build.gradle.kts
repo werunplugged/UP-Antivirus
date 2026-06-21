@@ -102,7 +102,16 @@ val copyPrivateAssets by tasks.registering(Copy::class) {
     val privateDir = rootProject.file("private-assets/app/assets")
     from(privateDir)
     into(file("src/main/assets"))
-    enabled = privateDir.exists()
+    // In CI (BUILD_NUMBER set) the S3 private-assets overlay must be injected before assembling;
+    // fail loud rather than silently shipping empty trackers/blacklists. Local dev builds without
+    // the overlay still run (the Copy simply has nothing to copy).
+    doFirst {
+        if (System.getenv("BUILD_NUMBER") != null) {
+            require(privateDir.exists()) {
+                "private-assets overlay missing at $privateDir — the CI build agent must inject it before assembling"
+            }
+        }
+    }
 }
 
 tasks.configureEach {

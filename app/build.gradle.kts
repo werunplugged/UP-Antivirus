@@ -30,6 +30,8 @@ android {
         versionCode = 132
         versionName = "2.31.30"
 
+        manifestPlaceholders["min_version_app_center"] = 257
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         applicationVariants.all {

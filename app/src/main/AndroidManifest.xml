@@ -40,6 +40,10 @@
         tools:replace="android:theme,android:icon,android:allowBackup,android:label,android:roundIcon,android:supportsRtl"
         tools:targetApi="31">
 
+        <meta-data
+            android:name="min_version_app_center"
+            android:value="${min_version_app_center}" />
+
         <activity
             android:name="com.unplugged.up_antivirus.ui.splash.SplashActivity"
             android:exported="true"

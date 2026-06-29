@@ -15,12 +15,9 @@ dependencyResolutionManagement {
         }
         maven {
             url = uri("https://unplugged.jfrog.io/artifactory/unplugged-libraries")
-            credentials(HttpHeaderCredentials::class) {
-                name = "X-JFrog-Art-Api"
-                value = System.getenv("ARTIFACTORY_API_KEY")
-            }
-            authentication {
-                create<HttpHeaderAuthentication>("header")
+            credentials {
+                username = System.getenv("ARTIFACTORY_USER")
+                password = System.getenv("ARTIFACTORY_PASSWORD")
             }
         }
     }

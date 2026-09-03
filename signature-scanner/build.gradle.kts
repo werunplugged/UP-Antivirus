@@ -31,6 +31,42 @@ android {
     }
 }
 
+// Inject the private-assets overlay as a *generated* asset source directory wired through the
+// AGP variant API, so AGP gives every consumer (merge/lint/package) an explicit dependency on the
+// producing task automatically — instead of writing into src/main/assets and hand-wiring only the
+// merge*Assets tasks.
+abstract class CopyPrivateAssets : DefaultTask() {
+    @get:Internal
+    abstract val sourceDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun run() {
+        val out = outputDir.get().asFile
+        out.deleteRecursively()
+        out.mkdirs()
+        val src = sourceDir.get().asFile
+        // Overlay is optional: in CI the real tracker/blacklist data is injected straight into
+        // src/main/assets by the builder's S3 step, so a missing private-assets/ dir is not an error.
+        if (src.exists()) {
+            src.copyRecursively(out, overwrite = true)
+        }
+    }
+}
+
+val copyPrivateAssets = tasks.register<CopyPrivateAssets>("copyPrivateAssets") {
+    sourceDir.set(rootProject.layout.projectDirectory.dir("private-assets/signature-scanner/assets"))
+    outputDir.set(layout.buildDirectory.dir("generated/privateAssets"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyPrivateAssets, CopyPrivateAssets::outputDir)
+    }
+}
+
 dependencies {
 
     implementation("androidx.core:core-ktx:1.12.0")

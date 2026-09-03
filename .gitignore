@@ -19,9 +19,12 @@ local.properties
 local.properties
 TrackerExtension/build/
 
-# Data files - never commit or push
+# Private assets overlay (real data for internal builds)
+private-assets/
+
+# Data files overwritten by copyPrivateAssets at build time - never commit
+app/src/main/assets/trackers_with_details.json
 signature-scanner/src/main/assets/black_list_packages.csv
 signature-scanner/src/main/assets/BlackListedPackages.json
-app/src/main/assets/trackers_with_details.json
 
 .claude/settings.local.json

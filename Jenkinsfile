@@ -1,9 +1,14 @@
 pipeline {
     agent {
         kubernetes {
-            label 'k8s-dev'
+            cloud 'K8S-DEV'
+            inheritFrom 'k8s-dev'
             defaultContainer 'agent'
         }
+    }
+
+    parameters {
+        choice(name: 'FLAVOR', choices: ['production', 'staging', 'development'], description: 'Product flavor / environment to build')
     }
 
     options {
@@ -34,7 +39,13 @@ pipeline {
                         error("Build skipped - not main branch and not manual trigger")
                     }
 
-                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME}"
+                    if (env.BRANCH_NAME != 'main' && (params.FLAVOR ?: 'production') == 'production') {
+                        currentBuild.result = 'ABORTED'
+                        currentBuild.description = "❌ Production builds are only allowed from main branch"
+                        error("❌ Cannot build production from branch '${env.BRANCH_NAME}'. Switch to main or choose development/staging.")
+                    }
+
+                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME} | flavor: ${params.FLAVOR ?: 'production'}"
                 }
             }
         }
@@ -128,7 +139,7 @@ pipeline {
                     def dockerImage = "${env.DOCKER_IMAGE_BASE}:latest"
                     echo "🐳 Selected Docker image: ${dockerImage}"
 
-                    def buildResult = build job: 'DeploymentHelper/AndroidBuilder',
+                    def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
                         parameters: [
                             string(name: 'DOCKER_IMAGE', value: dockerImage),
                             string(name: 'REPO_NAME', value: env.REPO),
@@ -137,7 +148,8 @@ pipeline {
                             string(name: 'GIT_URL', value: env.GIT_URL),
                             string(name: 'PARENT_BUILD_NUMBER', value: env.BUILD_NUMBER),
                             string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
-                            string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH)
+                            string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
+                            string(name: 'FLAVOR', value: params.FLAVOR ?: 'production')
                         ],
                         wait: true,
                         propagate: true
@@ -145,7 +157,7 @@ pipeline {
                     if (buildResult.result == 'SUCCESS') {
                         echo "✅ Android build completed successfully"
 
-                        copyArtifacts projectName: 'DeploymentHelper/AndroidBuilder',
+                        copyArtifacts projectName: 'DeploymentHelper/AndroidBuilderTest',
                                      selector: specific("${buildResult.number}"),
                                      filter: 'build-results.json',
                                      optional: true

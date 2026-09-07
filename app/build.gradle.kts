@@ -32,6 +32,10 @@ android {
 
         manifestPlaceholders["min_version_app_center"] = 257
 
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         applicationVariants.all {
@@ -98,6 +102,11 @@ android {
 
     viewBinding {
         enable = true
+    }
+
+    packaging {
+        dex { useLegacyPackaging = false }
+        jniLibs { useLegacyPackaging = false }
     }
 }
 

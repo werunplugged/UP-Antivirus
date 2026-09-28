@@ -9,11 +9,11 @@ interface HistoryDao {
     @Query("SELECT * FROM historyentity")
     suspend fun getAll(): List<HistoryEntity>
 
-    @Query("SELECT * FROM historyentity ORDER BY date DESC LIMIT 1")
-    fun getLatestAsFlow(): Flow<HistoryEntity?>
+    @Query("SELECT * FROM historyentity WHERE status = :completed ORDER BY date DESC LIMIT 1")
+    fun getLatestCompletedAsFlow(completed: Int): Flow<HistoryEntity?>
 
-    @Query("SELECT * FROM historyentity ORDER BY date DESC LIMIT 1")
-    suspend fun getLatest(): HistoryEntity?
+    @Query("SELECT * FROM historyentity WHERE status = :completed ORDER BY date DESC LIMIT 1")
+    suspend fun getLatestCompleted(completed: Int): HistoryEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: HistoryEntity): Long
@@ -32,4 +32,14 @@ interface HistoryDao {
 
     @Query("SELECT * FROM historyentity WHERE id = :id")
     suspend fun getHistoryById(id: Int): HistoryEntity?
+
+    @Query("UPDATE historyentity SET status = :status WHERE id = :id")
+    suspend fun updateStatus(id: Int, status: Int)
+
+    /**
+     * Nothing can still be RUNNING in a freshly started process, so any such row belongs to a scan
+     * whose process died (UNP-8704). Returns the number of rows swept.
+     */
+    @Query("UPDATE historyentity SET status = :interrupted WHERE status = :running")
+    suspend fun markRunningAsInterrupted(running: Int, interrupted: Int): Int
 }

@@ -18,6 +18,7 @@ import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.upantiviruscommon.model.Resource
 import com.unplugged.upantiviruscommon.model.ScanUpdate
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
 import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
@@ -181,10 +182,12 @@ class DefaultScannerRepository @Inject constructor(
             trackersFound = 0
         }
 
-        val historyModel = HistoryModel(historyItemId, "", "", -1, -1, -1, -1, -1)
+        // UNP-8704: keep the row and mark it CANCELLED rather than deleting it, so a scan the
+        // user stopped is distinguishable from one the process never finished.
+        val cancelledScanId = historyItemId
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO) {
-                historyActionsUseCase.delete(historyModel)
+                historyActionsUseCase.updateStatus(cancelledScanId, ScanStatus.CANCELLED)
                 malwareList.clear()
                 historyItemId = 0
             }
@@ -372,7 +375,8 @@ class DefaultScannerRepository @Inject constructor(
         if (historyItemId == 0) {
             historyItemId = historyActionsUseCase(
                 HistoryModel(
-                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0
+                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0,
+                    ScanStatus.RUNNING
                 )
             )
         }
@@ -417,7 +421,8 @@ class DefaultScannerRepository @Inject constructor(
             trackersFound,
             scanStats.totalFilesScanned,
             appRepository.countAllApps(),
-            scanStats.megabytesHashed
+            scanStats.megabytesHashed,
+            ScanStatus.COMPLETED
         )
         historyActionsUseCase.update(historyModel)
     }

@@ -12,5 +12,6 @@ data class HistoryModel(
     val trackersFound: Int,
     val filesScanned: Int,
     val appsScanned: Int,
-    val megabytesHashed: Long
+    val megabytesHashed: Long,
+    val status: ScanStatus = ScanStatus.COMPLETED
 ) : Parcelable

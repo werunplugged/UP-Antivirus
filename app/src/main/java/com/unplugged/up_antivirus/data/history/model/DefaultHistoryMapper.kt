@@ -3,7 +3,10 @@ package com.unplugged.up_antivirus.data.history.model
 class DefaultHistoryMapper : HistoryMapper {
     override fun entityToModel(entity: HistoryEntity): HistoryModel {
         return with(entity) {
-            HistoryModel(id, name, date, malwareFound, trackersFound, filesScanned, appsScanned, megabytesHashed)
+            HistoryModel(
+                id, name, date, malwareFound, trackersFound, filesScanned, appsScanned,
+                megabytesHashed, ScanStatus.fromCode(status)
+            )
         }
     }
 
@@ -13,7 +16,10 @@ class DefaultHistoryMapper : HistoryMapper {
 
     override fun modelToEntity(model: HistoryModel): HistoryEntity {
         return with(model) {
-            HistoryEntity(id, name, date, malwareFound, trackersFound, filesScanned, appsScanned, megabytesHashed)
+            HistoryEntity(
+                id, name, date, malwareFound, trackersFound, filesScanned, appsScanned,
+                megabytesHashed, status.code
+            )
         }
     }
 

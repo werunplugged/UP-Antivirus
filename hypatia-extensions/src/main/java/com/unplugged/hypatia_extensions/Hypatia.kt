@@ -3,7 +3,6 @@ package com.unplugged.hypatia_extensions
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Environment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,28 +72,7 @@ class Hypatia(private val context: Context) : HypatiaAccessPoint {
                     }
                 }
         } else {
-            filesToScan.addAll(
-                listOf(
-                    Environment.getRootDirectory(),
-                    File("/apex"),
-                    File("/cache"),
-                    File("/data"),
-                    File("/data/local/tmp"),
-                    File("/firmware"),
-                    File("/oem"),
-                    File("/odm"),
-                    File("/odm_dlkm"),
-                    File("/product"),
-                    File("/system"),
-                    File("/system_dlkm"),
-                    File("/vendor"),
-                    File("/vendor_dlkm")
-                )
-            )
-
-            if(Build.MODEL != "UP01"){
-                filesToScan.add(File("/"))
-            }
+            filesToScan.addAll(fullScanRoots())
 
             context.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                 .forEach { packageInfo ->
@@ -107,15 +85,52 @@ class Hypatia(private val context: Context) : HypatiaAccessPoint {
                 }
 
             Environment.getExternalStorageDirectory()?.let { filesToScan.add(it) }
-
-            val externalStorage = File("/storage")
-            if (externalStorage.exists()) {
-                filesToScan.add(externalStorage)
-            }
-
         }
         malwareScanner.executeOnExecutor(Utils.getThreadPoolExecutor(), filesToScan)
     }
+
+    /**
+     * Roots walked by a full scan.
+     *
+     * Deliberately NOT included (UNP-8704):
+     *  - "/"                   : /proc/self/root is a symlink back to "/", so the recursive walk
+     *                            in Utils.getFilesRecursive never terminates and OOMs the process.
+     *  - /proc, /sys, /dev,
+     *    /mnt                  : pseudo-filesystems and duplicate mount views. No real files to
+     *                            scan, and some entries block forever on read (e.g. /proc/kmsg).
+     *  - /data                 : 0771 root:root, so listFiles() returns null for an unprivileged
+     *                            app. App directories arrive via ApplicationInfo.dataDir instead.
+     *  - /storage              : /storage/self/primary is a symlink to /storage/emulated/0, which
+     *                            is already added via Environment.getExternalStorageDirectory().
+     *
+     * Environment.getRootDirectory() is "/system" and is covered by the explicit entry below.
+     */
+    private fun fullScanRoots(): List<File> {
+        val roots = mutableListOf<File>()
+
+        roots += listOf(
+            "/system", "/system_ext", "/product",
+            "/vendor", "/odm",
+            "/system_dlkm", "/vendor_dlkm", "/odm_dlkm",
+            "/firmware", "/oem",
+            "/cache",
+            "/data/local/tmp"
+        ).map(::File)
+
+        roots += activeApexRoots()
+
+        return roots.filter { it.isDirectory }
+    }
+
+    /**
+     * Active APEX mounts only. Each APEX is also bind-mounted as /apex/<name>@<version> with
+     * identical content; a bind mount is not a symlink, so getCanonicalFile() cannot collapse the
+     * duplicate and every APEX would otherwise be enumerated twice.
+     */
+    private fun activeApexRoots(): List<File> =
+        File("/apex").listFiles()
+            ?.filter { it.isDirectory && !it.name.contains('@') }
+            ?: emptyList()
 
     override fun isDatabaseLoaded(): Boolean {
         return Database.isDatabaseLoaded()

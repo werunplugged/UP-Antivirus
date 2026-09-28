@@ -113,7 +113,9 @@ class ScannerWorker @Inject constructor(
     }
 
     private fun startScanService() {
-        val intent = Intent(context, ScanService::class.java)
+        val intent = Intent(context, ScanService::class.java).apply {
+            action = ScanService.ACTION_START_SCAN
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {

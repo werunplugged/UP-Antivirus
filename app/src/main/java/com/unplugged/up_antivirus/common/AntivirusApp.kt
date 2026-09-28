@@ -10,11 +10,15 @@ import com.unplugged.accounthelper.AccountListener
 import com.unplugged.antivirus.R
 import com.unplugged.up_antivirus.base.Utils
 import com.unplugged.up_antivirus.data.AntivirusRoomDatabase
+import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetScanPreferencesUseCase
 import com.unplugged.up_antivirus.domain.use_case.LogoutUseCase
 import com.unplugged.up_antivirus.domain.use_case.SoftLogoutUseCase
 import com.unplugged.up_antivirus.domain.use_case.UpdateDatabaseUseCase
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import us.spotco.malwarescanner.BuildConfig
 import javax.inject.Inject
 import androidx.core.content.edit
@@ -34,6 +38,9 @@ class AntivirusApp : Application() {
 
     @Inject
     lateinit var accountHelper: AccountHelper
+
+    @Inject
+    lateinit var historyActionsUseCase: HistoryActionsUseCase
 
     override fun onCreate() {
         super.onCreate()
@@ -66,6 +73,29 @@ class AntivirusApp : Application() {
         })
 
         registerNotificationChannels()
+        sweepInterruptedScans()
+    }
+
+    /**
+     * A scan-history row can only still be RUNNING if the process that wrote it died before the
+     * scan finished - which is exactly what the UNP-8704 OOM did, twelve times in under an hour.
+     * Reclassify those rows so history shows an interrupted scan instead of a blank all-zero entry.
+     */
+    private fun sweepInterruptedScans() {
+        CoroutineScope(Dispatchers.IO).launch {
+            runCatching { historyActionsUseCase.markRunningAsInterrupted() }
+                .onSuccess { swept ->
+                    if (swept > 0) {
+                        Utils.printLog(
+                            AntivirusApp::class.java,
+                            "Marked $swept interrupted scan(s) in history"
+                        )
+                    }
+                }
+                .onFailure {
+                    Utils.printLog(AntivirusApp::class.java, "Interrupted-scan sweep failed: $it")
+                }
+        }
     }
 
     private fun registerNotificationChannels() {

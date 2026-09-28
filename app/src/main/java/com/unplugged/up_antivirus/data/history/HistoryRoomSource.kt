@@ -3,6 +3,7 @@ package com.unplugged.up_antivirus.data.history
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import com.unplugged.up_antivirus.data.history.model.HistoryEntity
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
@@ -17,12 +18,12 @@ class HistoryRoomSource @Inject constructor(
     }
 
     override fun getLatestAsFlow(): Flow<HistoryEntity?> {
-        return dao.getLatestAsFlow()
+        return dao.getLatestCompletedAsFlow(ScanStatus.COMPLETED.code)
     }
 
     override suspend fun getLatest(): HistoryEntity? {
         return withContext(Dispatchers.IO) {
-            dao.getLatest()
+            dao.getLatestCompleted(ScanStatus.COMPLETED.code)
         }
     }
 
@@ -59,6 +60,18 @@ class HistoryRoomSource @Inject constructor(
     override suspend fun getHistoryById(id: Int): HistoryEntity? {
         return withContext(Dispatchers.IO) {
             dao.getHistoryById(id)
+        }
+    }
+
+    override suspend fun updateStatus(id: Int, status: ScanStatus) {
+        withContext(Dispatchers.IO) {
+            dao.updateStatus(id, status.code)
+        }
+    }
+
+    override suspend fun markRunningAsInterrupted(): Int {
+        return withContext(Dispatchers.IO) {
+            dao.markRunningAsInterrupted(ScanStatus.RUNNING.code, ScanStatus.INTERRUPTED.code)
         }
     }
 }

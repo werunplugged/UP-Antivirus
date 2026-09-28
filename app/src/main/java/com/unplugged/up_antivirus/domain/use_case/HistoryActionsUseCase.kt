@@ -1,6 +1,7 @@
 package com.unplugged.up_antivirus.domain.use_case
 
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import com.unplugged.up_antivirus.data.history.HistoryRepository
 import javax.inject.Inject
 
@@ -20,5 +21,13 @@ class HistoryActionsUseCase @Inject constructor(private val historyRepository: H
 
     suspend fun getLastEntryId(): Int? {
         return historyRepository.getLastEntryId()
+    }
+
+    suspend fun updateStatus(id: Int, status: ScanStatus) {
+        historyRepository.updateStatus(id, status)
+    }
+
+    suspend fun markRunningAsInterrupted(): Int {
+        return historyRepository.markRunningAsInterrupted()
     }
 }

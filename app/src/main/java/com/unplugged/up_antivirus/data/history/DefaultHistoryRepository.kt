@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import com.unplugged.up_antivirus.data.history.model.HistoryMapper
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import javax.inject.Inject
 
 class DefaultHistoryRepository @Inject constructor(
@@ -58,5 +59,13 @@ class DefaultHistoryRepository @Inject constructor(
         return localSource.getHistoryById(id)?.let {
             mapper.entityToModel(it)
         }
+    }
+
+    override suspend fun updateStatus(id: Int, status: ScanStatus) {
+        localSource.updateStatus(id, status)
+    }
+
+    override suspend fun markRunningAsInterrupted(): Int {
+        return localSource.markRunningAsInterrupted()
     }
 }

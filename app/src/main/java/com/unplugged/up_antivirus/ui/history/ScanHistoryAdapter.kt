@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.unplugged.antivirus.R
 import com.unplugged.upantiviruscommon.utils.DateTimeUtils
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -28,9 +29,23 @@ class ScanHistoryAdapter(
     override fun onBindViewHolder(holder: HistoryHolder, position: Int) {
         val item = historyItems[position]
 
-        holder.scanTitle.text = item.name
+        // A scan is only titled once it finishes, so cancelled and interrupted rows have a
+        // blank name. Fall back to a generic label rather than rendering an empty row.
+        holder.scanTitle.text = item.name.ifBlank {
+            getString(holder.itemView.context, R.string.up_av_scan_title_generic)
+        }
         holder.scanDate.text = item.date
-        holder.threatsFound.text = String.format(getString(holder.itemView.context, R.string.up_av_threats_found), item.malwareFound, item.trackersFound)
+        // A scan that never finished has no meaningful counts to show, so say why instead.
+        holder.threatsFound.text = when (item.status) {
+            ScanStatus.CANCELLED -> getString(holder.itemView.context, R.string.up_av_scan_cancelled)
+            ScanStatus.RUNNING,
+            ScanStatus.INTERRUPTED -> getString(holder.itemView.context, R.string.up_av_scan_interrupted)
+            ScanStatus.COMPLETED -> String.format(
+                getString(holder.itemView.context, R.string.up_av_threats_found),
+                item.malwareFound,
+                item.trackersFound
+            )
+        }
 
         holder.itemView.setOnClickListener {
             clickListener(item)

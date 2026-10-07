@@ -8,7 +8,9 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'FLAVOR', choices: ['production', 'staging', 'development'], description: 'Product flavor / environment to build')
+        booleanParam(name: 'BUILD_DEVELOPMENT', defaultValue: true, description: 'Build the development environment')
+        booleanParam(name: 'BUILD_STAGING', defaultValue: true, description: 'Build the staging environment')
+        booleanParam(name: 'BUILD_PRODUCTION', defaultValue: true, description: 'Build the production environment')
     }
 
     options {
@@ -40,7 +42,7 @@ pipeline {
                     }
 
 
-                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME} | flavor: ${params.FLAVOR ?: 'production'}"
+                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME}"
                 }
             }
         }
@@ -134,54 +136,54 @@ pipeline {
                     def dockerImage = "${env.DOCKER_IMAGE_BASE}:latest"
                     echo "🐳 Selected Docker image: ${dockerImage}"
 
-                    def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
-                        parameters: [
-                            string(name: 'DOCKER_IMAGE', value: dockerImage),
-                            string(name: 'REPO_NAME', value: env.REPO),
-                            string(name: 'BRANCH_NAME', value: env.BRANCH_NAME),
-                            string(name: 'BRANCH_SHORT', value: env.BRANCH_SHORT),
-                            string(name: 'GIT_URL', value: env.GIT_URL),
-                            string(name: 'PARENT_BUILD_NUMBER', value: env.BUILD_NUMBER),
-                            string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
-                            string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
-                            string(name: 'FLAVOR', value: params.FLAVOR ?: 'production')
-                        ],
-                        wait: true,
-                        propagate: true
+                    // UNP-9272: one run builds every checked environment, one after the other,
+                    // all from this exact commit even if someone pushes in the meantime.
+                    // A missing parameter (first run after this change, or an automatic main
+                    // build) counts as checked, so main merges build all three.
+                    def envs = []
+                    if (params.BUILD_DEVELOPMENT != false) { envs << 'development' }
+                    if (params.BUILD_STAGING != false)     { envs << 'staging' }
+                    if (params.BUILD_PRODUCTION != false)  { envs << 'production' }
+                    if (!envs) {
+                        error('❌ No environment selected. Check at least one of development, staging, production.')
+                    }
+                    def sha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    def summary = []
 
-                    if (buildResult.result == 'SUCCESS') {
-                        echo "✅ Android build completed successfully"
+                    for (flavor in envs) {
+                        echo "🏗️ Building ${flavor} from ${sha.take(8)}"
+                        def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
+                            parameters: [
+                                string(name: 'DOCKER_IMAGE', value: dockerImage),
+                                string(name: 'REPO_NAME', value: env.REPO),
+                                string(name: 'BRANCH_NAME', value: env.BRANCH_NAME),
+                                string(name: 'BRANCH_SHORT', value: env.BRANCH_SHORT),
+                                string(name: 'GIT_URL', value: env.GIT_URL),
+                                string(name: 'PARENT_BUILD_NUMBER', value: env.BUILD_NUMBER),
+                                string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
+                                string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
+                                string(name: 'FLAVOR', value: flavor),
+                                string(name: 'GIT_SHA', value: sha)
+                            ],
+                            wait: true,
+                            propagate: true
 
+                        def line = "${flavor}: AndroidBuilderTest #${buildResult.number}"
                         copyArtifacts projectName: 'DeploymentHelper/AndroidBuilderTest',
                                      selector: specific("${buildResult.number}"),
                                      filter: 'build-results.json',
                                      optional: true
-
                         if (fileExists('build-results.json')) {
                             def results = readJSON file: 'build-results.json'
-                            env.ANDROID_BUILDER_NUMBER = results.androidBuilderNumber
-                            env.DEBUG_SIGNED = results.debugSigned
-                            env.RELEASE_SIGNED = results.releaseSigned
                             env.NEW_VERSION_NAME = results.version
-                            env.DEBUG_JFROG_URL = results.debugJFrogUrl ?: ''
-                            env.DEBUG_JFROG_FILE_NAME = results.debugJFrogFileName ?: ''
-                            env.RELEASE_JFROG_URL = results.releaseJFrogUrl ?: ''
-                            env.RELEASE_JFROG_FILE_NAME = results.releaseJFrogFileName ?: ''
-                            env.HAS_DEBUG_JFROG_UPLOAD = results.hasDebugJFrogUpload ?: 'false'
-                            env.HAS_RELEASE_JFROG_UPLOAD = results.hasReleaseJFrogUpload ?: 'false'
-
-                            echo "📊 Build Results:"
-                            echo "   Version: ${env.NEW_VERSION_NAME}"
-                            echo "   Debug Signed: ${env.DEBUG_SIGNED}"
-                            echo "   Release Signed: ${env.RELEASE_SIGNED}"
-                            echo "   Debug JFrog: ${env.HAS_DEBUG_JFROG_UPLOAD}"
-                            echo "   Release JFrog: ${env.HAS_RELEASE_JFROG_UPLOAD}"
-                        } else {
-                            echo "⚠️ build-results.json not found"
+                            line += " | debug ${results.debugSigned == 'true' ? '✅' : '⏭️'} release ${results.releaseSigned == 'true' ? '✅' : '❌'}"
+                            sh 'rm -f build-results.json'
                         }
-                    } else {
-                        error "❌ Android build failed: ${buildResult.result}"
+                        echo "✅ ${line}"
+                        summary << line
                     }
+                    env.BUILT_ENVIRONMENTS = envs.join(', ')
+                    env.BUILD_SUMMARY = summary.join('\n')
                 }
             }
         }
@@ -191,12 +193,7 @@ pipeline {
             script {
                 echo "✅ Pipeline completed successfully"
 
-                currentBuild.description = """
-                    ✅ Success | v${env.NEW_VERSION_NAME ?: 'unknown'}
-                    🐛 Debug: ${env.DEBUG_SIGNED == 'true' ? '✅' : '❌'}
-                    🚀 Release: ${env.RELEASE_SIGNED == 'true' ? '✅' : '❌'}
-                    📦 JFrog: ${(env.HAS_DEBUG_JFROG_UPLOAD == 'true' || env.HAS_RELEASE_JFROG_UPLOAD == 'true') ? '✅' : '⏭️'}
-                """.stripIndent()
+                currentBuild.description = "✅ ${env.BUILT_ENVIRONMENTS ?: '-'} | v${env.NEW_VERSION_NAME ?: 'unknown'}\n${env.BUILD_SUMMARY ?: ''}"
             }
         }
         failure {

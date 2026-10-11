@@ -163,7 +163,10 @@ pipeline {
                                 string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
                                 string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
                                 string(name: 'FLAVOR', value: flavor),
-                                string(name: 'GIT_SHA', value: sha)
+                                string(name: 'GIT_SHA', value: sha),
+                                // One-off branch (UNP-9535): publish this build as main/<version> and
+                                // fill Latest, Official, Store and Firmware-candidate.
+                                booleanParam(name: 'SEED_FIXED_FOLDERS', value: true)
                             ],
                             wait: true,
                             propagate: true

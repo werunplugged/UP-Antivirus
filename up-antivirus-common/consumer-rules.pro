@@ -53,17 +53,6 @@
 -keep class com.airbnb.lottie.** { *; }
 -dontwarn com.airbnb.lottie.**
 
-# Lazy Sodium cryptography
--keep class com.goterl.lazysodium.** { *; }
--keep class com.goterl.lazysodium.interfaces.** { *; }
--dontwarn com.goterl.lazysodium.**
-
-# JNA (Java Native Access)
--keep class com.sun.jna.** { *; }
--keep class net.java.dev.jna.** { *; }
--dontwarn com.sun.jna.**
--dontwarn net.java.dev.jna.**
-
 # ==== UP ACCOUNT INTEGRATION ====
 # Keep account modules (they're imported as AAR files)
 -keep class com.unplugged.account.** { *; }

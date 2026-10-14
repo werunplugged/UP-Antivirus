@@ -138,18 +138,23 @@ pipeline {
 
                     // UNP-9272: one run builds every checked environment, one after the other,
                     // all from this exact commit even if someone pushes in the meantime.
-                    // A missing parameter (first run after this change, or an automatic main
-                    // build) counts as checked, so main merges build all three.
+                    // A parameter is unset on the first run after this change and on automatic
+                    // builds. Unset development/staging count as checked. Unset production
+                    // counts as checked only on main: on a branch, the production key is
+                    // applied only when someone ticks it explicitly.
+                    boolean isMain = env.BRANCH_NAME == 'main'
                     def envs = []
                     if (params.BUILD_DEVELOPMENT != false) { envs << 'development' }
                     if (params.BUILD_STAGING != false)     { envs << 'staging' }
-                    if (params.BUILD_PRODUCTION != false)  { envs << 'production' }
+                    if (params.BUILD_PRODUCTION != null ? params.BUILD_PRODUCTION : isMain) { envs << 'production' }
                     if (!envs) {
                         error('❌ No environment selected. Check at least one of development, staging, production.')
                     }
-                    def sha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    def sha = env.GIT_COMMIT ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                     def summary = []
 
+                    // Order dev -> staging -> production with propagate: true: a failure stops the
+                    // run, so production is never built from code that just failed in dev.
                     for (flavor in envs) {
                         echo "🏗️ Building ${flavor} from ${sha.take(8)}"
                         def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
@@ -175,7 +180,7 @@ pipeline {
                                      optional: true
                         if (fileExists('build-results.json')) {
                             def results = readJSON file: 'build-results.json'
-                            env.NEW_VERSION_NAME = results.version
+                            line += " | v${results.version}"
                             line += " | debug ${results.debugSigned == 'true' ? '✅' : '⏭️'} release ${results.releaseSigned == 'true' ? '✅' : '❌'}"
                             sh 'rm -f build-results.json'
                         }
@@ -183,7 +188,7 @@ pipeline {
                         summary << line
                     }
                     env.BUILT_ENVIRONMENTS = envs.join(', ')
-                    env.BUILD_SUMMARY = summary.join('\n')
+                    env.BUILD_SUMMARY = summary.join('<br>')
                 }
             }
         }
@@ -193,7 +198,7 @@ pipeline {
             script {
                 echo "✅ Pipeline completed successfully"
 
-                currentBuild.description = "✅ ${env.BUILT_ENVIRONMENTS ?: '-'} | v${env.NEW_VERSION_NAME ?: 'unknown'}\n${env.BUILD_SUMMARY ?: ''}"
+                currentBuild.description = "✅ ${env.BUILT_ENVIRONMENTS ?: '-'}<br>${env.BUILD_SUMMARY ?: ''}"
             }
         }
         failure {

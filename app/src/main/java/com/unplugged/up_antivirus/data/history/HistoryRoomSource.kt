@@ -69,6 +69,16 @@ class HistoryRoomSource @Inject constructor(
         }
     }
 
+    override suspend fun updateProgress(entity: HistoryEntity) {
+        withContext(Dispatchers.IO) {
+            dao.updateProgress(
+                entity.id, entity.name, entity.date, entity.malwareFound,
+                entity.trackersFound, entity.filesScanned, entity.appsScanned,
+                entity.megabytesHashed
+            )
+        }
+    }
+
     override suspend fun markRunningAsInterrupted(): Int {
         return withContext(Dispatchers.IO) {
             dao.markRunningAsInterrupted(ScanStatus.RUNNING.code, ScanStatus.INTERRUPTED.code)

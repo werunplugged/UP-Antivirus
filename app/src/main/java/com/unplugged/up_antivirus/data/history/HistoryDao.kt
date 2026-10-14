@@ -37,6 +37,28 @@ interface HistoryDao {
     suspend fun updateStatus(id: Int, status: Int)
 
     /**
+     * Counts-only update. Deliberately leaves `status` alone so an in-flight progress write can
+     * never clobber a CANCELLED or COMPLETED transition - status is owned solely by updateStatus().
+     */
+    @Query("""
+        UPDATE historyentity
+        SET name = :name, date = :date, malwareFound = :malwareFound,
+            trackersFound = :trackersFound, filesScanned = :filesScanned,
+            appsScanned = :appsScanned, megabytesHashed = :megabytesHashed
+        WHERE id = :id
+    """)
+    suspend fun updateProgress(
+        id: Int,
+        name: String,
+        date: String,
+        malwareFound: Int,
+        trackersFound: Int,
+        filesScanned: Int,
+        appsScanned: Int,
+        megabytesHashed: Long
+    )
+
+    /**
      * Nothing can still be RUNNING in a freshly started process, so any such row belongs to a scan
      * whose process died (UNP-8704). Returns the number of rows swept.
      */

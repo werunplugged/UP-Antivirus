@@ -38,7 +38,8 @@ class ScanHistoryAdapter(
         // A scan that never finished has no meaningful counts to show, so say why instead.
         holder.threatsFound.text = when (item.status) {
             ScanStatus.CANCELLED -> getString(holder.itemView.context, R.string.up_av_scan_cancelled)
-            ScanStatus.RUNNING,
+            // getAll() has no status filter, so a scan still in flight is listed here too.
+            ScanStatus.RUNNING -> getString(holder.itemView.context, R.string.up_av_scan_in_progress)
             ScanStatus.INTERRUPTED -> getString(holder.itemView.context, R.string.up_av_scan_interrupted)
             ScanStatus.COMPLETED -> String.format(
                 getString(holder.itemView.context, R.string.up_av_threats_found),

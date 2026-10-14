@@ -15,5 +15,6 @@ interface HistoryLocalSource {
     suspend fun deleteAll()
     suspend fun getHistoryById(id: Int): HistoryEntity?
     suspend fun updateStatus(id: Int, status: ScanStatus)
+    suspend fun updateProgress(entity: HistoryEntity)
     suspend fun markRunningAsInterrupted(): Int
 }

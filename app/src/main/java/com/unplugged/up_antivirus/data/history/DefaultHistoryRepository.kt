@@ -65,6 +65,10 @@ class DefaultHistoryRepository @Inject constructor(
         localSource.updateStatus(id, status)
     }
 
+    override suspend fun updateProgress(model: HistoryModel) {
+        localSource.updateProgress(mapper.modelToEntity(model))
+    }
+
     override suspend fun markRunningAsInterrupted(): Int {
         return localSource.markRunningAsInterrupted()
     }

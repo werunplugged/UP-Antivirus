@@ -288,6 +288,17 @@ class DefaultScannerRepository @Inject constructor(
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (!isScanning()) {
+                            // Every scanner has stopped - this is the only place the scan is
+                            // genuinely complete, so this is the only place COMPLETED is written.
+                            val completedScanId = historyItemId
+                            if (completedScanId != 0) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    historyActionsUseCase.updateStatus(
+                                        completedScanId, ScanStatus.COMPLETED
+                                    )
+                                }
+                            }
+
                             if (malwareList.isEmpty() && trackersFound == 0) {
                                 notificationManager.makeStatusNotification(
                                     stringProvider.getString(R.string.up_av_scan_completed_no_threats_detected),
@@ -421,10 +432,13 @@ class DefaultScannerRepository @Inject constructor(
             trackersFound,
             scanStats.totalFilesScanned,
             appRepository.countAllApps(),
-            scanStats.megabytesHashed,
-            ScanStatus.COMPLETED
+            scanStats.megabytesHashed
         )
-        historyActionsUseCase.update(historyModel)
+        // Counts only. This fires every time ANY one scanner finishes, and the scanners finish at
+        // very different times (blacklist and trackers in seconds, Hypatia's file walk last), so
+        // writing COMPLETED here marked the row finished while the scan was still running - which
+        // is what stopped the UNP-8704 OOM from ever being recorded as INTERRUPTED.
+        historyActionsUseCase.updateProgress(historyModel)
     }
 
     override fun isScannerDone(type: ScannerType): Boolean {

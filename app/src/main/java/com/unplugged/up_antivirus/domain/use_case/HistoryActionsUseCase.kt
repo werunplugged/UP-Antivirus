@@ -27,6 +27,10 @@ class HistoryActionsUseCase @Inject constructor(private val historyRepository: H
         historyRepository.updateStatus(id, status)
     }
 
+    suspend fun updateProgress(historyModel: HistoryModel) {
+        historyRepository.updateProgress(historyModel)
+    }
+
     suspend fun markRunningAsInterrupted(): Int {
         return historyRepository.markRunningAsInterrupted()
     }

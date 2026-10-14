@@ -18,6 +18,7 @@ import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.upantiviruscommon.model.Resource
 import com.unplugged.upantiviruscommon.model.ScanUpdate
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
 import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
@@ -181,10 +182,12 @@ class DefaultScannerRepository @Inject constructor(
             trackersFound = 0
         }
 
-        val historyModel = HistoryModel(historyItemId, "", "", -1, -1, -1, -1, -1)
+        // UNP-8704: keep the row and mark it CANCELLED rather than deleting it, so a scan the
+        // user stopped is distinguishable from one the process never finished.
+        val cancelledScanId = historyItemId
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO) {
-                historyActionsUseCase.delete(historyModel)
+                historyActionsUseCase.updateStatus(cancelledScanId, ScanStatus.CANCELLED)
                 malwareList.clear()
                 historyItemId = 0
             }
@@ -285,6 +288,17 @@ class DefaultScannerRepository @Inject constructor(
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (!isScanning()) {
+                            // Every scanner has stopped - this is the only place the scan is
+                            // genuinely complete, so this is the only place COMPLETED is written.
+                            val completedScanId = historyItemId
+                            if (completedScanId != 0) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    historyActionsUseCase.updateStatus(
+                                        completedScanId, ScanStatus.COMPLETED
+                                    )
+                                }
+                            }
+
                             if (malwareList.isEmpty() && trackersFound == 0) {
                                 notificationManager.makeStatusNotification(
                                     stringProvider.getString(R.string.up_av_scan_completed_no_threats_detected),
@@ -369,10 +383,14 @@ class DefaultScannerRepository @Inject constructor(
     }
 
     override suspend fun createScanId(): Int {
+        // Never let the startup sweep race ahead and mark the row we are about to insert as
+        // INTERRUPTED (PR #22 review).
+        historyActionsUseCase.awaitInterruptedSweep()
         if (historyItemId == 0) {
             historyItemId = historyActionsUseCase(
                 HistoryModel(
-                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0
+                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0,
+                    ScanStatus.RUNNING
                 )
             )
         }
@@ -419,7 +437,11 @@ class DefaultScannerRepository @Inject constructor(
             appRepository.countAllApps(),
             scanStats.megabytesHashed
         )
-        historyActionsUseCase.update(historyModel)
+        // Counts only. This fires every time ANY one scanner finishes, and the scanners finish at
+        // very different times (blacklist and trackers in seconds, Hypatia's file walk last), so
+        // writing COMPLETED here marked the row finished while the scan was still running - which
+        // is what stopped the UNP-8704 OOM from ever being recorded as INTERRUPTED.
+        historyActionsUseCase.updateProgress(historyModel)
     }
 
     override fun isScannerDone(type: ScannerType): Boolean {

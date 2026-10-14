@@ -27,10 +27,14 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 134
+        versionCode = 135
         versionName = "2.32.0"
 
         manifestPlaceholders["min_version_app_center"] = 257
+
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -98,6 +102,11 @@ android {
 
     viewBinding {
         enable = true
+    }
+
+    packaging {
+        dex { useLegacyPackaging = false }
+        jniLibs { useLegacyPackaging = false }
     }
 }
 

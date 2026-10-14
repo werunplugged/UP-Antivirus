@@ -68,6 +68,9 @@
     <string name="up_av_show_scan_history" translatable="false">Scan History</string>
     <string name="up_av_completed_scan_title" translatable="false">COMPLETED SCAN</string>
     <string name="up_av_threats_found" translatable="false">Malware Found: %1$d\nTrackers Found: %2$d</string>
+    <string name="up_av_scan_interrupted" translatable="false">Scan interrupted before it finished</string>
+    <string name="up_av_scan_cancelled" translatable="false">Scan cancelled</string>
+    <string name="up_av_scan_title_generic" translatable="false">Scan</string>
     <string name="up_av_inspect_pi_history" translatable="false">Scan History</string>
     <string name="up_av_app_description" translatable="false">The Antivirus is an essential part of Unplugged’s total privacy system.\n\nHackers exploit compromised files, images and cookies you may download to plant agents and malware enabling them to gain access to your device.\n\nThe Antivirus scans you device for viruses, malware and trackers. Unplugged’s security experts and third-party security professionals recommend running antivirus scans at least once a week</string>
     <string name="up_av_file_manager_permission_title" translatable="false">File Manager</string>

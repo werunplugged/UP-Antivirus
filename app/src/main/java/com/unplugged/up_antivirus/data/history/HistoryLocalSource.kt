@@ -2,6 +2,7 @@ package com.unplugged.up_antivirus.data.history
 
 import kotlinx.coroutines.flow.Flow
 import com.unplugged.up_antivirus.data.history.model.HistoryEntity
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 
 interface HistoryLocalSource {
     suspend fun getAll(): List<HistoryEntity>
@@ -13,4 +14,7 @@ interface HistoryLocalSource {
     suspend fun delete(entity: HistoryEntity)
     suspend fun deleteAll()
     suspend fun getHistoryById(id: Int): HistoryEntity?
+    suspend fun updateStatus(id: Int, status: ScanStatus)
+    suspend fun updateProgress(entity: HistoryEntity)
+    suspend fun markRunningAsInterrupted(): Int
 }

@@ -21,8 +21,12 @@ interface HistoryDao {
     @Update
     suspend fun update(entity: HistoryEntity)
 
-    @Query("SELECT id FROM historyentity ORDER BY date DESC LIMIT 1")
-    suspend fun getLastEntryId(): Int?
+    /**
+     * Newest scan that is running or finished. Cancelled and interrupted rows are excluded: they
+     * used to be deleted, so this could not land on one, but they are kept now (UNP-8704).
+     */
+    @Query("SELECT id FROM historyentity WHERE status IN (:statuses) ORDER BY date DESC LIMIT 1")
+    suspend fun getLastEntryId(statuses: List<Int>): Int?
 
     @Delete
     suspend fun delete(entity: HistoryEntity)

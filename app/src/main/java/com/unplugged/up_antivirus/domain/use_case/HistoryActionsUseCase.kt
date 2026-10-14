@@ -34,4 +34,8 @@ class HistoryActionsUseCase @Inject constructor(private val historyRepository: H
     suspend fun markRunningAsInterrupted(): Int {
         return historyRepository.markRunningAsInterrupted()
     }
+
+    suspend fun awaitInterruptedSweep() {
+        historyRepository.awaitInterruptedSweep()
+    }
 }

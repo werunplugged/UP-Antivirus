@@ -383,6 +383,9 @@ class DefaultScannerRepository @Inject constructor(
     }
 
     override suspend fun createScanId(): Int {
+        // Never let the startup sweep race ahead and mark the row we are about to insert as
+        // INTERRUPTED (PR #22 review).
+        historyActionsUseCase.awaitInterruptedSweep()
         if (historyItemId == 0) {
             historyItemId = historyActionsUseCase(
                 HistoryModel(

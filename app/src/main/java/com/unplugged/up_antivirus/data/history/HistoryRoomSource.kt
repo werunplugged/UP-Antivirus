@@ -41,7 +41,7 @@ class HistoryRoomSource @Inject constructor(
 
     override suspend fun getLastEntryId(): Int? {
         return withContext(Dispatchers.IO) {
-            dao.getLastEntryId()
+            dao.getLastEntryId(listOf(ScanStatus.RUNNING.code, ScanStatus.COMPLETED.code))
         }
     }
 

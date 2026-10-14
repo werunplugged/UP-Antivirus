@@ -17,4 +17,5 @@ interface HistoryRepository {
     suspend fun updateStatus(id: Int, status: ScanStatus)
     suspend fun updateProgress(model: HistoryModel)
     suspend fun markRunningAsInterrupted(): Int
+    suspend fun awaitInterruptedSweep()
 }

@@ -100,8 +100,11 @@ class Hypatia(private val context: Context) : HypatiaAccessPoint {
      *                            scan, and some entries block forever on read (e.g. /proc/kmsg).
      *  - /data                 : 0771 root:root, so listFiles() returns null for an unprivileged
      *                            app. App directories arrive via ApplicationInfo.dataDir instead.
-     *  - /storage              : /storage/self/primary is a symlink to /storage/emulated/0, which
-     *                            is already added via Environment.getExternalStorageDirectory().
+     *
+     * /storage IS scanned: SD cards and USB-OTG drives mount at /storage/XXXX-XXXX and appear
+     * nowhere else, so omitting it lost removable-media coverage entirely. The duplicate paths
+     * under it are handled by the walker, which skips symlinks (/storage/self/primary) and dedupes
+     * on canonical path against Environment.getExternalStorageDirectory() (/storage/emulated/0).
      *
      * Environment.getRootDirectory() is "/system" and is covered by the explicit entry below.
      */
@@ -118,6 +121,7 @@ class Hypatia(private val context: Context) : HypatiaAccessPoint {
         ).map(::File)
 
         roots += activeApexRoots()
+        roots += File("/storage")
 
         return roots.filter { it.isDirectory }
     }

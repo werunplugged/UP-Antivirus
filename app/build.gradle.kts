@@ -27,8 +27,8 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 136
-        versionName = "2.32.1"
+        versionCode = 137
+        versionName = "2.32.2"
 
         manifestPlaceholders["min_version_app_center"] = 257
 

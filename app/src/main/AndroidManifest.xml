@@ -106,6 +106,19 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator_old" />
         </service>
+
+        <!--
+            UNP-9907: the vendored Hypatia AAR is the whole upstream *app*, not just the engine,
+            and its manifest declares MainActivity android:exported="true" with no permission.
+            That is upstream's own debug UI, whose options menu writes the DATABASE_SERVER and
+            SIGNING_KEY preferences - SIGNING_KEY being the GPG key id the malware signature
+            database is verified against, and the one override nothing ever resets. Nothing in
+            this app references the activity, so drop it from the merged manifest rather than
+            shipping an externally launchable entry point into the scanner's trust settings.
+        -->
+        <activity
+            android:name="us.spotco.malwarescanner.MainActivity"
+            tools:node="remove" />
     </application>
 
 </manifest>

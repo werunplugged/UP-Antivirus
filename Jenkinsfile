@@ -10,7 +10,7 @@ pipeline {
     parameters {
         booleanParam(name: 'BUILD_DEVELOPMENT', defaultValue: true, description: 'Build the development environment')
         booleanParam(name: 'BUILD_STAGING', defaultValue: true, description: 'Build the staging environment')
-        booleanParam(name: 'BUILD_PRODUCTION', defaultValue: true, description: 'Build the production environment')
+        booleanParam(name: 'BUILD_PRODUCTION', defaultValue: false, description: 'Build the production environment (signs with the production key)')
     }
 
     options {
@@ -138,15 +138,17 @@ pipeline {
 
                     // UNP-9272: one run builds every checked environment, one after the other,
                     // all from this exact commit even if someone pushes in the meantime.
-                    // A parameter is unset on the first run after this change and on automatic
-                    // builds. Unset development/staging count as checked. Unset production
-                    // counts as checked only on main: on a branch, the production key is
-                    // applied only when someone ticks it explicitly.
+                    // A parameter is unset on the first run after this change. Unset
+                    // development/staging count as checked. Production is opt-in: a manual
+                    // build (any branch, main included) builds it only when someone ticks it,
+                    // and the form leaves it unticked. An automatic build (only main gets one)
+                    // always builds it, so a merge to main still ships production.
                     boolean isMain = env.BRANCH_NAME == 'main'
+                    boolean isManualBuild = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').size() > 0
                     def envs = []
                     if (params.BUILD_DEVELOPMENT != false) { envs << 'development' }
                     if (params.BUILD_STAGING != false)     { envs << 'staging' }
-                    if (params.BUILD_PRODUCTION != null ? params.BUILD_PRODUCTION : isMain) { envs << 'production' }
+                    if (isManualBuild ? params.BUILD_PRODUCTION == true : isMain) { envs << 'production' }
                     if (!envs) {
                         error('❌ No environment selected. Check at least one of development, staging, production.')
                     }

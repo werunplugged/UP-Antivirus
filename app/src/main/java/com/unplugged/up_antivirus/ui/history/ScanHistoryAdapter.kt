@@ -41,6 +41,7 @@ class ScanHistoryAdapter(
             // getAll() has no status filter, so a scan still in flight is listed here too.
             ScanStatus.RUNNING -> getString(holder.itemView.context, R.string.up_av_scan_in_progress)
             ScanStatus.INTERRUPTED -> getString(holder.itemView.context, R.string.up_av_scan_interrupted)
+            ScanStatus.FAILED -> getString(holder.itemView.context, R.string.up_av_scan_failed_no_database)
             ScanStatus.COMPLETED -> String.format(
                 getString(holder.itemView.context, R.string.up_av_threats_found),
                 item.malwareFound,

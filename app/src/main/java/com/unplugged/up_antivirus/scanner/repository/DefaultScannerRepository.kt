@@ -82,11 +82,19 @@ class DefaultScannerRepository @Inject constructor(
     private var isQuickScan = true
     private var updatedScanStats = ScanStats(-1, -1, -1, historyItemId, false, ScannerType.NONE)
 
+    /**
+     * Set when a scanner reports it had no signature database to match against (UNP-9907). Such a
+     * scan inspected nothing, so it must not be written to history as COMPLETED nor announced as
+     * "no threats detected".
+     */
+    private var signatureDatabaseUnavailable = false
+
     override suspend fun startScan(scanParams: ScanParams) {
         isQuickScan = scanParams.isQuickScan
         hypatiaProgress = 0.0
         blacklistProgress = 0.0
         trackersProgress = 0.0
+        signatureDatabaseUnavailable = false
         malwareOnProgress(0.0, 100, ScannerType.HYPATIA)
         malwareOnProgress(0.0, 100, ScannerType.BLACKLIST)
         malwareOnProgress(0.0, 100, ScannerType.TRACKERS)
@@ -292,14 +300,24 @@ class DefaultScannerRepository @Inject constructor(
                             // genuinely complete, so this is the only place COMPLETED is written.
                             val completedScanId = historyItemId
                             if (completedScanId != 0) {
+                                // A scan with no signature database checked nothing, so it is a
+                                // failure, not a clean result (UNP-9907).
+                                val finalStatus = if (signatureDatabaseUnavailable) {
+                                    ScanStatus.FAILED
+                                } else {
+                                    ScanStatus.COMPLETED
+                                }
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    historyActionsUseCase.updateStatus(
-                                        completedScanId, ScanStatus.COMPLETED
-                                    )
+                                    historyActionsUseCase.updateStatus(completedScanId, finalStatus)
                                 }
                             }
 
-                            if (malwareList.isEmpty() && trackersFound == 0) {
+                            if (signatureDatabaseUnavailable) {
+                                notificationManager.makeStatusNotification(
+                                    stringProvider.getString(R.string.up_av_scan_failed_no_database),
+                                    null, historyItemId, true
+                                )
+                            } else if (malwareList.isEmpty() && trackersFound == 0) {
                                 notificationManager.makeStatusNotification(
                                     stringProvider.getString(R.string.up_av_scan_completed_no_threats_detected),
                                     null, historyItemId, true
@@ -371,6 +389,11 @@ class DefaultScannerRepository @Inject constructor(
     }
 
     override fun onHypatiaScanFinish(stats: us.spotco.malwarescanner.malware.ScanStats) {
+        // Latch it: the flag has to outlive this callback so the completion block below, which
+        // runs once every scanner has stopped, can see it (UNP-9907).
+        if (stats.databaseUnavailable) {
+            signatureDatabaseUnavailable = true
+        }
         val mapper = HypatiaMalwareMapper()
         val myStats = mapper.convertScanStats(stats)
         myStats.type = ScannerType.HYPATIA

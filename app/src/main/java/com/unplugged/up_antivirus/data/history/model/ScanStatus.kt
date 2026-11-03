@@ -20,7 +20,17 @@ enum class ScanStatus(val code: Int) {
      * The process died mid-scan (e.g. the OOM in UNP-8704). Nothing can still be RUNNING in a
      * fresh process, so any row left RUNNING at startup is swept to this.
      */
-    INTERRUPTED(3);
+    INTERRUPTED(3),
+
+    /**
+     * The scan ran to the end but could not consult the signature database, so it inspected
+     * nothing and its "no threats" result means nothing (UNP-9907). Distinct from INTERRUPTED:
+     * the process survived, the scan just had no signatures to match against.
+     *
+     * No Room migration is needed for this value - it is another int in the existing `status`
+     * column, and [fromCode] already tolerates codes it does not know.
+     */
+    FAILED(4);
 
     companion object {
         fun fromCode(code: Int): ScanStatus = values().firstOrNull { it.code == code } ?: COMPLETED

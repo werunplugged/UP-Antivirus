@@ -69,6 +69,7 @@
     <string name="up_av_completed_scan_title" translatable="false">COMPLETED SCAN</string>
     <string name="up_av_threats_found" translatable="false">Malware Found: %1$d\nTrackers Found: %2$d</string>
     <string name="up_av_scan_interrupted" translatable="false">Scan interrupted before it finished</string>
+    <string name="up_av_scan_failed_no_database" translatable="false">Scan failed: malware signatures unavailable</string>
     <string name="up_av_scan_cancelled" translatable="false">Scan cancelled</string>
     <string name="up_av_scan_title_generic" translatable="false">Scan</string>
     <string name="up_av_inspect_pi_history" translatable="false">Scan History</string>

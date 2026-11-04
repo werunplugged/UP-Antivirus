@@ -138,6 +138,19 @@
         <activity
             android:name="us.spotco.malwarescanner.MainActivity"
             tools:node="remove" />
+
+        <!--
+            UNP-9907: the vendored TrackerControl AAR declares ServiceExternal exported with no
+            permission, behind the action net.kollnig.missioncontrol.DOWNLOAD_HOSTS_FILE, so any
+            installed app can start it and make this one download a hosts file. Upstream gates
+            comparable entry points behind a custom permission; this one is open. Nothing here
+            uses it - no module references the service or the action, nothing else in the AAR
+            starts it, and the tracker feature reaches the fork through TrackerLibraryAnalyser,
+            which never touches the hosts list. Drop it rather than ship an open entry point.
+        -->
+        <service
+            android:name="eu.faircode.netguard.ServiceExternal"
+            tools:node="remove" />
     </application>
 
 </manifest>

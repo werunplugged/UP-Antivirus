@@ -22,6 +22,25 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!--
+        UNP-9907: declared by the vendored TrackerControl AAR (tracker-extension/tracker-core),
+        not by this app. Their only consumers are NetGuard firewall features - Util.isNational(),
+        isEU(), getGeneralInfo(), getWifiSSID() and ServiceSinkhole - that nothing here reaches:
+        the tracker feature enters the fork through TrackerLibraryAnalyser alone, which never
+        calls Util. READ_PHONE_STATE is only ever read back through Util.hasPhoneStatePermission(),
+        a guard that degrades when absent; VIBRATE has no API reference in the AAR at all.
+        Keeping the override here also stops a future AAR refresh reintroducing them.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.VIBRATE"
+        tools:node="remove" />
+
     <application
         android:name="com.unplugged.up_antivirus.common.AntivirusApp"
         android:allowBackup="false"

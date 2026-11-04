@@ -183,10 +183,6 @@
     <init>(...);
     *** onReceive(...);
 }
--keep class com.unplugged.up_antivirus.ui.UpLogoutReceiver {
-    <init>(...);
-    *** onReceive(...);
-}
 
 # ==== THIRD PARTY LIBRARIES (PROJECT SPECIFIC) ====
 # Glide

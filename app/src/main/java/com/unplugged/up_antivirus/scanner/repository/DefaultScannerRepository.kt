@@ -18,6 +18,7 @@ import com.unplugged.up_antivirus.data.tracker.model.TrackerListConverter
 import com.unplugged.upantiviruscommon.model.Resource
 import com.unplugged.upantiviruscommon.model.ScanUpdate
 import com.unplugged.up_antivirus.data.history.model.HistoryModel
+import com.unplugged.up_antivirus.data.history.model.ScanStatus
 import com.unplugged.up_antivirus.domain.use_case.CancelScanningUseCase
 import com.unplugged.up_antivirus.domain.use_case.GetApplicationInfoUseCase
 import com.unplugged.up_antivirus.domain.use_case.HistoryActionsUseCase
@@ -81,11 +82,19 @@ class DefaultScannerRepository @Inject constructor(
     private var isQuickScan = true
     private var updatedScanStats = ScanStats(-1, -1, -1, historyItemId, false, ScannerType.NONE)
 
+    /**
+     * Set when a scanner reports it had no signature database to match against (UNP-9907). Such a
+     * scan inspected nothing, so it must not be written to history as COMPLETED nor announced as
+     * "no threats detected".
+     */
+    private var signatureDatabaseUnavailable = false
+
     override suspend fun startScan(scanParams: ScanParams) {
         isQuickScan = scanParams.isQuickScan
         hypatiaProgress = 0.0
         blacklistProgress = 0.0
         trackersProgress = 0.0
+        signatureDatabaseUnavailable = false
         malwareOnProgress(0.0, 100, ScannerType.HYPATIA)
         malwareOnProgress(0.0, 100, ScannerType.BLACKLIST)
         malwareOnProgress(0.0, 100, ScannerType.TRACKERS)
@@ -181,10 +190,12 @@ class DefaultScannerRepository @Inject constructor(
             trackersFound = 0
         }
 
-        val historyModel = HistoryModel(historyItemId, "", "", -1, -1, -1, -1, -1)
+        // UNP-8704: keep the row and mark it CANCELLED rather than deleting it, so a scan the
+        // user stopped is distinguishable from one the process never finished.
+        val cancelledScanId = historyItemId
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO) {
-                historyActionsUseCase.delete(historyModel)
+                historyActionsUseCase.updateStatus(cancelledScanId, ScanStatus.CANCELLED)
                 malwareList.clear()
                 historyItemId = 0
             }
@@ -285,7 +296,28 @@ class DefaultScannerRepository @Inject constructor(
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (!isScanning()) {
-                            if (malwareList.isEmpty() && trackersFound == 0) {
+                            // Every scanner has stopped - this is the only place the scan is
+                            // genuinely complete, so this is the only place COMPLETED is written.
+                            val completedScanId = historyItemId
+                            if (completedScanId != 0) {
+                                // A scan with no signature database checked nothing, so it is a
+                                // failure, not a clean result (UNP-9907).
+                                val finalStatus = if (signatureDatabaseUnavailable) {
+                                    ScanStatus.FAILED
+                                } else {
+                                    ScanStatus.COMPLETED
+                                }
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    historyActionsUseCase.updateStatus(completedScanId, finalStatus)
+                                }
+                            }
+
+                            if (signatureDatabaseUnavailable) {
+                                notificationManager.makeStatusNotification(
+                                    stringProvider.getString(R.string.up_av_scan_failed_no_database),
+                                    null, historyItemId, true
+                                )
+                            } else if (malwareList.isEmpty() && trackersFound == 0) {
                                 notificationManager.makeStatusNotification(
                                     stringProvider.getString(R.string.up_av_scan_completed_no_threats_detected),
                                     null, historyItemId, true
@@ -357,6 +389,11 @@ class DefaultScannerRepository @Inject constructor(
     }
 
     override fun onHypatiaScanFinish(stats: us.spotco.malwarescanner.malware.ScanStats) {
+        // Latch it: the flag has to outlive this callback so the completion block below, which
+        // runs once every scanner has stopped, can see it (UNP-9907).
+        if (stats.databaseUnavailable) {
+            signatureDatabaseUnavailable = true
+        }
         val mapper = HypatiaMalwareMapper()
         val myStats = mapper.convertScanStats(stats)
         myStats.type = ScannerType.HYPATIA
@@ -369,10 +406,14 @@ class DefaultScannerRepository @Inject constructor(
     }
 
     override suspend fun createScanId(): Int {
+        // Never let the startup sweep race ahead and mark the row we are about to insert as
+        // INTERRUPTED (PR #22 review).
+        historyActionsUseCase.awaitInterruptedSweep()
         if (historyItemId == 0) {
             historyItemId = historyActionsUseCase(
                 HistoryModel(
-                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0
+                    0, "", DateTimeUtils.getCurrentDateTimeString(), 0, 0, 0, 0, 0,
+                    ScanStatus.RUNNING
                 )
             )
         }
@@ -419,7 +460,11 @@ class DefaultScannerRepository @Inject constructor(
             appRepository.countAllApps(),
             scanStats.megabytesHashed
         )
-        historyActionsUseCase.update(historyModel)
+        // Counts only. This fires every time ANY one scanner finishes, and the scanners finish at
+        // very different times (blacklist and trackers in seconds, Hypatia's file walk last), so
+        // writing COMPLETED here marked the row finished while the scan was still running - which
+        // is what stopped the UNP-8704 OOM from ever being recorded as INTERRUPTED.
+        historyActionsUseCase.updateProgress(historyModel)
     }
 
     override fun isScannerDone(type: ScannerType): Boolean {

@@ -183,10 +183,6 @@
     <init>(...);
     *** onReceive(...);
 }
--keep class com.unplugged.up_antivirus.ui.UpLogoutReceiver {
-    <init>(...);
-    *** onReceive(...);
-}
 
 # ==== THIRD PARTY LIBRARIES (PROJECT SPECIFIC) ====
 # Glide
@@ -241,7 +237,6 @@
 -dontwarn com.maxmind.geoip2.exception.GeoIp2Exception
 -dontwarn com.maxmind.geoip2.model.CountryResponse
 -dontwarn com.maxmind.geoip2.record.Country
--dontwarn com.sun.jna.platform.win32.Win32Exception
 -dontwarn java.beans.BeanInfo
 -dontwarn java.beans.IndexedPropertyDescriptor
 -dontwarn java.beans.IntrospectionException

@@ -27,10 +27,14 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 134
-        versionName = "2.32.0"
+        versionCode = 137
+        versionName = "2.32.2"
 
         manifestPlaceholders["min_version_app_center"] = 257
+
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -81,6 +85,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
+            // Deliberate: release APKs are signed externally by the apk-signer-tool with the
+            // Jenkins release key. This keeps a local `assembleRelease` runnable, so a locally
+            // built "release" APK carries a debug key and is not distributable (UNP-9907).
             signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -98,6 +105,11 @@ android {
 
     viewBinding {
         enable = true
+    }
+
+    packaging {
+        dex { useLegacyPackaging = false }
+        jniLibs { useLegacyPackaging = false }
     }
 }
 
@@ -185,7 +197,6 @@ dependencies {
     implementation(project(":signature-scanner"))
     implementation(project(":up-antivirus-common"))
 
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.3")

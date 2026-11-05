@@ -4,7 +4,7 @@
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">unplugged.com</domain>
 
-        <pin-set expiration="2026-02-08">
+        <pin-set expiration="2027-02-08">
             <!-- Primary certificate pin (SHA-256 of public key) -->
             <pin digest="SHA-256">EJQDAc5b8EPtU19MrlyMrztTCWEcSqRwhi5NBdt35ZY=</pin>
 
@@ -17,6 +17,9 @@
 
             <!-- ISRG Root X2 (ECDSA) -->
             <pin digest="SHA-256">diGVwiVYbubAI3RW4hB9xU8e/CH2GnkuvVFZE8zmgzI=</pin>
+
+            <!-- ISRG Root YE (ECDSA) - root the served chain terminates at (UNP-9907) -->
+            <pin digest="SHA-256">sCkq5UWXjg+7mKu9lMhhYF5bGLsy7VI/UNW3tccdR7w=</pin>
         </pin-set>
 
         <trust-anchors>

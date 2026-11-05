@@ -55,13 +55,11 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.squareup.picasso:picasso:2.71828")
 
-    "developmentApi"("com.unplugged:account-helper-development:1.1.12")
-    "stagingApi"("com.unplugged:account-helper-staging:1.1.12")
-    "productionApi"("com.unplugged:account-helper-production:1.1.12")
+    "developmentApi"("com.unplugged:account-helper-development:1.1.14")
+    "stagingApi"("com.unplugged:account-helper-staging:1.1.14")
+    "productionApi"("com.unplugged:account-helper-production:1.1.14")
 
     implementation ("dnsjava:dnsjava:3.5.0")
 
     implementation("com.airbnb.android:lottie:6.6.7")
-    implementation("com.goterl:lazysodium-android:5.1.0@aar")
-    implementation("net.java.dev.jna:jna:5.8.0@aar")
 }

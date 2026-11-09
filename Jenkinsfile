@@ -58,7 +58,8 @@ pipeline {
 
                         def repoLower = env.REPO.toLowerCase()
                         
-                        env.DOCKER_TAG = 'latest'
+                        // One image per Dockerfile content, shared by every branch that has it.
+                        env.DOCKER_TAG = 'df-' + sh(script: 'git hash-object Dockerfile', returnStdout: true).trim().take(12)
                         env.DOCKER_IMAGE_BASE = "${env.REGISTRY}/${env.GIT_ORG}/${repoLower}"
                         env.DOCKER_IMAGE_FULL = "${env.DOCKER_IMAGE_BASE}:${env.DOCKER_TAG}"
 
@@ -68,24 +69,8 @@ pipeline {
             }
         }
 
-        stage('Check Changes') {
-            when { expression { env.SKIP_BUILD != 'true' } }
-            steps {
-                script {
-                    def dockerfileChanged = sh(
-                        script: 'git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile" && echo "true" || echo "false"',
-                        returnStdout: true
-                    ).trim() == 'true'
-                    env.DOCKERFILE_CHANGED = dockerfileChanged.toString()
-                    echo "📝 Dockerfile changed: ${env.DOCKERFILE_CHANGED}"
-                }
-            }
-        }
-
         stage('🔐 Authenticate to Docker Registry') {
-            when {
-                environment name: 'DOCKERFILE_CHANGED', value: 'true'
-            }
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 script {
                     withCredentials([[$class: 'VaultTokenCredentialBinding', addrVariable: 'VAULT_ADDR', credentialsId: 'jenkins_vault_github_token', tokenVariable: 'VAULT_TOKEN', vaultAddr: 'https://vault-dev.unpluggedsystems.app']]) {
@@ -103,9 +88,23 @@ pipeline {
             }
         }
 
+        stage('Check Image') {
+            when { expression { env.SKIP_BUILD != 'true' } }
+            steps {
+                script {
+                    def exists = false
+                    docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
+                        exists = sh(script: "docker manifest inspect ${env.DOCKER_IMAGE_FULL} > /dev/null 2>&1", returnStatus: true) == 0
+                    }
+                    env.BUILD_IMAGE = (!exists).toString()
+                    echo "🐳 ${env.DOCKER_IMAGE_FULL}: ${exists ? 'already built' : 'not built yet'}"
+                }
+            }
+        }
+
         stage('Docker Build & Push') {
             when {
-                environment name: 'DOCKERFILE_CHANGED', value: 'true'
+                environment name: 'BUILD_IMAGE', value: 'true'
             }
             steps {
                 withFolderProperties {
@@ -115,9 +114,10 @@ pipeline {
                         docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
                             def dockerImage = docker.build("${env.DOCKER_IMAGE_FULL}", "--no-cache .")
 
-                            dockerImage.push('latest')
-                            dockerImage.push(env.SHORT_HASH)
-                            echo "✅ Docker image built and pushed with tags: latest, ${env.SHORT_HASH}"
+                            dockerImage.push(env.DOCKER_TAG)
+                            // Only the default branch moves :latest, so a branch build never replaces it.
+                            if (env.BRANCH_NAME in ['main', 'master']) { dockerImage.push('latest') }
+                            echo "✅ Docker image built and pushed: ${env.DOCKER_TAG}"
                             env.DOCKER_IMAGE_BUILT = 'true'
                         }
                     }
@@ -129,16 +129,11 @@ pipeline {
             when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 script {
-                    def dockerImage = "${env.DOCKER_IMAGE_BASE}:latest"
+                    def dockerImage = env.DOCKER_IMAGE_FULL
                     echo "🐳 Selected Docker image: ${dockerImage}"
 
-                    // UNP-9272: one run builds every checked environment, one after the other,
-                    // all from this exact commit even if someone pushes in the meantime.
-                    // A parameter is unset on the first run after this change. Unset
-                    // development/staging count as checked. Production is opt-in: a manual
-                    // build (any branch, main included) builds it only when someone ticks it,
-                    // and the form leaves it unticked. An automatic build (only main gets one)
-                    // always builds it, so a merge to main still ships production.
+                    // One run builds every checked environment (dev -> staging -> production), all from
+                    // this commit. Unset development/staging count as checked; production is opt-in.
                     boolean isMain = env.BRANCH_NAME == 'main'
                     boolean isManualBuild = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').size() > 0
                     def envs = []

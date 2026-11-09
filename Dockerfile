@@ -8,7 +8,7 @@ RUN yum -y update \
     && yum -y install --allowerasing coreutils
 
 RUN yum -y update && \
-    yum install -y python3 && \
+    yum install -y python3 python3-pip && \
     yum clean all
 
 RUN python3 --version

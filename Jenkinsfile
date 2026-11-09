@@ -36,9 +36,10 @@ pipeline {
 
                     if (env.BRANCH_NAME != 'main' && !isManualBuild) {
                         echo "⏭️ Skipping automatic build for branch '${env.BRANCH_NAME}'. Only 'main' branch builds automatically."
-                        currentBuild.result = 'NOT_BUILT'
+                        // Stays SUCCESS: NOT_BUILT or error() shows as a failed check on GitHub.
                         currentBuild.description = "⏭️ Skipped: Auto-build only for main branch"
-                        error("Build skipped - not main branch and not manual trigger")
+                        env.SKIP_BUILD = 'true'
+                        return
                     }
 
 
@@ -48,6 +49,7 @@ pipeline {
         }
 
         stage('Initialize Variables') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 withFolderProperties {
                     script {
@@ -67,6 +69,7 @@ pipeline {
         }
 
         stage('Check Changes') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 script {
                     def dockerfileChanged = sh(
@@ -106,24 +109,16 @@ pipeline {
             }
             steps {
                 withFolderProperties {
-                    withCredentials([
-                        string(credentialsId: 'jfrog_npm_api_key', variable: 'JFROG_API_KEY'),
-                        string(credentialsId: 'jfrog_npm_virtual_registry', variable: 'NPM_CONFIG_REGISTRY')
-                    ]) {
-                        script {
-                            echo "🔨 Building Docker image: ${env.DOCKER_IMAGE_FULL}"
+                    script {
+                        echo "🔨 Building Docker image: ${env.DOCKER_IMAGE_FULL}"
 
-                            docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
-                                def dockerImage = docker.build(
-                                    "${env.DOCKER_IMAGE_FULL}",
-                                    "--build-arg NPM_CONFIG_REGISTRY=\${NPM_CONFIG_REGISTRY} --build-arg JFROG_API_KEY=\${JFROG_API_KEY} --no-cache ."
-                                )
+                        docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
+                            def dockerImage = docker.build("${env.DOCKER_IMAGE_FULL}", "--no-cache .")
 
-                                dockerImage.push('latest')
-                                dockerImage.push(env.SHORT_HASH)
-                                echo "✅ Docker image built and pushed with tags: latest, ${env.SHORT_HASH}"
-                                env.DOCKER_IMAGE_BUILT = 'true'
-                            }
+                            dockerImage.push('latest')
+                            dockerImage.push(env.SHORT_HASH)
+                            echo "✅ Docker image built and pushed with tags: latest, ${env.SHORT_HASH}"
+                            env.DOCKER_IMAGE_BUILT = 'true'
                         }
                     }
                 }
@@ -131,6 +126,7 @@ pipeline {
         }
 
         stage('Android Build Pipeline') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 script {
                     def dockerImage = "${env.DOCKER_IMAGE_BASE}:latest"
@@ -198,9 +194,11 @@ pipeline {
     post {
         success {
             script {
-                echo "✅ Pipeline completed successfully"
+                if (env.SKIP_BUILD != 'true') {
+                    echo "✅ Pipeline completed successfully"
 
-                currentBuild.description = "✅ ${env.BUILT_ENVIRONMENTS ?: '-'}<br>${env.BUILD_SUMMARY ?: ''}"
+                    currentBuild.description = "✅ ${env.BUILT_ENVIRONMENTS ?: '-'}<br>${env.BUILD_SUMMARY ?: ''}"
+                }
             }
         }
         failure {

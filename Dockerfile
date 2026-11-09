@@ -1,4 +1,4 @@
-FROM amazoncorretto:17
+FROM amazoncorretto:17.0.20
 
 WORKDIR project/
 

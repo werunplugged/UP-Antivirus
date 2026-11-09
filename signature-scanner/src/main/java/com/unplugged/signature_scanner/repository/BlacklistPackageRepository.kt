@@ -8,6 +8,6 @@ interface BlacklistPackageRepository {
     suspend fun insertAll(apkInfo: List<ApkInfo>)
     suspend fun delete(apkInfo: ApkInfo)
     suspend fun find(packageName: String): ApkInfo?
-    suspend fun findBy(sha256: String, length: Long, packageName: String): ApkInfo?
+    suspend fun findBy(sha256: String): ApkInfo?
     suspend fun deleteAll()
 }

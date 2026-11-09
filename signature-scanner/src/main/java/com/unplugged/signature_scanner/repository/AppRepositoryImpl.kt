@@ -84,9 +84,7 @@ class AppRepositoryImpl(
             if (apkInfo == null) {
                 false
             } else {
-                blacklistPackageRepository.findBy(
-                    apkInfo.sha256, apkInfo.size, apkInfo.packageName
-                )?.let { true } ?: false
+                blacklistPackageRepository.findBy(apkInfo.sha256)?.let { true } ?: false
             }
         }
     }

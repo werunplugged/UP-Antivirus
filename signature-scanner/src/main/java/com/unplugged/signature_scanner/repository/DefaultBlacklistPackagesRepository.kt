@@ -32,8 +32,8 @@ class DefaultBlacklistPackagesRepository(
             mapper.entityToModel(packageInfo)
         }
     }
-    override suspend fun findBy(sha256: String, length: Long, packageName: String): ApkInfo? {
-        val blacklistApp = localSource.findBy(sha256, length, packageName)
+    override suspend fun findBy(sha256: String): ApkInfo? {
+        val blacklistApp = localSource.findBy(sha256)
         return blacklistApp?.let {
             mapper.entityToModel(blacklistApp)
         }

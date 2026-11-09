@@ -5,7 +5,7 @@ WORKDIR project/
 # Install Build Essentials 
 RUN yum -y update \
     && yum -y group install 'Development Tools' \
-    && yum -y install coreutils
+    && yum -y install --allowerasing coreutils
 
 RUN yum -y update && \
     yum install -y python3 && \

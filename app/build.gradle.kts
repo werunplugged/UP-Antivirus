@@ -85,10 +85,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
-            // Deliberate: release APKs are signed externally by the apk-signer-tool with the
-            // Jenkins release key. This keeps a local `assembleRelease` runnable, so a locally
-            // built "release" APK carries a debug key and is not distributable (UNP-9907).
-            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -8,7 +8,9 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'FLAVOR', choices: ['production', 'staging', 'development'], description: 'Product flavor / environment to build')
+        booleanParam(name: 'BUILD_DEVELOPMENT', defaultValue: true, description: 'Build the development environment')
+        booleanParam(name: 'BUILD_STAGING', defaultValue: true, description: 'Build the staging environment')
+        booleanParam(name: 'BUILD_PRODUCTION', defaultValue: false, description: 'Build the production environment (signs with the production key)')
     }
 
     options {
@@ -34,23 +36,20 @@ pipeline {
 
                     if (env.BRANCH_NAME != 'main' && !isManualBuild) {
                         echo "⏭️ Skipping automatic build for branch '${env.BRANCH_NAME}'. Only 'main' branch builds automatically."
-                        currentBuild.result = 'NOT_BUILT'
+                        // Stays SUCCESS: NOT_BUILT or error() shows as a failed check on GitHub.
                         currentBuild.description = "⏭️ Skipped: Auto-build only for main branch"
-                        error("Build skipped - not main branch and not manual trigger")
+                        env.SKIP_BUILD = 'true'
+                        return
                     }
 
-                    if (env.BRANCH_NAME != 'main' && (params.FLAVOR ?: 'production') == 'production') {
-                        currentBuild.result = 'ABORTED'
-                        currentBuild.description = "❌ Production builds are only allowed from main branch"
-                        error("❌ Cannot build production from branch '${env.BRANCH_NAME}'. Switch to main or choose development/staging.")
-                    }
 
-                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME} | flavor: ${params.FLAVOR ?: 'production'}"
+                    echo "✅ Proceeding with build for branch: ${env.BRANCH_NAME}"
                 }
             }
         }
 
         stage('Initialize Variables') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 withFolderProperties {
                     script {
@@ -59,7 +58,8 @@ pipeline {
 
                         def repoLower = env.REPO.toLowerCase()
                         
-                        env.DOCKER_TAG = 'latest'
+                        // One image per Dockerfile content, shared by every branch that has it.
+                        env.DOCKER_TAG = 'df-' + sh(script: 'git hash-object Dockerfile', returnStdout: true).trim().take(12)
                         env.DOCKER_IMAGE_BASE = "${env.REGISTRY}/${env.GIT_ORG}/${repoLower}"
                         env.DOCKER_IMAGE_FULL = "${env.DOCKER_IMAGE_BASE}:${env.DOCKER_TAG}"
 
@@ -69,23 +69,8 @@ pipeline {
             }
         }
 
-        stage('Check Changes') {
-            steps {
-                script {
-                    def dockerfileChanged = sh(
-                        script: 'git diff --name-only HEAD~1 HEAD | grep -q "Dockerfile" && echo "true" || echo "false"',
-                        returnStdout: true
-                    ).trim() == 'true'
-                    env.DOCKERFILE_CHANGED = dockerfileChanged.toString()
-                    echo "📝 Dockerfile changed: ${env.DOCKERFILE_CHANGED}"
-                }
-            }
-        }
-
         stage('🔐 Authenticate to Docker Registry') {
-            when {
-                environment name: 'DOCKERFILE_CHANGED', value: 'true'
-            }
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 script {
                     withCredentials([[$class: 'VaultTokenCredentialBinding', addrVariable: 'VAULT_ADDR', credentialsId: 'jenkins_vault_github_token', tokenVariable: 'VAULT_TOKEN', vaultAddr: 'https://vault-dev.unpluggedsystems.app']]) {
@@ -103,30 +88,37 @@ pipeline {
             }
         }
 
+        stage('Check Image') {
+            when { expression { env.SKIP_BUILD != 'true' } }
+            steps {
+                script {
+                    def exists = false
+                    docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
+                        exists = sh(script: "docker manifest inspect ${env.DOCKER_IMAGE_FULL} > /dev/null 2>&1", returnStatus: true) == 0
+                    }
+                    env.BUILD_IMAGE = (!exists).toString()
+                    echo "🐳 ${env.DOCKER_IMAGE_FULL}: ${exists ? 'already built' : 'not built yet'}"
+                }
+            }
+        }
+
         stage('Docker Build & Push') {
             when {
-                environment name: 'DOCKERFILE_CHANGED', value: 'true'
+                environment name: 'BUILD_IMAGE', value: 'true'
             }
             steps {
                 withFolderProperties {
-                    withCredentials([
-                        string(credentialsId: 'jfrog_npm_api_key', variable: 'JFROG_API_KEY'),
-                        string(credentialsId: 'jfrog_npm_virtual_registry', variable: 'NPM_CONFIG_REGISTRY')
-                    ]) {
-                        script {
-                            echo "🔨 Building Docker image: ${env.DOCKER_IMAGE_FULL}"
+                    script {
+                        echo "🔨 Building Docker image: ${env.DOCKER_IMAGE_FULL}"
 
-                            docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
-                                def dockerImage = docker.build(
-                                    "${env.DOCKER_IMAGE_FULL}",
-                                    "--build-arg NPM_CONFIG_REGISTRY=\${NPM_CONFIG_REGISTRY} --build-arg JFROG_API_KEY=\${JFROG_API_KEY} --no-cache ."
-                                )
+                        docker.withRegistry("https://${env.REGISTRY}", env.DOCKER_CREDENTIALS_ID) {
+                            def dockerImage = docker.build("${env.DOCKER_IMAGE_FULL}", "--no-cache .")
 
-                                dockerImage.push('latest')
-                                dockerImage.push(env.SHORT_HASH)
-                                echo "✅ Docker image built and pushed with tags: latest, ${env.SHORT_HASH}"
-                                env.DOCKER_IMAGE_BUILT = 'true'
-                            }
+                            dockerImage.push(env.DOCKER_TAG)
+                            // Only the default branch moves :latest, so a branch build never replaces it.
+                            if (env.BRANCH_NAME in ['main', 'master']) { dockerImage.push('latest') }
+                            echo "✅ Docker image built and pushed: ${env.DOCKER_TAG}"
+                            env.DOCKER_IMAGE_BUILT = 'true'
                         }
                     }
                 }
@@ -134,59 +126,62 @@ pipeline {
         }
 
         stage('Android Build Pipeline') {
+            when { expression { env.SKIP_BUILD != 'true' } }
             steps {
                 script {
-                    def dockerImage = "${env.DOCKER_IMAGE_BASE}:latest"
+                    def dockerImage = env.DOCKER_IMAGE_FULL
                     echo "🐳 Selected Docker image: ${dockerImage}"
 
-                    def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
-                        parameters: [
-                            string(name: 'DOCKER_IMAGE', value: dockerImage),
-                            string(name: 'REPO_NAME', value: env.REPO),
-                            string(name: 'BRANCH_NAME', value: env.BRANCH_NAME),
-                            string(name: 'BRANCH_SHORT', value: env.BRANCH_SHORT),
-                            string(name: 'GIT_URL', value: env.GIT_URL),
-                            string(name: 'PARENT_BUILD_NUMBER', value: env.BUILD_NUMBER),
-                            string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
-                            string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
-                            string(name: 'FLAVOR', value: params.FLAVOR ?: 'production')
-                        ],
-                        wait: true,
-                        propagate: true
+                    // One run builds every checked environment (dev -> staging -> production), all from
+                    // this commit. Unset development/staging count as checked; production is opt-in.
+                    boolean isMain = env.BRANCH_NAME == 'main'
+                    boolean isManualBuild = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').size() > 0
+                    def envs = []
+                    if (params.BUILD_DEVELOPMENT != false) { envs << 'development' }
+                    if (params.BUILD_STAGING != false)     { envs << 'staging' }
+                    if (isManualBuild ? params.BUILD_PRODUCTION == true : isMain) { envs << 'production' }
+                    if (!envs) {
+                        error('❌ No environment selected. Check at least one of development, staging, production.')
+                    }
+                    def sha = env.GIT_COMMIT ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    def summary = []
 
-                    if (buildResult.result == 'SUCCESS') {
-                        echo "✅ Android build completed successfully"
+                    // Order dev -> staging -> production with propagate: true: a failure stops the
+                    // run, so production is never built from code that just failed in dev.
+                    for (flavor in envs) {
+                        echo "🏗️ Building ${flavor} from ${sha.take(8)}"
+                        def buildResult = build job: 'DeploymentHelper/AndroidBuilderTest',
+                            parameters: [
+                                string(name: 'DOCKER_IMAGE', value: dockerImage),
+                                string(name: 'REPO_NAME', value: env.REPO),
+                                string(name: 'BRANCH_NAME', value: env.BRANCH_NAME),
+                                string(name: 'BRANCH_SHORT', value: env.BRANCH_SHORT),
+                                string(name: 'GIT_URL', value: env.GIT_URL),
+                                string(name: 'PARENT_BUILD_NUMBER', value: env.BUILD_NUMBER),
+                                string(name: 'PARENT_JOB_NAME', value: env.JOB_NAME),
+                                string(name: 'SIGNING_JOB_PATH', value: env.SIGNING_JOB_PATH),
+                                string(name: 'FLAVOR', value: flavor),
+                                string(name: 'GIT_SHA', value: sha)
+                            ],
+                            wait: true,
+                            propagate: true
 
+                        def line = "${flavor}: AndroidBuilderTest #${buildResult.number}"
                         copyArtifacts projectName: 'DeploymentHelper/AndroidBuilderTest',
                                      selector: specific("${buildResult.number}"),
                                      filter: 'build-results.json',
                                      optional: true
-
                         if (fileExists('build-results.json')) {
                             def results = readJSON file: 'build-results.json'
-                            env.ANDROID_BUILDER_NUMBER = results.androidBuilderNumber
-                            env.DEBUG_SIGNED = results.debugSigned
-                            env.RELEASE_SIGNED = results.releaseSigned
-                            env.NEW_VERSION_NAME = results.version
-                            env.DEBUG_JFROG_URL = results.debugJFrogUrl ?: ''
-                            env.DEBUG_JFROG_FILE_NAME = results.debugJFrogFileName ?: ''
-                            env.RELEASE_JFROG_URL = results.releaseJFrogUrl ?: ''
-                            env.RELEASE_JFROG_FILE_NAME = results.releaseJFrogFileName ?: ''
-                            env.HAS_DEBUG_JFROG_UPLOAD = results.hasDebugJFrogUpload ?: 'false'
-                            env.HAS_RELEASE_JFROG_UPLOAD = results.hasReleaseJFrogUpload ?: 'false'
-
-                            echo "📊 Build Results:"
-                            echo "   Version: ${env.NEW_VERSION_NAME}"
-                            echo "   Debug Signed: ${env.DEBUG_SIGNED}"
-                            echo "   Release Signed: ${env.RELEASE_SIGNED}"
-                            echo "   Debug JFrog: ${env.HAS_DEBUG_JFROG_UPLOAD}"
-                            echo "   Release JFrog: ${env.HAS_RELEASE_JFROG_UPLOAD}"
-                        } else {
-                            echo "⚠️ build-results.json not found"
+                            line += " | v${results.version}"
+                            line += " | debug ${results.debugSigned == 'true' ? '✅' : '⏭️'} release ${results.releaseSigned == 'true' ? '✅' : '❌'}"
+                            sh 'rm -f build-results.json'
                         }
-                    } else {
-                        error "❌ Android build failed: ${buildResult.result}"
+                        echo "✅ ${line}"
+                        summary << line
                     }
+                    env.BUILT_ENVIRONMENTS = envs.join(', ')
+                    env.BUILD_SUMMARY = summary.join('<br>')
                 }
             }
         }
@@ -194,14 +189,11 @@ pipeline {
     post {
         success {
             script {
-                echo "✅ Pipeline completed successfully"
+                if (env.SKIP_BUILD != 'true') {
+                    echo "✅ Pipeline completed successfully"
 
-                currentBuild.description = """
-                    ✅ Success | v${env.NEW_VERSION_NAME ?: 'unknown'}
-                    🐛 Debug: ${env.DEBUG_SIGNED == 'true' ? '✅' : '❌'}
-                    🚀 Release: ${env.RELEASE_SIGNED == 'true' ? '✅' : '❌'}
-                    📦 JFrog: ${(env.HAS_DEBUG_JFROG_UPLOAD == 'true' || env.HAS_RELEASE_JFROG_UPLOAD == 'true') ? '✅' : '⏭️'}
-                """.stripIndent()
+                    currentBuild.description = "✅ ${env.BUILT_ENVIRONMENTS ?: '-'}<br>${env.BUILD_SUMMARY ?: ''}"
+                }
             }
         }
         failure {

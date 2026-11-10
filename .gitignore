@@ -28,3 +28,7 @@ signature-scanner/src/main/assets/black_list_packages.csv
 signature-scanner/src/main/assets/BlackListedPackages.json
 
 .claude/settings.local.json
+
+# CI signing files (AndroidBuilderTest drops them at the project root)
+signing.properties
+up_dev.keystore

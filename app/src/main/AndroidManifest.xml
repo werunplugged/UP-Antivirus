@@ -22,6 +22,25 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!--
+        UNP-9907: declared by the vendored TrackerControl AAR (tracker-extension/tracker-core),
+        not by this app. Their only consumers are NetGuard firewall features - Util.isNational(),
+        isEU(), getGeneralInfo(), getWifiSSID() and ServiceSinkhole - that nothing here reaches:
+        the tracker feature enters the fork through TrackerLibraryAnalyser alone, which never
+        calls Util. READ_PHONE_STATE is only ever read back through Util.hasPhoneStatePermission(),
+        a guard that degrades when absent; VIBRATE has no API reference in the AAR at all.
+        Keeping the override here also stops a future AAR refresh reintroducing them.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.VIBRATE"
+        tools:node="remove" />
+
     <application
         android:name="com.unplugged.up_antivirus.common.AntivirusApp"
         android:allowBackup="false"
@@ -106,6 +125,32 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator_old" />
         </service>
+
+        <!--
+            UNP-9907: the vendored Hypatia AAR is the whole upstream *app*, not just the engine,
+            and its manifest declares MainActivity android:exported="true" with no permission.
+            That is upstream's own debug UI, whose options menu writes the DATABASE_SERVER and
+            SIGNING_KEY preferences - SIGNING_KEY being the GPG key id the malware signature
+            database is verified against, and the one override nothing ever resets. Nothing in
+            this app references the activity, so drop it from the merged manifest rather than
+            shipping an externally launchable entry point into the scanner's trust settings.
+        -->
+        <activity
+            android:name="us.spotco.malwarescanner.MainActivity"
+            tools:node="remove" />
+
+        <!--
+            UNP-9907: the vendored TrackerControl AAR declares ServiceExternal exported with no
+            permission, behind the action net.kollnig.missioncontrol.DOWNLOAD_HOSTS_FILE, so any
+            installed app can start it and make this one download a hosts file. Upstream gates
+            comparable entry points behind a custom permission; this one is open. Nothing here
+            uses it - no module references the service or the action, nothing else in the AAR
+            starts it, and the tracker feature reaches the fork through TrackerLibraryAnalyser,
+            which never touches the hosts list. Drop it rather than ship an open entry point.
+        -->
+        <service
+            android:name="eu.faircode.netguard.ServiceExternal"
+            tools:node="remove" />
     </application>
 
 </manifest>

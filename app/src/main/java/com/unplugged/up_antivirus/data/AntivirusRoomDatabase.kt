@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 @Database(
     entities = [HistoryEntity::class, MalwareEntity::class, BlacklistPackageEntity::class, TrackerEntity::class],
-    version = 4, exportSchema = false
+    version = 6, exportSchema = false
 )
 @TypeConverters(TrackerListConverter::class)
 @Singleton
@@ -39,6 +39,24 @@ abstract class AntivirusRoomDatabase : RoomDatabase() {
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+
+    /**
+     * UNP-9907: index the blacklist on sha256. isBlacklistedApp looks up every installed app by
+     * hash against ~833k rows, which was a full table scan each time. Creating this over an
+     * already-populated table takes a moment on first launch after the update.
+     */
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_BlacklistPackageEntity_sha256 ON BlacklistPackageEntity (sha256)")
+        }
+    }
+
+    /** UNP-8704: distinguish a completed scan from one cancelled or killed mid-run. */
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE HistoryEntity ADD COLUMN status INTEGER NOT NULL DEFAULT 0")
+        }
+    }
 
     val MIGRATION_3_4 = object : Migration(3, 4) {
         override fun migrate(db: SupportSQLiteDatabase) {
@@ -96,7 +114,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AntivirusRoomDatabase::class.java, "antivirus_db"
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
     }
 }

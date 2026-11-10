@@ -32,13 +32,9 @@ class BlacklistPackagesRoomSource(
             dao.find(packageName)
         }
     }
-    override suspend fun findBy(
-        sha256: String,
-        length: Long,
-        packageName: String
-    ): BlacklistPackageEntity? {
+    override suspend fun findBy(sha256: String): BlacklistPackageEntity? {
         return withContext(Dispatchers.IO) {
-            dao.findBy(sha256, length, packageName)
+            dao.findBy(sha256)
         }
     }
     override suspend fun deleteAll() {

@@ -27,10 +27,14 @@ android {
         applicationId = "com.unplugged.antivirus"
         minSdk = 24
         targetSdk = 34
-        versionCode = 134
-        versionName = "2.32.0"
+        versionCode = 138
+        versionName = "2.32.3"
 
         manifestPlaceholders["min_version_app_center"] = 257
+
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -81,7 +85,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
-            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -98,6 +101,11 @@ android {
 
     viewBinding {
         enable = true
+    }
+
+    packaging {
+        dex { useLegacyPackaging = false }
+        jniLibs { useLegacyPackaging = false }
     }
 }
 
@@ -185,7 +193,6 @@ dependencies {
     implementation(project(":signature-scanner"))
     implementation(project(":up-antivirus-common"))
 
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.3")
